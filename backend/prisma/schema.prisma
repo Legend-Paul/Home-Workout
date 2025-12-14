@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -13,4 +7,122 @@ datasource db {
   provider = "postgresql"
 }
 
-// Define your database schema here
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  username  String
+  password  String
+  goal      Goal
+  level     Level
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  calendarEntries      CalendarEntry[]
+  userWorkoutExercises UserWorkoutExercise[]
+}
+
+// Main categories like "Arms", "Legs", "Chest", "Back"
+model Category {
+  id          String @id @default(uuid())
+  name        String @unique  // "Arms", "Legs", "Chest", "Back", "Core"
+  description String
+  imageUrl    String?
+  order       Int    // Display order
+
+  workouts Workout[]
+  CalendarEntries CalendarEntry[]
+}
+
+// Specific workouts like "Biceps", "Triceps", "Quadriceps"
+model Workout {
+  id          String @id @default(uuid())
+  title       String  // "Biceps Workout", "Triceps Workout"
+  description String
+  categoryId  String
+  imageUrl    String?
+  // level       Level
+  // goal        Goal?
+
+  category             Category              @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  exercises            Exercise[]            // Direct many-to-many relationship
+  calendarEntries      CalendarEntry[]
+  userWorkoutExercises UserWorkoutExercise[]
+
+  @@index([categoryId])
+}
+
+model Exercise {
+  id          String    @id @default(uuid())
+  name        String    // "Bicep Curls", "Push-ups"
+  description String
+  imageUrl    String
+  videoUrl    String?
+  difficulty  Level?
+
+  workouts             Workout[]             // Direct many-to-many relationship
+  userWorkoutExercises UserWorkoutExercise[]
+}
+
+// User's selected exercises for a specific workout (with their customization)
+model UserWorkoutExercise {
+  id         String @id @default(uuid())
+  userId     String
+  workoutId  String
+  exerciseId String
+  sets       Int?
+  reps       Int?
+  duration   Int?    // in seconds
+  order      Int     // 1-5 (order in user's routine)
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workout  Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workoutId, exerciseId])
+  @@index([userId, workoutId])
+}
+
+// User's weekly schedule
+model CalendarEntry {
+  id        String   @id @default(uuid())
+  date      DateTime
+  dayOfWeek Int      // 0-6 (Sunday-Saturday)
+  status    Status   @default(PENDING)
+  userId    String
+  workoutId String?  // null if rest day
+  categoryId String? // null if rest day
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  workout Workout? @relation(fields: [workoutId], references: [id], onDelete: SetNull)
+
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Goal {
+  BUILD_MUSCLE
+  LOSE_FAT
+  MAINTAIN_FITNESS
+  OTHER
+}
+
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum Status {
+  PENDING
+  COMPLETED
+  SKIPPED
+  REST
+}
