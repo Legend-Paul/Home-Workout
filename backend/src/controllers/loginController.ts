@@ -35,6 +35,7 @@ const validateUserHandle = async (
       res.status(401).json({ message: "Invalid email or password" });
       return;
     }
+
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {

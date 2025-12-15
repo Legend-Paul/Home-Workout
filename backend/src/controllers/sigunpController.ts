@@ -53,11 +53,13 @@ const createUserHandler = async (
       where: { email },
     });
 
+    // Check if user already exists
     if (userExist) {
       res.status(409).json({ message: "User with this email already exists" });
       return;
     }
 
+    // Create new user
     const newUser = await prisma.user.create({
       data: {
         email,
