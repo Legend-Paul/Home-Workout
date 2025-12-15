@@ -4,6 +4,7 @@ import express, {
   type NextFunction,
 } from "express";
 import "dotenv/config";
+import sigunpRouter from "./routes/sigunp.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -11,6 +12,9 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Routes
+app.use("/auth/signup", sigunpRouter);
 
 // error handling middleware
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
