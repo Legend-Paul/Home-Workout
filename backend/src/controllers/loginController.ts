@@ -10,6 +10,11 @@ const validate = [
     .withMessage("Password must be at least 8 characters long"),
 ];
 
+interface Data {
+  email: string;
+  password: string;
+}
+
 const validateUserHandle = async (
   req: Request,
   res: Response
@@ -19,7 +24,7 @@ const validateUserHandle = async (
     res.status(400).json({ errors: errors.array() });
   }
 
-  const { email, password } = req.body;
+  const { email, password }: Data = req.body;
   try {
     const user = await prisma.user.findUnique({
       where: { email },

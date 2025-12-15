@@ -26,6 +26,13 @@ const validate = [
     .custom((value, { req }) => value === req.body.password)
     .withMessage("Passwords do not match"),
 ];
+interface Data {
+  email: string;
+  username: string;
+  password: string;
+  level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+  goal: "BUILD_MUSCLE" | "LOSE_FAT" | "MAINTAIN_FITNESS" | "OTHER";
+}
 
 const createUserHandler = async (
   req: Request,
@@ -37,7 +44,8 @@ const createUserHandler = async (
     return;
   }
 
-  const { email, username, password, level, goal } = req.body;
+  const { email, username, level, goal, password }: Data = req.body;
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
