@@ -8,6 +8,7 @@ import passportConfig from "./auth/passport.js";
 import sigunpRouter from "./routes/sigunp.js";
 import loginRouter from "./routes/login.js";
 import forgotPaswordRouter from "./routes/forgotPassword.js";
+import categoryRouter from "./routes/category.js";
 import passport from "passport";
 
 const app = express();
@@ -18,10 +19,13 @@ passportConfig(passport);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// Auth Routes
 app.use("/auth/signup", sigunpRouter);
 app.use("/auth/login", loginRouter);
 app.use("/auth/forgot-password", forgotPaswordRouter);
+
+// workout routes
+app.use("/category", categoryRouter);
 
 // error handling middleware
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
