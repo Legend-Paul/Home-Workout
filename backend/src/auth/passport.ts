@@ -1,5 +1,5 @@
 import { Strategy, ExtractJwt } from "passport-jwt";
-import { prisma } from "./prisma.js";
+import { prisma } from "../lib/prisma.js";
 
 interface JwtPayload {
   id: string;

@@ -4,7 +4,7 @@ import express, {
   type NextFunction,
 } from "express";
 import "dotenv/config";
-import passportConfig from "./lib/passport.js";
+import passportConfig from "./auth/passport.js";
 import sigunpRouter from "./routes/sigunp.js";
 import loginRouter from "./routes/login.js";
 import passport from "passport";
