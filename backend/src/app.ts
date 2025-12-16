@@ -7,6 +7,7 @@ import "dotenv/config";
 import passportConfig from "./auth/passport.js";
 import sigunpRouter from "./routes/sigunp.js";
 import loginRouter from "./routes/login.js";
+import forgotPaswordRouter from "./routes/forgotPassword.js";
 import passport from "passport";
 
 const app = express();
@@ -20,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use("/auth/signup", sigunpRouter);
 app.use("/auth/login", loginRouter);
+app.use("/auth/forgot-password", forgotPaswordRouter);
 
 // error handling middleware
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
