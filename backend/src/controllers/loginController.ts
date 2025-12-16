@@ -2,6 +2,8 @@ import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
+import jwt from "jsonwebtoken";
+import "dotenv/config";
 
 const validate = [
   body("email").isEmail().withMessage("Invalid email format"),
@@ -26,6 +28,7 @@ const validateUserHandle = async (
 
   const { email, password }: Data = req.body;
   try {
+    console.log(email);
     const user = await prisma.user.findUnique({
       where: { email },
     });
@@ -43,7 +46,20 @@ const validateUserHandle = async (
       return;
     }
 
-    res.status(200).json({ message: "Login successful", userId: user });
+    const userWithoutPassword = { ...user, password: undefined };
+    const token = jwt.sign(
+      userWithoutPassword,
+      process.env.JWT_SECRET as string,
+      {
+        expiresIn: "7days",
+      }
+    );
+
+    res.status(200).json({
+      message: "Login successful",
+      token: `Bearer ${token}`,
+      user: userWithoutPassword,
+    });
   } catch (error) {
     console.error("Error during user validation:", error);
     res.status(500).json({ message: "Internal server error" });
