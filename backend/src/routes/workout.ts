@@ -3,6 +3,6 @@ import { createWorkout } from "../controllers/workoutController.js";
 
 const workoutRouter = Router();
 
-workoutRouter.post("/create", createWorkout);
+workoutRouter.post("/new", createWorkout);
 
 export default workoutRouter;
