@@ -57,7 +57,7 @@ const categoryHandler = async (
     console.log(category);
 
     if (category.count === 0) {
-      res.status(400).json({ error: "No categories were created" });
+      res.status(400).json({ message: "No categories were created" });
       return;
     }
 
@@ -70,4 +70,14 @@ const categoryHandler = async (
 
 const createCategory = [...validate, categoryHandler];
 
-export { createCategory };
+const getCategory = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const categories = await prisma.category.findMany();
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to retrieve categories" });
+  }
+};
+
+export { createCategory, getCategory };
