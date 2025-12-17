@@ -8,7 +8,7 @@ import {
 const categoryRouter = Router();
 
 // Define your category routes here
-categoryRouter.post("/", createCategory);
+categoryRouter.post("/new", createCategory);
 categoryRouter.get("/", getCategories);
 categoryRouter.get("/:name", getCategory);
 
