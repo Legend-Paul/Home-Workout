@@ -70,7 +70,7 @@ const categoryHandler = async (
 
 const createCategory = [...validate, categoryHandler];
 
-const getCategory = async (req: Request, res: Response): Promise<void> => {
+const getCategories = async (req: Request, res: Response): Promise<void> => {
   try {
     const categories = await prisma.category.findMany();
     res.status(200).json(categories);
@@ -80,4 +80,29 @@ const getCategory = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export { createCategory, getCategory };
+const getCategory = async (req: Request, res: Response): Promise<void> => {
+  const { name } = req.params;
+
+  if (typeof name !== "string") {
+    res.status(400).json({ message: "Name query parameter is required" });
+    return;
+  }
+
+  try {
+    const category = await prisma.category.findUnique({
+      where: { name: name.charAt(0).toUpperCase() + name.slice(1) },
+    });
+
+    if (!category) {
+      res.status(404).json({ message: "Category not found" });
+      return;
+    }
+
+    res.status(200).json(category);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to retrieve category" });
+  }
+};
+
+export { createCategory, getCategory, getCategories };
