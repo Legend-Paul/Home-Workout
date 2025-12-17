@@ -43,5 +43,16 @@ const createWorkoutHandler = async (
     res.status(500).json({ error: "Failed to create workouts" });
   }
 };
-
 export const createWorkout = [...validate, createWorkoutHandler];
+
+export const getAllWorkouts = async (req: Request, res: Response) => {
+  try {
+    const workouts = await prisma.workout.findMany({
+      include: { category: true },
+    });
+    res.status(200).json(workouts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch workouts" });
+  }
+};
