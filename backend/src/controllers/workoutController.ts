@@ -32,6 +32,14 @@ const createWorkoutHandler = async (
   }
   const { title, description, imageUrl, categoryId } = req.body;
   try {
+    const workoutExists = await prisma.workout.findUnique({
+      where: { title },
+    });
+    if (workoutExists) {
+      res.status(409).json({ error: "Workout with this title already exists" });
+      return;
+    }
+
     const workout = await prisma.workout.create({
       data: {
         title,
