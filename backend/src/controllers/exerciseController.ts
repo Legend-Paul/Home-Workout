@@ -80,4 +80,16 @@ const createExerciseHandler = async (
 };
 export const createExercise = [...validate, createExerciseHandler];
 
-export const getAllExercises = async (req: Request, res: Response) => {};
+export const getAllExercises = async (req: Request, res: Response) => {
+  try {
+    const exercises = await prisma.exercise.findMany({
+      include: {
+        categories: true,
+      },
+    });
+    res.json(exercises);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch exercises" });
+  }
+};
