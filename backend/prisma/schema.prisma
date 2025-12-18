@@ -5,7 +5,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-
 }
 
 model User {
@@ -25,21 +24,21 @@ model User {
 
 // Main categories like "Arms", "Legs", "Chest", "Back"
 model Category {
-  id          String @id @default(uuid())
-  name        String @unique  // "Arms", "Legs", "Chest", "Back", "Core"
+  id          String  @id @default(uuid())
+  name        String  @unique // "Arms", "Legs", "Chest", "Back", "Core"
   description String
   imageUrl    String?
-  order       Int    // Display order
+  order       Int // Display order
 
-  workouts Workout[]
-  exercises Exercise[]
+  workouts        Workout[]
+  exercises       Exercise[]
   calendarEntries CalendarEntry[]
 }
 
 // Specific workouts like "Biceps", "Triceps", "Quadriceps"
 model Workout {
-  id          String @id @default(uuid())
-  title       String  // "Biceps Workout", "Triceps Workout"
+  id          String  @id @default(uuid())
+  title       String // "Biceps Workout", "Triceps Workout"
   description String
   categoryId  String
   imageUrl    String?
@@ -47,7 +46,7 @@ model Workout {
   // goal        Goal?
 
   category             Category              @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  exercises            Exercise[]            // Direct many-to-many relationship
+  workoutExercises     WorkoutExercise[]
   calendarEntries      CalendarEntry[]
   userWorkoutExercises UserWorkoutExercise[]
 
@@ -55,17 +54,30 @@ model Workout {
 }
 
 model Exercise {
-  id          String    @id @default(uuid())
-  name        String    // "Bicep Curls", "Push-ups"
+  id          String  @id @default(uuid())
+  name        String  @unique // "Bicep Curls", "Push-ups"
   description String
   imageUrl    String
   videoUrl    String?
   difficulty  Level?
   categoryId  String
 
-  workouts             Workout[]     
-  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categories             Category[]
   userWorkoutExercises UserWorkoutExercise[]
+  workoutExercises     WorkoutExercise[]
+}
+
+model WorkoutExercise {
+  id         String @id @default(uuid())
+  workoutId  String
+  exerciseId String
+  order      Int // 1-5 (order in workout)
+
+  workout  Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([workoutId, exerciseId])
+  @@index([workoutId])
 }
 
 // User's selected exercises for a specific workout (with their customization)
@@ -74,11 +86,11 @@ model UserWorkoutExercise {
   userId     String
   workoutId  String
   exerciseId String
-  dayOfWeek Int     // 0-6 (Sunday-Saturday)
+  dayOfWeek  Int // 0-6 (Sunday-Saturday)
   sets       Int?
   reps       Int?
-  duration   Int?    // in seconds
-  order      Int     // 1-5 (order in user's routine)
+  duration   Int? // in seconds
+  order      Int // 1-5 (order in user's routine)
 
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   workout  Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
@@ -90,18 +102,17 @@ model UserWorkoutExercise {
 
 // User's weekly schedule
 model CalendarEntry {
-  id        String   @id @default(uuid())
-  date      DateTime
-  dayOfWeek Int      // 0-6 (Sunday-Saturday)
-  status    Status   @default(PENDING)
-  userId    String
-  workoutId String?  // null if rest day
+  id         String   @id @default(uuid())
+  date       DateTime
+  dayOfWeek  Int // 0-6 (Sunday-Saturday)
+  status     Status   @default(PENDING)
+  userId     String
+  workoutId  String? // null if rest day
   categoryId String? // null if rest day
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  workout Workout? @relation(fields: [workoutId], references: [id], onDelete: SetNull)
-
+  workout  Workout?  @relation(fields: [workoutId], references: [id], onDelete: SetNull)
 
   @@unique([userId, date])
   @@index([userId, date])
