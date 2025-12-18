@@ -117,14 +117,8 @@ export const deleteWorkout = async (req: WorkoutIdRequest, res: Response) => {
 };
 
 // Updating specific workout can be added here
-interface WorkoutUpdateRequest extends WorkoutRequest {
-  params: {
-    id: string;
-  };
-}
-
 export const updateWorkoutHandler = async (
-  req: WorkoutUpdateRequest,
+  req: WorkoutIdRequest,
   res: Response
 ): Promise<void> => {
   const errors = validationResult(req);

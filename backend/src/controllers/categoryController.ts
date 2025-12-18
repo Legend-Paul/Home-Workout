@@ -108,14 +108,14 @@ export const getCategory = async (
 };
 
 // Update a specific category
-interface UpdateCategory extends CategoryRequest {
+interface UpdateCategoryRequest extends CategoryRequest {
   params: {
     id: string;
   };
 }
 
 const updateCategoryHandler = async (
-  req: UpdateCategory,
+  req: UpdateCategoryRequest,
   res: Response
 ): Promise<void> => {
   const errors = validationResult(req);
@@ -148,7 +148,7 @@ const updateCategoryHandler = async (
     });
 
     res
-      .status(200)
+      .status(201)
       .json({ message: "Category updated successfully", updatedCategory });
   } catch (error) {
     console.error(error);
@@ -157,3 +157,29 @@ const updateCategoryHandler = async (
 };
 
 export const updateCategory = [...validate, updateCategoryHandler];
+
+// delete a specific category
+export const deleteCategory = async (
+  req: UpdateCategoryRequest,
+  res: Response
+): Promise<void> => {
+  const { id } = req.params;
+  try {
+    const categoryExists = await prisma.category.findUnique({
+      where: { id },
+    });
+
+    if (!categoryExists) {
+      res.status(404).json({ message: "Category not found" });
+      return;
+    }
+
+    await prisma.category.delete({
+      where: { id },
+    });
+    res.status(200).json({ message: "Category deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Failed to delete category" });
+  }
+};
