@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   createWorkout,
   getAllWorkouts,
+  deleteWorkout,
 } from "../controllers/workoutController.js";
 import {
   createWorkoutExercises,
@@ -13,6 +14,7 @@ const workoutRouter = Router();
 workoutRouter.get("/", getAllWorkouts);
 workoutRouter.post("/new", createWorkout);
 workoutRouter.get("/:name", getWorkoutExercises);
+workoutRouter.delete("/:id", deleteWorkout);
 // workoutRouter.post("/:name/exercise/new", createWorkoutExercises);
 workoutRouter.post("/:name/new", createWorkoutExercises);
 

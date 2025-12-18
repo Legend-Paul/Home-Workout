@@ -21,6 +21,7 @@ interface WorkoutRequest extends Request {
   };
 }
 
+// Handler to create a new workout
 const createWorkoutHandler = async (
   req: WorkoutRequest,
   res: Response
@@ -70,6 +71,7 @@ const createWorkoutHandler = async (
 };
 export const createWorkout = [...validate, createWorkoutHandler];
 
+// Handler to get all workouts
 export const getAllWorkouts = async (req: Request, res: Response) => {
   try {
     const workouts = await prisma.workout.findMany({
@@ -79,5 +81,37 @@ export const getAllWorkouts = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch workouts" });
+  }
+};
+
+// Delete specific workout
+
+interface WorkoutIdRequest extends Request {
+  params: {
+    id: string;
+  };
+}
+
+export const deleteWorkout = async (req: WorkoutIdRequest, res: Response) => {
+  const workoutId = req.params.id;
+
+  try {
+    const workout = await prisma.workout.findUnique({
+      where: { id: workoutId },
+    });
+
+    if (!workout) {
+      res.status(404).json({ error: "Workout not found" });
+      return;
+    }
+
+    await prisma.workout.delete({
+      where: { id: workoutId },
+    });
+
+    res.status(200).json({ message: "Workout deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to delete workout" });
   }
 };

@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 
+// Create exercises for a specific workout
 interface WorkoutNameRequest extends Request {
   params: {
     name: string;
@@ -50,6 +51,7 @@ export const createWorkoutExercises = async (
   }
 };
 
+// Get exercises for a specific workout
 export const getWorkoutExercises = async (
   req: WorkoutNameRequest,
   res: Response
