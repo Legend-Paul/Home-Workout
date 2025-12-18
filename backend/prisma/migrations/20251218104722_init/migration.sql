@@ -55,8 +55,19 @@ CREATE TABLE "Exercise" (
     "imageUrl" TEXT NOT NULL,
     "videoUrl" TEXT,
     "difficulty" "Level",
+    "categoryId" TEXT NOT NULL,
 
     CONSTRAINT "Exercise_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "WorkoutExercise" (
+    "id" TEXT NOT NULL,
+    "workoutId" TEXT NOT NULL,
+    "exerciseId" TEXT NOT NULL,
+    "order" INTEGER NOT NULL,
+
+    CONSTRAINT "WorkoutExercise_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -65,6 +76,7 @@ CREATE TABLE "UserWorkoutExercise" (
     "userId" TEXT NOT NULL,
     "workoutId" TEXT NOT NULL,
     "exerciseId" TEXT NOT NULL,
+    "dayOfWeek" INTEGER NOT NULL,
     "sets" INTEGER,
     "reps" INTEGER,
     "duration" INTEGER,
@@ -86,14 +98,6 @@ CREATE TABLE "CalendarEntry" (
     CONSTRAINT "CalendarEntry_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "_ExerciseToWorkout" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL,
-
-    CONSTRAINT "_ExerciseToWorkout_AB_pkey" PRIMARY KEY ("A","B")
-);
-
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -101,7 +105,22 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Category_name_key" ON "Category"("name");
 
 -- CreateIndex
-CREATE INDEX "Workout_categoryId_idx" ON "Workout"("categoryId");
+CREATE UNIQUE INDEX "Workout_title_key" ON "Workout"("title");
+
+-- CreateIndex
+CREATE INDEX "Workout_categoryId_title_idx" ON "Workout"("categoryId", "title");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Exercise_name_key" ON "Exercise"("name");
+
+-- CreateIndex
+CREATE INDEX "Exercise_categoryId_name_idx" ON "Exercise"("categoryId", "name");
+
+-- CreateIndex
+CREATE INDEX "WorkoutExercise_workoutId_idx" ON "WorkoutExercise"("workoutId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WorkoutExercise_workoutId_exerciseId_key" ON "WorkoutExercise"("workoutId", "exerciseId");
 
 -- CreateIndex
 CREATE INDEX "UserWorkoutExercise_userId_workoutId_idx" ON "UserWorkoutExercise"("userId", "workoutId");
@@ -115,11 +134,17 @@ CREATE INDEX "CalendarEntry_userId_date_idx" ON "CalendarEntry"("userId", "date"
 -- CreateIndex
 CREATE UNIQUE INDEX "CalendarEntry_userId_date_key" ON "CalendarEntry"("userId", "date");
 
--- CreateIndex
-CREATE INDEX "_ExerciseToWorkout_B_index" ON "_ExerciseToWorkout"("B");
-
 -- AddForeignKey
 ALTER TABLE "Workout" ADD CONSTRAINT "Workout_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Exercise" ADD CONSTRAINT "Exercise_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "Category"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkoutExercise" ADD CONSTRAINT "WorkoutExercise_workoutId_fkey" FOREIGN KEY ("workoutId") REFERENCES "Workout"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorkoutExercise" ADD CONSTRAINT "WorkoutExercise_exerciseId_fkey" FOREIGN KEY ("exerciseId") REFERENCES "Exercise"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "UserWorkoutExercise" ADD CONSTRAINT "UserWorkoutExercise_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -138,9 +163,3 @@ ALTER TABLE "CalendarEntry" ADD CONSTRAINT "CalendarEntry_categoryId_fkey" FOREI
 
 -- AddForeignKey
 ALTER TABLE "CalendarEntry" ADD CONSTRAINT "CalendarEntry_workoutId_fkey" FOREIGN KEY ("workoutId") REFERENCES "Workout"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_ExerciseToWorkout" ADD CONSTRAINT "_ExerciseToWorkout_A_fkey" FOREIGN KEY ("A") REFERENCES "Exercise"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "_ExerciseToWorkout" ADD CONSTRAINT "_ExerciseToWorkout_B_fkey" FOREIGN KEY ("B") REFERENCES "Workout"("id") ON DELETE CASCADE ON UPDATE CASCADE;
