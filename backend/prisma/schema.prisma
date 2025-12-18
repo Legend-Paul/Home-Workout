@@ -62,7 +62,7 @@ model Exercise {
   difficulty  Level?
   categoryId  String
 
-  categories             Category[]
+  categories             Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   userWorkoutExercises UserWorkoutExercise[]
   workoutExercises     WorkoutExercise[]
 }

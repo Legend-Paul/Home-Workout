@@ -6,7 +6,7 @@ import {
 
 const exerciseRouter = Router();
 
-exerciseRouter.post("/new", createExercise);
 exerciseRouter.get("/", getAllExercises);
+exerciseRouter.post("/new", createExercise);
 
 export default exerciseRouter;
