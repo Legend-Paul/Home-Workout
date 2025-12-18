@@ -38,7 +38,7 @@ model Category {
 // Specific workouts like "Biceps", "Triceps", "Quadriceps"
 model Workout {
   id          String  @id @default(uuid())
-  title       String // "Biceps Workout", "Triceps Workout"
+  title       String @unique// "Biceps Workout", "Triceps Workout"
   description String
   categoryId  String
   imageUrl    String?
@@ -50,7 +50,7 @@ model Workout {
   calendarEntries      CalendarEntry[]
   userWorkoutExercises UserWorkoutExercise[]
 
-  @@index([categoryId])
+  @@index([categoryId, title])
 }
 
 model Exercise {
@@ -65,6 +65,8 @@ model Exercise {
   categories             Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   userWorkoutExercises UserWorkoutExercise[]
   workoutExercises     WorkoutExercise[]
+
+  @@index([categoryId, name])
 }
 
 model WorkoutExercise {
