@@ -81,3 +81,49 @@ export const getAllWorkouts = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch workouts" });
   }
 };
+
+interface WorkoutNameRequest extends Request {
+  params: {
+    name: string;
+  };
+  body: {
+    workoutId: string;
+    exerciseId: string;
+    order: number;
+  };
+}
+
+const createWorkoutExercises = async (
+  req: WorkoutNameRequest,
+  res: Response
+): Promise<void> => {
+  const workoutName = req.params.name;
+
+  try {
+    const workout = await prisma.workout.findUnique({
+      where: { name: workoutName },
+    });
+
+    if (!workout) {
+      res.status(404).json({ error: "Workout not found" });
+      return;
+    }
+
+    const { workoutId, exerciseId, order } = req.body;
+
+    await prisma.workoutExercise.create({
+      data: {
+        workoutId,
+        exerciseId,
+        order,
+      },
+    });
+
+    res
+      .status(200)
+      .json({ message: `Exercises created for workout: ${workoutName}` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to create workout exercises" });
+  }
+};
