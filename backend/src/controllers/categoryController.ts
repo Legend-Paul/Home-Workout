@@ -23,6 +23,7 @@ interface CategoryRequest extends Request {
   };
 }
 
+// Create category handler
 const categoryHandler = async (
   req: CategoryRequest,
   res: Response
@@ -60,9 +61,13 @@ const categoryHandler = async (
   }
 };
 
-const createCategory = [...validate, categoryHandler];
+export const createCategory = [...validate, categoryHandler];
 
-const getCategories = async (req: Request, res: Response): Promise<void> => {
+// Get all categories
+export const getCategories = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const categories = await prisma.category.findMany();
     res.status(200).json(categories);
@@ -78,7 +83,8 @@ interface GetCategoryRequest extends Request {
   };
 }
 
-const getCategory = async (
+// get a specific category
+export const getCategory = async (
   req: GetCategoryRequest,
   res: Response
 ): Promise<void> => {
@@ -101,4 +107,53 @@ const getCategory = async (
   }
 };
 
-export { createCategory, getCategory, getCategories };
+// Update a specific category
+interface UpdateCategory extends CategoryRequest {
+  params: {
+    id: string;
+  };
+}
+
+const updateCategoryHandler = async (
+  req: UpdateCategory,
+  res: Response
+): Promise<void> => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  const { name, description, order, imageUrl } = req.body;
+  const categoryId = req.params.id;
+
+  try {
+    const categoryExists = await prisma.category.findUnique({
+      where: { name: categoryId },
+    });
+
+    if (!categoryExists) {
+      res.status(404).json({ message: "Category not found" });
+      return;
+    }
+
+    const updatedCategory = await prisma.category.update({
+      where: { id: categoryId },
+      data: {
+        name,
+        description,
+        order,
+        imageUrl: imageUrl || null,
+      },
+    });
+
+    res
+      .status(200)
+      .json({ message: "Category updated successfully", updatedCategory });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update category" });
+  }
+};
+
+export const updateCategory = [...validate, updateCategoryHandler];

@@ -123,7 +123,7 @@ interface WorkoutUpdateRequest extends WorkoutRequest {
   };
 }
 
-export const getWorkoutByNameHandler = async (
+export const updateWorkoutHandler = async (
   req: WorkoutUpdateRequest,
   res: Response
 ): Promise<void> => {
@@ -135,6 +135,15 @@ export const getWorkoutByNameHandler = async (
   const id = req.params.id;
   const { name, description, imageUrl, category } = req.body;
   try {
+    const workoutExists = await prisma.workout.findUnique({
+      where: { id },
+    });
+
+    if (!workoutExists) {
+      res.status(404).json({ error: "Workout not found" });
+      return;
+    }
+
     const workout = await prisma.workout.update({
       where: { id },
       data: {
@@ -150,3 +159,5 @@ export const getWorkoutByNameHandler = async (
     res.status(500).json({ error: "Failed to update workout" });
   }
 };
+
+export const updateWorkout = [...validate, updateWorkoutHandler];
