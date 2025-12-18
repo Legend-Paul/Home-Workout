@@ -115,3 +115,38 @@ export const deleteWorkout = async (req: WorkoutIdRequest, res: Response) => {
     res.status(500).json({ error: "Failed to delete workout" });
   }
 };
+
+// Updating specific workout can be added here
+interface WorkoutUpdateRequest extends WorkoutRequest {
+  params: {
+    id: string;
+  };
+}
+
+export const getWorkoutByNameHandler = async (
+  req: WorkoutUpdateRequest,
+  res: Response
+): Promise<void> => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+  const id = req.params.id;
+  const { name, description, imageUrl, category } = req.body;
+  try {
+    const workout = await prisma.workout.update({
+      where: { id },
+      data: {
+        name,
+        description,
+        imageUrl: imageUrl || null,
+        categoryId: category,
+      },
+    });
+    res.status(200).json({ message: "Workout updated successfully", workout });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to update workout" });
+  }
+};
