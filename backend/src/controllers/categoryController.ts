@@ -3,27 +3,24 @@ import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
 
 const validate = [
-  body()
-    .isArray({ min: 1 })
-    .withMessage("Request body must be a non-empty array"),
-  body("*.name").isString().withMessage("Name must be a string"),
-  body("*.description").isString().withMessage("Description must be a string"),
-  body("*.order")
+  body("name").isString().withMessage("Name must be a string"),
+  body("description").isString().withMessage("Description must be a string"),
+  body("order")
     .isInt({ min: 0 })
     .withMessage("Order must be a non-negative integer"),
-  body("*.imageUrl")
+  body("imageUrl")
     .optional()
     .isURL()
     .withMessage("Image URL must be a valid URL if provided"),
 ];
 
 interface CategoryRequest extends Request {
-  body: Array<{
+  body: {
     name: string;
     description: string;
     order: number;
     imageUrl?: string;
-  }>;
+  };
 }
 
 const categoryHandler = async (
@@ -37,31 +34,26 @@ const categoryHandler = async (
   }
 
   try {
-    const categories = req.body;
-    const currentCategories = await prisma.category.findMany();
-
-    currentCategories.forEach((existingCategory) => {
-      const category = categories.find(
-        (cat) => cat.name === existingCategory.name
-      );
-      if (category) {
-        res.status(400).json({ message: "Category already exists", category });
-        return;
-      }
+    const { name, description, order, imageUrl } = req.body;
+    const categoryExists = await prisma.category.findUnique({
+      where: { name },
     });
-
-    const category = await prisma.category.createMany({
-      data: categories,
-    });
-
-    console.log(category);
-
-    if (category.count === 0) {
-      res.status(400).json({ message: "No categories were created" });
+    if (categoryExists) {
+      res.status(409).json({ error: "Category with this name already exists" });
       return;
     }
 
-    res.status(201).json(category);
+    const category = await prisma.category.create({
+      data: {
+        name,
+        description,
+        order,
+        imageUrl: imageUrl || null,
+      },
+    });
+    res
+      .status(201)
+      .json({ message: "Category created successfully", category });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to create category" });
@@ -80,13 +72,17 @@ const getCategories = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-const getCategory = async (req: Request, res: Response): Promise<void> => {
-  const { name } = req.params;
+interface GetCategoryRequest extends Request {
+  params: {
+    name: string;
+  };
+}
 
-  if (typeof name !== "string") {
-    res.status(400).json({ message: "Name query parameter is required" });
-    return;
-  }
+const getCategory = async (
+  req: GetCategoryRequest,
+  res: Response
+): Promise<void> => {
+  const { name } = req.params;
 
   try {
     const category = await prisma.category.findUnique({
