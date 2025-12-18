@@ -2,15 +2,17 @@ import { Router } from "express";
 import {
   createWorkout,
   getAllWorkouts,
-  createWorkoutExercises,
-  getWorkoutByName,
 } from "../controllers/workoutController.js";
+import {
+  createWorkoutExercises,
+  getWorkoutExercises,
+} from "../controllers/workoutExercise.js";
 
 const workoutRouter = Router();
 
 workoutRouter.get("/", getAllWorkouts);
 workoutRouter.post("/new", createWorkout);
-workoutRouter.get("/:name", getWorkoutByName);
+workoutRouter.get("/:name", getWorkoutExercises);
 // workoutRouter.post("/:name/exercise/new", createWorkoutExercises);
 workoutRouter.post("/:name/new", createWorkoutExercises);
 
