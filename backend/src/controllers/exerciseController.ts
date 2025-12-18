@@ -93,3 +93,36 @@ export const getAllExercises = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch exercises" });
   }
 };
+
+interface CategoryParams extends Request {
+  params: {
+    categoryName: string;
+  };
+}
+
+export const getExcrcisesByCategory = async (
+  req: CategoryParams,
+  res: Response
+) => {
+  const { categoryName } = req.params;
+  try {
+    const category = await prisma.category.findUnique({
+      where: {
+        name:
+          categoryName.charAt(0).toUpperCase() +
+          categoryName.slice(1).toLocaleLowerCase(),
+      },
+      include: {
+        exercises: true,
+      },
+    });
+    if (!category) {
+      res.status(404).json({ error: "Category not found" });
+      return;
+    }
+    res.json(category.exercises);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch exercises by category" });
+  }
+};
