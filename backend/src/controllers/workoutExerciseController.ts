@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 
-// Create exercises for a specific workout
 interface WorkoutIdRequest extends Request {
   params: {
     id: string;
@@ -12,6 +11,7 @@ interface WorkoutIdRequest extends Request {
   };
 }
 
+// Create exercises for a specific workout
 export const addWorkoutExercises = async (
   req: WorkoutIdRequest,
   res: Response
@@ -92,5 +92,42 @@ export const getWorkoutExercises = async (
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch workout" });
+  }
+};
+
+//delete exercises from a specific workout
+export const deleteWorkoutExercises = async (
+  req: WorkoutIdRequest,
+  res: Response
+): Promise<void> => {
+  const { id } = req.params;
+  const { exerciseId } = req.body;
+
+  try {
+    const workout = await prisma.workoutExercise.findUnique({
+      where: {
+        workoutId_exerciseId: {
+          workoutId: id,
+          exerciseId: exerciseId,
+        },
+      },
+    });
+
+    if (!workout) {
+      res.status(404).json({ error: "Workout Exercise not found" });
+      return;
+    }
+
+    await prisma.workoutExercise.delete({
+      where: {
+        workoutId_exerciseId: {
+          workoutId: id,
+          exerciseId: exerciseId,
+        },
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to delete workout exercise" });
   }
 };

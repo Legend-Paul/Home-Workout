@@ -8,6 +8,7 @@ import {
 import {
   addWorkoutExercises,
   getWorkoutExercises,
+  deleteWorkoutExercises,
 } from "../controllers/workoutExerciseController.js";
 
 const workoutRouter = Router();
@@ -18,5 +19,6 @@ workoutRouter.get("/:id", getWorkoutExercises);
 workoutRouter.put("/:id", updateWorkout);
 workoutRouter.delete("/:id", deleteWorkout);
 workoutRouter.post("/:id/exercise/add", addWorkoutExercises);
+workoutRouter.delete("/:id/exercise/remove", deleteWorkoutExercises);
 
 export default workoutRouter;
