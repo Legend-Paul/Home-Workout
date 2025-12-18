@@ -87,13 +87,12 @@ interface WorkoutNameRequest extends Request {
     name: string;
   };
   body: {
-    workoutId: string;
     exerciseId: string;
     order: number;
   };
 }
 
-const createWorkoutExercises = async (
+export const createWorkoutExercises = async (
   req: WorkoutNameRequest,
   res: Response
 ): Promise<void> => {
@@ -101,7 +100,11 @@ const createWorkoutExercises = async (
 
   try {
     const workout = await prisma.workout.findUnique({
-      where: { name: workoutName },
+      where: {
+        name:
+          workoutName.charAt(0).toUpperCase() +
+          workoutName.slice(1).toLocaleLowerCase(),
+      },
     });
 
     if (!workout) {
@@ -109,13 +112,13 @@ const createWorkoutExercises = async (
       return;
     }
 
-    const { workoutId, exerciseId, order } = req.body;
+    const { exerciseId, order } = req.body;
 
     await prisma.workoutExercise.create({
       data: {
-        workoutId,
+        workoutId: workout.id,
         exerciseId,
-        order,
+        order: Number(order),
       },
     });
 
@@ -125,5 +128,37 @@ const createWorkoutExercises = async (
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to create workout exercises" });
+  }
+};
+
+export const getWorkoutByName = async (
+  req: WorkoutNameRequest,
+  res: Response
+): Promise<void> => {
+  const workoutName = req.params.name;
+
+  try {
+    const workout = await prisma.workout.findUnique({
+      where: {
+        name:
+          workoutName.charAt(0).toUpperCase() +
+          workoutName.slice(1).toLocaleLowerCase(),
+      },
+      include: {
+        category: {
+          include: { exercises: true },
+        },
+      },
+    });
+
+    if (!workout) {
+      res.status(404).json({ error: "Workout not found" });
+      return;
+    }
+
+    res.status(200).json(workout);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch workout" });
   }
 };
