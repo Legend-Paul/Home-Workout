@@ -71,6 +71,7 @@ model UserWorkoutExercise {
   userId     String
   workoutId  String
   exerciseId String
+  dayOfWeek Int     // 0-6 (Sunday-Saturday)
   sets       Int?
   reps       Int?
   duration   Int?    // in seconds
