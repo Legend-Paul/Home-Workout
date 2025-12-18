@@ -4,7 +4,7 @@ import { prisma } from "../lib/prisma.js";
 // Create exercises for a specific workout
 interface WorkoutNameRequest extends Request {
   params: {
-    name: string;
+    id: string;
   };
   body: {
     exerciseId: string;
@@ -12,18 +12,16 @@ interface WorkoutNameRequest extends Request {
   };
 }
 
-export const createWorkoutExercises = async (
+export const addWorkoutExercises = async (
   req: WorkoutNameRequest,
   res: Response
 ): Promise<void> => {
-  const workoutName = req.params.name;
+  const { id } = req.params;
 
   try {
     const workout = await prisma.workout.findUnique({
       where: {
-        name:
-          workoutName.charAt(0).toUpperCase() +
-          workoutName.slice(1).toLocaleLowerCase(),
+        id,
       },
     });
 
@@ -42,9 +40,7 @@ export const createWorkoutExercises = async (
       },
     });
 
-    res
-      .status(200)
-      .json({ message: `Exercises created for workout: ${workoutName}` });
+    res.status(200).json({ message: `Exercises added` });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to create workout exercises" });
@@ -56,14 +52,12 @@ export const getWorkoutExercises = async (
   req: WorkoutNameRequest,
   res: Response
 ): Promise<void> => {
-  const workoutName = req.params.name;
+  const { id } = req.params;
 
   try {
     const workout = await prisma.workout.findUnique({
       where: {
-        name:
-          workoutName.charAt(0).toUpperCase() +
-          workoutName.slice(1).toLocaleLowerCase(),
+        id,
       },
     });
 
