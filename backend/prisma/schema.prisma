@@ -32,7 +32,8 @@ model Category {
   order       Int    // Display order
 
   workouts Workout[]
-  CalendarEntries CalendarEntry[]
+  exercises Exercise[]
+  calendarEntries CalendarEntry[]
 }
 
 // Specific workouts like "Biceps", "Triceps", "Quadriceps"
@@ -60,8 +61,10 @@ model Exercise {
   imageUrl    String
   videoUrl    String?
   difficulty  Level?
+  categoryId  String
 
-  workouts             Workout[]             // Direct many-to-many relationship
+  workouts             Workout[]     
+  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   userWorkoutExercises UserWorkoutExercise[]
 }
 
