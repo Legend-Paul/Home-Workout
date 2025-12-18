@@ -31,6 +31,7 @@ interface ExerciseRequest extends Request {
   };
 }
 
+// Create exercise handler
 const createExerciseHandler = async (
   req: ExerciseRequest,
   res: Response
@@ -83,8 +84,11 @@ const createExerciseHandler = async (
     res.status(500).json({ error: "Failed to create exercise" });
   }
 };
+
+// create exercise
 export const createExercise = [...validate, createExerciseHandler];
 
+// Get all exercises
 export const getAllExercises = async (req: Request, res: Response) => {
   try {
     const exercises = await prisma.exercise.findMany({
