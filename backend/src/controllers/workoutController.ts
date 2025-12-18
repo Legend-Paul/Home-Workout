@@ -3,9 +3,9 @@ import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
 
 const validate = [
-  body("title").isString().withMessage("Title must be a string"),
+  body("name").isString().withMessage("Name must be a string"),
   body("description").isString().withMessage("Description must be a string"),
-  body("categoryId").isString().withMessage("Category ID must be a string"),
+  body("category").isString().withMessage("Category  must be a string"),
   body("imageUrl")
     .optional()
     .isString()
@@ -14,10 +14,10 @@ const validate = [
 
 interface WorkoutRequest extends Request {
   body: {
-    title: string;
+    name: string;
     description: string;
-    imageUrl: string;
-    categoryId: string;
+    imageUrl?: string;
+    category: string;
   };
 }
 
@@ -30,24 +30,38 @@ const createWorkoutHandler = async (
     res.status(400).json({ errors: errors.array() });
     return;
   }
-  const { title, description, imageUrl, categoryId } = req.body;
+
+  const { name, description, imageUrl, category } = req.body;
+
   try {
-    const workoutExists = await prisma.workout.findUnique({
-      where: { title },
-    });
+    const [workoutExists, categoryExists] = await Promise.all([
+      prisma.workout.findUnique({
+        where: { name },
+      }),
+      prisma.category.findUnique({
+        where: { name: category },
+      }),
+    ]);
+
     if (workoutExists) {
-      res.status(409).json({ error: "Workout with this title already exists" });
+      res.status(409).json({ error: "Workout with this name already exists" });
+      return;
+    }
+
+    if (!categoryExists) {
+      res.status(400).json({ error: "Category does not exist" });
       return;
     }
 
     const workout = await prisma.workout.create({
       data: {
-        title,
+        name,
         description,
         imageUrl: imageUrl || null,
-        categoryId,
+        categoryId: categoryExists.id,
       },
     });
+
     res.status(201).json({ message: "Workout created successfully", workout });
   } catch (error) {
     console.error(error);

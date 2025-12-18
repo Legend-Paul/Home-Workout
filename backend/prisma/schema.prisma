@@ -38,7 +38,7 @@ model Category {
 // Specific workouts like "Biceps", "Triceps", "Quadriceps"
 model Workout {
   id          String  @id @default(uuid())
-  title       String @unique// "Biceps Workout", "Triceps Workout"
+  name       String @unique// "Biceps Workout", "Triceps Workout"
   description String
   categoryId  String
   imageUrl    String?
@@ -50,7 +50,7 @@ model Workout {
   calendarEntries      CalendarEntry[]
   userWorkoutExercises UserWorkoutExercise[]
 
-  @@index([categoryId, title])
+  @@index([categoryId, name])
 }
 
 model Exercise {

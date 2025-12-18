@@ -40,8 +40,10 @@ const createExerciseHandler = async (
     res.status(400).json({ errors: errors.array() });
     return;
   }
+
   const { name, description, imageUrl, category, videoUrl, difficulty } =
     req.body;
+
   try {
     const [categoryExists, exerciseExists] = await Promise.all([
       prisma.category.findUnique({
@@ -51,10 +53,12 @@ const createExerciseHandler = async (
         where: { name },
       }),
     ]);
+
     if (!categoryExists) {
       res.status(400).json({ error: "Category does not exist" });
       return;
     }
+
     if (exerciseExists) {
       res.status(400).json({ error: "Exercise with this name already exists" });
       return;
@@ -70,6 +74,7 @@ const createExerciseHandler = async (
         difficulty: difficulty || null,
       },
     });
+
     res
       .status(201)
       .json({ message: "Exercise created successfully", exercise });
