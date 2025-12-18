@@ -144,11 +144,6 @@ export const getWorkoutByName = async (
           workoutName.charAt(0).toUpperCase() +
           workoutName.slice(1).toLocaleLowerCase(),
       },
-      include: {
-        category: {
-          include: { exercises: true },
-        },
-      },
     });
 
     if (!workout) {
@@ -156,7 +151,29 @@ export const getWorkoutByName = async (
       return;
     }
 
-    res.status(200).json(workout);
+    const exercises = await prisma.workoutExercise.findMany({
+      where: {
+        workoutId: workout?.id,
+      },
+      include: {
+        exercise: true,
+      },
+      orderBy: {
+        order: "asc",
+      },
+    });
+
+    const others = await prisma.exercise.findMany({
+      where: {
+        NOT: {
+          id: {
+            in: exercises.map((we) => we.exerciseId),
+          },
+        },
+      },
+    });
+
+    res.status(200).json({ workout, exercises, others });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch workout" });
