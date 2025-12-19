@@ -4,11 +4,11 @@ import { body, validationResult } from "express-validator";
 
 const validate = [
   body().isArray().withMessage("Data must be an array"),
-  body("*.userId").trim().isString().withMessage("User ID must be a string"),
+  body("*.userId").trim().isUUID().withMessage("User ID must be a a UUID"),
   body("*.workoutExerciseId")
-    .isString()
-    .withMessage("Workout exercise ID must an array"),
-  body("*.categoryId").isString().withMessage("Category ID must be a an array"),
+    .isUUID()
+    .withMessage("Workout exercise ID must be a UUID"),
+  body("*.categoryId").isUUID().withMessage("Category ID must be a UUID"),
   body("*.order")
     .isInt({ min: 1 })
     .withMessage("Order must be a positive integer"),
@@ -29,7 +29,7 @@ const validate = [
     .withMessage("Sets must be a positive integer"),
 ];
 
-interface CreateWorkoutRequest extends Request {
+interface CreateUserWorkoutRequest extends Request {
   body: Array<{
     userId: string;
     workoutExerciseId: string;
@@ -42,8 +42,8 @@ interface CreateWorkoutRequest extends Request {
   }>;
 }
 
-const createWorkoutHandler = async (
-  req: CreateWorkoutRequest,
+const createUserWorkoutHandler = async (
+  req: CreateUserWorkoutRequest,
   res: Response
 ): Promise<void> => {
   const errors = validationResult(req);
@@ -55,10 +55,10 @@ const createWorkoutHandler = async (
   const userWorkoutExercise = req.body;
 
   try {
-    const userWorkout = await prisma.userWorkoutExercise.createMany({
+    const workout = await prisma.userWorkoutExercise.createMany({
       data: userWorkoutExercise,
     });
-    res.status(201).json(userWorkout);
+    res.status(201).json(workout);
     return;
   } catch (error) {
     console.log(error);
@@ -66,4 +66,49 @@ const createWorkoutHandler = async (
     return;
   }
 };
-export const createWorkout = [...validate, createWorkoutHandler];
+export const createUserWorkout = [...validate, createUserWorkoutHandler];
+
+interface UserWorkoutIdRequest extends Request {
+  params: {
+    id: string;
+  };
+}
+
+export const getUserWorkout = async (
+  req: UserWorkoutIdRequest,
+  res: Response
+): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!user) {
+      res.status(400).json("User not found");
+      return;
+    }
+    const workout = await prisma.userWorkoutExercise.findMany({
+      where: {
+        id,
+      },
+      include: {
+        user: true,
+        category: true,
+        workoutExercise: {
+          include: {
+            workout: true,
+            exercise: true,
+          },
+        },
+      },
+    });
+    res.status(200).json({ workout });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to get workout exercises" });
+  }
+};
