@@ -112,3 +112,31 @@ export const getUserWorkout = async (
     res.status(500).json({ error: "Failed to get workout exercises" });
   }
 };
+
+export const deleteUserWorkout = async (
+  req: UserWorkoutIdRequest,
+  res: Response
+): Promise<void> => {
+  const { id } = req.params;
+  try {
+    const workoutExist = await prisma.userWorkoutExercise.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!workoutExist) {
+      res.status(400).json({ message: "Workout not found!" });
+      return;
+    }
+    await prisma.userWorkoutExercise.delete({
+      where: {
+        id,
+      },
+    });
+
+    res.status(200).json({ message: "Workout deleted successifully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to delete workout" });
+  }
+};

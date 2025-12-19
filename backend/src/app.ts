@@ -33,7 +33,7 @@ app.use("/workout", workoutRouter);
 app.use("/exercise", exerciseRouter);
 
 // user Workout exercise routes
-app.use("/user/workouts", userWorkoutRouter);
+app.use("/api/workouts", userWorkoutRouter);
 
 // error handling middleware
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {

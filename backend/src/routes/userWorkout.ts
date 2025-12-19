@@ -1,12 +1,14 @@
 import { Router } from "express";
 import {
-  createWorkout,
+  createUserWorkout,
   getUserWorkout,
+  deleteUserWorkout,
 } from "../controllers/userWorkoutController.js";
 
 const userWorkoutRouter = Router();
 
-userWorkoutRouter.get("/", createWorkout);
-userWorkoutRouter.get("/:id", getUserWorkout);
+userWorkoutRouter.post("/new", createUserWorkout);
+userWorkoutRouter.get("/user/:id", getUserWorkout);
+userWorkoutRouter.delete("/:id", deleteUserWorkout);
 
 export default userWorkoutRouter;
