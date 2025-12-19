@@ -7,8 +7,9 @@ import {
 
 const userWorkoutRouter = Router();
 
-userWorkoutRouter.post("/new", createUserWorkout);
-userWorkoutRouter.get("/user/:id", getUserWorkout);
+userWorkoutRouter.get("/:id", getUserWorkout);
+userWorkoutRouter.post("/:id/new", createUserWorkout);
 userWorkoutRouter.delete("/:id", deleteUserWorkout);
+// userWorkoutRouter.put("/:id", updateUserWorkout);
 
 export default userWorkoutRouter;

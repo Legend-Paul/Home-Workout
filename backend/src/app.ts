@@ -28,12 +28,12 @@ app.use("/auth/login", loginRouter);
 app.use("/auth/forgot-password", forgotPaswordRouter);
 
 // workout routes
-app.use("/category", categoryRouter);
-app.use("/workout", workoutRouter);
-app.use("/exercise", exerciseRouter);
+app.use("/api/category", categoryRouter);
+app.use("/api/workout", workoutRouter);
+app.use("/api/exercise", exerciseRouter);
 
 // user Workout exercise routes
-app.use("/api/workouts", userWorkoutRouter);
+app.use("/api/workout/user", userWorkoutRouter);
 
 // error handling middleware
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {

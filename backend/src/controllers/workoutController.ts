@@ -74,6 +74,7 @@ export const createWorkout = [...validate, createWorkoutHandler];
 // Handler to get all workouts
 export const getAllWorkouts = async (req: Request, res: Response) => {
   try {
+    console.log("Fetching all workouts");
     const workouts = await prisma.workout.findMany({
       include: { category: true },
     });

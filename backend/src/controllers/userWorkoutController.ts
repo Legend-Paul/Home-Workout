@@ -1,10 +1,11 @@
 import type { Request, Response } from "express";
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
 
 const validate = [
   body().isArray().withMessage("Data must be an array"),
-  body("*.userId").trim().isUUID().withMessage("User ID must be a a UUID"),
+  body("*.name").isString().withMessage("Name must be a string"),
+  body("*.userId").isUUID().withMessage("User ID must be a UUID"),
   body("*.workoutExerciseId")
     .isUUID()
     .withMessage("Workout exercise ID must be a UUID"),
@@ -29,8 +30,12 @@ const validate = [
     .withMessage("Sets must be a positive integer"),
 ];
 
-interface CreateUserWorkoutRequest extends Request {
+interface UserWorkoutRequest extends Request {
+  params: {
+    id: string;
+  };
   body: Array<{
+    name: string;
     userId: string;
     workoutExerciseId: string;
     categoryId: string;
@@ -42,8 +47,9 @@ interface CreateUserWorkoutRequest extends Request {
   }>;
 }
 
+// Creating multiple user workouts
 const createUserWorkoutHandler = async (
-  req: CreateUserWorkoutRequest,
+  req: UserWorkoutRequest,
   res: Response
 ): Promise<void> => {
   const errors = validationResult(req);
@@ -52,11 +58,27 @@ const createUserWorkoutHandler = async (
     return;
   }
 
-  const userWorkoutExercise = req.body;
+  const workoutData = req.body;
 
   try {
+    const workoutExist = await prisma.userWorkoutExercise.findMany({
+      where: {
+        userId: {
+          in: workoutData.map((workout) => workout.userId),
+        },
+        name: {
+          in: workoutData.map((workout) => workout.name),
+        },
+      },
+    });
+
+    if (workoutExist.length > 0) {
+      res.status(400).json({ message: "Workout already exists" });
+      return;
+    }
+
     const workout = await prisma.userWorkoutExercise.createMany({
-      data: userWorkoutExercise,
+      data: workoutData,
     });
     res.status(201).json(workout);
     return;
@@ -68,14 +90,9 @@ const createUserWorkoutHandler = async (
 };
 export const createUserWorkout = [...validate, createUserWorkoutHandler];
 
-interface UserWorkoutIdRequest extends Request {
-  params: {
-    id: string;
-  };
-}
-
+// getting a specific user workout
 export const getUserWorkout = async (
-  req: UserWorkoutIdRequest,
+  req: UserWorkoutRequest,
   res: Response
 ): Promise<void> => {
   const { id } = req.params;
@@ -93,7 +110,7 @@ export const getUserWorkout = async (
     }
     const workout = await prisma.userWorkoutExercise.findMany({
       where: {
-        id,
+        userId: id,
       },
       include: {
         user: true,
@@ -113,8 +130,9 @@ export const getUserWorkout = async (
   }
 };
 
+// deleting a specific user workout
 export const deleteUserWorkout = async (
-  req: UserWorkoutIdRequest,
+  req: UserWorkoutRequest,
   res: Response
 ): Promise<void> => {
   const { id } = req.params;
@@ -128,6 +146,7 @@ export const deleteUserWorkout = async (
       res.status(400).json({ message: "Workout not found!" });
       return;
     }
+
     await prisma.userWorkoutExercise.delete({
       where: {
         id,

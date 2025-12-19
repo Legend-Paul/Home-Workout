@@ -89,7 +89,7 @@ model UserWorkoutExercise {
   userId            String
   categoryId        String
   workoutExerciseId String
-  name              String @unique // Custom name
+  name              String  // Custom name
   dayOfWeek         Int // 0-6 (Sunday-Saturday)
   sets              Int?
   reps              Int?
@@ -100,7 +100,7 @@ model UserWorkoutExercise {
   category        Category        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   workoutExercise WorkoutExercise @relation(fields: [workoutExerciseId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, categoryId, workoutExerciseId])
+  @@unique([userId, name])
   @@index([userId, categoryId, dayOfWeek])
 }
 
