@@ -72,7 +72,7 @@ model WorkoutExercise {
   id         String @id @default(uuid())
   workoutId  String
   exerciseId String
-  order      Int // 1-5 (order in workout)
+  order      Int? // 1-5 (order in workout)
 
   workout              Workout               @relation(fields: [workoutId], references: [id], onDelete: Cascade)
   exercise             Exercise              @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
@@ -89,6 +89,7 @@ model UserWorkoutExercise {
   userId            String
   categoryId        String
   workoutExerciseId String
+  name              String @unique // Custom name
   dayOfWeek         Int // 0-6 (Sunday-Saturday)
   sets              Int?
   reps              Int?
