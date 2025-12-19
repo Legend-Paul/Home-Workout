@@ -11,6 +11,7 @@ import forgotPaswordRouter from "./routes/forgotPassword.js";
 import categoryRouter from "./routes/category.js";
 import workoutRouter from "./routes/workout.js";
 import exerciseRouter from "./routes/exercise.js";
+import userWorkoutRouter from "./routes/userWorkout.js";
 import passport from "passport";
 
 const app = express();
@@ -30,6 +31,9 @@ app.use("/auth/forgot-password", forgotPaswordRouter);
 app.use("/category", categoryRouter);
 app.use("/workout", workoutRouter);
 app.use("/exercise", exerciseRouter);
+
+// user Workout exercise routes
+app.use("/user/workouts", userWorkoutRouter);
 
 // error handling middleware
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
