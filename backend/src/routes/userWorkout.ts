@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { createWorkoutController } from "../controllers/userWorkoutController.js";
+import { createWorkout } from "../controllers/userWorkoutController.js";
 
 const userWorkoutRouter = Router();
 
-userWorkoutRouter.get("/", createWorkoutController);
+userWorkoutRouter.get("/", createWorkout);
 
 export default userWorkoutRouter;
