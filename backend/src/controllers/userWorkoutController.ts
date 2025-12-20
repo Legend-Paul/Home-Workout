@@ -33,6 +33,7 @@ const validate = [
 interface UserWorkoutRequest extends Request {
   params: {
     id: string;
+    name: string;
   };
   body: Array<{
     name: string;
@@ -161,7 +162,7 @@ export const deleteUserWorkout = async (
 };
 
 // Updating a specific user workout
-export const updateUserWorkout = async (
+const updateUserWorkoutHandler = async (
   req: UserWorkoutRequest,
   res: Response
 ): Promise<void> => {
@@ -171,27 +172,39 @@ export const updateUserWorkout = async (
     return;
   }
 
-  const { id } = req.params;
+  const { name, id } = req.params;
   const workoutData = req.body;
   try {
-    const workoutExist = await prisma.userWorkoutExercise.findUnique({
+    const workoutExist = await prisma.userWorkoutExercise.findMany({
       where: {
-        id,
+        userId: { in: [id] },
+        name: { in: [name] },
       },
     });
-    if (!workoutExist) {
+
+    if (workoutExist.length < 1) {
       res.status(400).json({ message: "Workout not found!" });
       return;
     }
 
-    await prisma.userWorkoutExercise.updateMany({
-      data: workoutData,
-      where: {
-        id,
-      },
+    console.log(workoutData);
+
+    workoutData.forEach(async (data) => {
+      await prisma.userWorkoutExercise.update({
+        where: {
+          userId_name: {
+            userId: id,
+            name: name,
+          },
+        },
+        data: data,
+      });
     });
+    res.status(200).json({ message: "Workout updated successfully" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Failed to update workout" });
   }
 };
+
+export const updateUserWorkout = [...validate, updateUserWorkoutHandler];
