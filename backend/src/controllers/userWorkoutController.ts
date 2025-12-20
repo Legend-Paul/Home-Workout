@@ -159,3 +159,39 @@ export const deleteUserWorkout = async (
     res.status(500).json({ error: "Failed to delete workout" });
   }
 };
+
+// Updating a specific user workout
+export const updateUserWorkout = async (
+  req: UserWorkoutRequest,
+  res: Response
+): Promise<void> => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  const { id } = req.params;
+  const workoutData = req.body;
+  try {
+    const workoutExist = await prisma.userWorkoutExercise.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!workoutExist) {
+      res.status(400).json({ message: "Workout not found!" });
+      return;
+    }
+
+    await prisma.userWorkoutExercise.updateMany({
+      data: workoutData,
+      where: {
+        id,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to update workout" });
+  }
+};

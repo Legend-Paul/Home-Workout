@@ -3,6 +3,7 @@ import {
   createUserWorkout,
   getUserWorkout,
   deleteUserWorkout,
+  updateUserWorkout,
 } from "../controllers/userWorkoutController.js";
 
 const userWorkoutRouter = Router();
@@ -10,6 +11,6 @@ const userWorkoutRouter = Router();
 userWorkoutRouter.get("/:id", getUserWorkout);
 userWorkoutRouter.post("/:id/new", createUserWorkout);
 userWorkoutRouter.delete("/:id", deleteUserWorkout);
-// userWorkoutRouter.put("/:id", updateUserWorkout);
+userWorkoutRouter.put("/:id", updateUserWorkout);
 
 export default userWorkoutRouter;
