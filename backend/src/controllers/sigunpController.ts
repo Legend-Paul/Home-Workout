@@ -13,29 +13,23 @@ const validate = [
     .trim()
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters long"),
-  body("level")
-    .trim()
-    .isIn(["BEGINNER", "INTERMEDIATE", "ADVANCED"])
-    .withMessage("Invalid level"),
-  body("goal")
-    .trim()
-    .isIn(["BUILD_MUSCLE", "LOSE_FAT", "MAINTAIN_FITNESS", "OTHER"])
-    .withMessage("Invalid goal"),
   body("confirmPassword")
     .trim()
     .custom((value, { req }) => value === req.body.password)
     .withMessage("Passwords do not match"),
 ];
-interface Data {
-  email: string;
-  username: string;
-  password: string;
-  level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-  goal: "BUILD_MUSCLE" | "LOSE_FAT" | "MAINTAIN_FITNESS" | "OTHER";
+
+// Create User Controller
+interface UserRequest extends Request {
+  body: {
+    email: string;
+    username: string;
+    password: string;
+  };
 }
 
 const createUserHandler = async (
-  req: Request,
+  req: UserRequest,
   res: Response
 ): Promise<void> => {
   const errors = validationResult(req);
@@ -44,7 +38,7 @@ const createUserHandler = async (
     return;
   }
 
-  const { email, username, level, goal, password }: Data = req.body;
+  const { email, username, password } = req.body;
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -65,8 +59,6 @@ const createUserHandler = async (
         email,
         username,
         password: hashedPassword,
-        level,
-        goal,
       },
     });
     res
@@ -77,6 +69,55 @@ const createUserHandler = async (
     res.status(500).json({ message: "Internal server error" });
   }
 };
-const createUser = [...validate, createUserHandler];
+export const createUser = [...validate, createUserHandler];
 
-export { createUser };
+// Update User Goal Controller
+const vidateGoal = [
+  body("goal")
+    .trim()
+    .isIn(["BUILD_MUSCLE", "LOSE_FAT", "MAINTAIN_FITNESS", "OTHER"])
+    .withMessage("Invalid goal"),
+];
+
+interface GoalRequest extends Request {
+  params: { id: string };
+  body: {
+    goal: "BUILD_MUSCLE" | "LOSE_FAT" | "MAINTAIN_FITNESS" | "OTHER";
+  };
+}
+
+export const updateGoal = [
+  ...vidateGoal,
+  async (req: GoalRequest, res: Response): Promise<void> => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      return;
+    }
+
+    const { goal } = req.body;
+    const userId = req.params.id;
+
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: { goal, onboardingStep: 1 },
+      });
+      res
+        .status(200)
+        .json({ message: "User goal updated successfully", user: updatedUser });
+    } catch (error) {
+      console.error("Error updating user goal:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+];
