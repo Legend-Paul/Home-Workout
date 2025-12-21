@@ -121,3 +121,57 @@ export const updateGoal = [
     }
   },
 ];
+
+// Updated user level
+const validateLevel = [
+  body("level")
+    .trim()
+    .isIn(["BEGINNER", "INTERMEDIATE", "ADVANCED"])
+    .withMessage("Invalid level"),
+];
+
+interface LevelRequest extends Request {
+  params: { id: string };
+  body: {
+    level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+  };
+}
+
+export const updateLevel = [
+  ...validateLevel,
+  async (req: LevelRequest, res: Response): Promise<void> => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      return;
+    }
+
+    const { level } = req.body;
+    const userId = req.params.id;
+
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: { level, onboardingStep: 2 },
+      });
+      res
+        .status(200)
+        .json({
+          message: "User level updated successfully",
+          user: updatedUser,
+        });
+    } catch (error) {
+      console.error("Error updating user level:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  },
+];

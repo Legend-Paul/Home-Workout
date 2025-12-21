@@ -15,7 +15,7 @@ model User {
   goal           Goal?
   level          Level?
   role           Role    @default(USER)
-  onboarding     Boolean @default(false)
+  isBoarded      Boolean @default(false)
   onboardingStep Int     @default(0)
 
   setupMethod SetupMethod @default(QUICK_START)
