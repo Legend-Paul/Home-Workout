@@ -8,123 +8,155 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  username  String
-  password  String
-  goal      Goal
-  level     Level
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String  @id @default(uuid())
+  email          String  @unique
+  username       String
+  password       String
+  goal           Goal?
+  level          Level?
+  role           Role    @default(USER)
+  onboarding     Boolean @default(false)
+  onboardingStep Int     @default(0)
 
-  calendarEntries      CalendarEntry[]
-  userWorkoutExercises UserWorkoutExercise[]
-}
+  setupMethod SetupMethod @default(QUICK_START)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
-// Main categories like "Arms", "Legs", "Chest", "Back"
-model Category {
-  id          String  @id @default(uuid())
-  name        String  @unique // "Arms", "Legs", "Chest", "Back", "Core"
-  description String
-  imageUrl    String?
-  order       Int // Display order
-
-  workouts             Workout[]
-  exercises            Exercise[]
-  userWorkoutExercises UserWorkoutExercise[]
-
-  calendarEntries CalendarEntry[]
-}
-
-// Specific workouts like "Biceps", "Triceps", "Quadriceps"
-model Workout {
-  id          String  @id @default(uuid())
-  name        String  @unique // "Biceps Workout", "Triceps Workout"
-  description String
-  categoryId  String
-  imageUrl    String?
-  // level       Level
-  // goal        Goal?
-
-  category         Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  workoutExercises WorkoutExercise[]
-
-  @@index([categoryId, name])
+  calendarEntries  CalendarEntry[]
+  exercisesCreated Exercise[]
+  weeklyPlans      WeeklyPlan[]
+  friendsInitiated Friendship[]    @relation("FriendshipInitiator")
+  friendsReceived  Friendship[]    @relation("FriendshipReceiver")
 }
 
 model Exercise {
-  id          String  @id @default(uuid())
-  name        String  @unique // "Bicep Curls", "Push-ups"
-  description String
-  imageUrl    String
-  videoUrl    String?
-  difficulty  Level?
-  categoryId  String
+  id           String   @id @default(uuid())
+  name         String   @unique // "Bicep Curls", "Push-ups"
+  description  String
+  imageUrl     String
+  videoUrl     String?
+  difficulty   Level    @default(ALL)
+  muscleGroups String[]
+  equipment    String[] @default([])
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  createdBy    String?
 
-  categories       Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  workoutExercises WorkoutExercise[]
-
-  @@index([categoryId, name])
+  createdByUser       User?                @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  quickStartExercises QUICKSTARTEXERCISE[]
+  weeklyPlanExercises WeeklyPlanExercise[]
 }
 
-model WorkoutExercise {
-  id         String @id @default(uuid())
-  workoutId  String
-  exerciseId String
-  order      Int? // 1-5 (order in workout)
+model QuickStartPlan {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  goal         Goal
+  level        Level
+  dayOfWeek    Int // 0-6 (Sunday-Saturday)
+  dayName      String // "Monday", "Tuesday", etc.
+  muscleGroups String[] // e.g., ["Arms", "Legs"]
+  isRestDay    Boolean  @default(false)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  workout              Workout               @relation(fields: [workoutId], references: [id], onDelete: Cascade)
-  exercise             Exercise              @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
-  userWorkoutExercises UserWorkoutExercise[]
-  calendarEntries      CalendarEntry[]
-
-  @@unique([workoutId, exerciseId])
-  @@index([workoutId])
+  quickStartExercises QUICKSTARTEXERCISE[]
 }
 
-// User's selected exercises for a specific workout (with their customization)
-model UserWorkoutExercise {
-  id                String @id @default(uuid())
-  userId            String
-  categoryId        String
-  workoutExerciseId String
-  name              String  // Custom name
-  dayOfWeek         Int // 0-6 (Sunday-Saturday)
-  sets              Int?
-  reps              Int?
-  duration          Int? // in seconds
-  order             Int // 1-5 (order in user's routine)
+model QUICKSTARTEXERCISE {
+  id               String @id @default(uuid())
+  quickStartPlanId String
+  exerciseId       String
+  order            Int // 1-10 (order in the plan)
+  reps             Int?
+  sets             Int?
+  duration         Int? // in seconds
 
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category        Category        @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  workoutExercise WorkoutExercise @relation(fields: [workoutExerciseId], references: [id], onDelete: Cascade)
+  quickStartPlan QuickStartPlan @relation(fields: [quickStartPlanId], references: [id], onDelete: Cascade)
+  exercise       Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, name])
-  @@index([userId, categoryId, dayOfWeek])
+  @@unique([quickStartPlanId, exerciseId])
+  @@index([quickStartPlanId])
+}
+
+model WeeklyPlan {
+  id           String   @id @default(uuid())
+  userId       String
+  name         String
+  dayOfWeek    Int // 0-6 (Sunday-Saturday)
+  dayName      String // "Monday", "Tuesday", etc.
+  muscleGroups String[] // e.g., ["Arms", "Legs"]
+  isRestDay    Boolean  @default(false)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weeklyPlanExercises WeeklyPlanExercise[]
+  calendarEntries     CalendarEntry[]
+
+  @@unique([userId, dayOfWeek])
+  @@index([userId])
+}
+
+model WeeklyPlanExercise {
+  id           String   @id @default(uuid())
+  weeklyPlanId String
+  exerciseId   String
+  order        Int // 1-10 (order in the plan)
+  reps         Int?
+  sets         Int?
+  duration     Int? // in seconds
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  weeklyPlan WeeklyPlan @relation(fields: [weeklyPlanId], references: [id], onDelete: Cascade)
+  exercise   Exercise   @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([weeklyPlanId, exerciseId])
+  @@index([weeklyPlanId])
 }
 
 // User's weekly schedule
 model CalendarEntry {
-  id                String   @id @default(uuid())
-  date              DateTime
-  dayOfWeek         Int // 0-6 (Sunday-Saturday)
-  status            Status   @default(PENDING)
-  userId            String
-  workoutExerciseId String? // null if rest day
-  categoryId        String? // null if rest day
+  id           String   @id @default(uuid())
+  date         DateTime
+  startTime    DateTime
+  endTime      DateTime
+  timeUsed     Int? // in minutes
+  status       Status   @default(PENDING)
+  userId       String
+  weeklyPlanId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category        Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  workoutExercise WorkoutExercise? @relation(fields: [workoutExerciseId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weeklyPlan WeeklyPlan? @relation(fields: [weeklyPlanId], references: [id], onDelete: SetNull)
 
   @@unique([userId, date])
   @@index([userId, date])
 }
 
+model Friendship {
+  id        String           @id @default(uuid())
+  userId    String
+  friendId  String
+  status    FriendshipStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+
+  user   User @relation("FriendshipInitiator", fields: [userId], references: [id], onDelete: Cascade)
+  friend User @relation("FriendshipReceiver", fields: [friendId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, friendId])
+  @@index([userId])
+  @@index([friendId])
+}
+
 enum Role {
   USER
   ADMIN
+  MASTER
 }
 
 enum Goal {
@@ -138,6 +170,7 @@ enum Level {
   BEGINNER
   INTERMEDIATE
   ADVANCED
+  ALL
 }
 
 enum Status {
@@ -145,4 +178,15 @@ enum Status {
   COMPLETED
   SKIPPED
   REST
+}
+
+enum SetupMethod {
+  QUICK_START
+  CUSTOM
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
 }
