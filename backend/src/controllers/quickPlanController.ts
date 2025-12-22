@@ -29,7 +29,7 @@ interface QuickPlanRequest extends Request {
   };
 }
 
-const createQuickStartPlanHandler = async (
+const createQuickPlanHandler = async (
   req: QuickPlanRequest,
   res: Response
 ): Promise<void> => {
@@ -60,4 +60,4 @@ const createQuickStartPlanHandler = async (
     res.status(500).json({ error: "Internal server error" });
   }
 };
-export const createQuickStartPlan = [...validate, createQuickStartPlanHandler];
+export const createQuickPlan = [...validate, createQuickPlanHandler];
