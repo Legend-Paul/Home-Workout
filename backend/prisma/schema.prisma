@@ -54,7 +54,7 @@ model QuickStartPlan {
   goal         Goal
   level        Level
   dayOfWeek    Int // 0-6 (Sunday-Saturday)
-  dayName      String // "Monday", "Tuesday", 
+  dayName      Days // "Monday", "Tuesday", 
   muscleGroup  String[] // e.g., ["Arms", "Legs"]
   isRestDay    Boolean  @default(false)
   isActive     Boolean  @default(true)
@@ -85,7 +85,7 @@ model WeeklyPlan {
   userId       String
   name         String 
   dayOfWeek    Int // 0-6 (Sunday-Saturday)
-  dayName      String // "Monday", "Tuesday", 
+  dayName      Days // "Monday", "Tuesday", 
   muscleGroup  String[] // e.g., ["Arms", "Legs"]
   isRestDay    Boolean  @default(false)
   isActive     Boolean  @default(true)

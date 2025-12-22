@@ -15,7 +15,20 @@ const validate = [
     .withMessage("Day of week must be a number")
     .custom((value) => value >= 0 && value <= 6)
     .withMessage("Day of week must be between 0 and 6"),
-  body("dayName").isString().withMessage("Day name must be a string"),
+  body("muscleGroup")
+    .isArray({ min: 1 })
+    .withMessage("Muscle group must be an array"),
+  body("dayName")
+    .isIn([
+      "SUNDAY",
+      "MONDAY",
+      "TUESDAY",
+      "WEDNESDAY",
+      "THURSDAY",
+      "FRIDAY",
+      "SATURDAY",
+    ])
+    .withMessage("DayName must be a valid day of the week"),
   body("isRestDay").isBoolean().withMessage("isRestDay must be a boolean"),
   body("isActive").isBoolean().withMessage("isActive must be a boolean"),
 ];
@@ -27,7 +40,15 @@ interface QuickPlanRequest extends Request {
     goal: "BUILD_MUSCLE" | "LOSE_FAT" | "MAINTAIN_FITNESS" | "OTHER";
     level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
     dayOfWeek: number;
-    dayName: string;
+    dayName:
+      | "SUNDAY"
+      | "MONDAY"
+      | "TUESDAY"
+      | "WEDNESDAY"
+      | "THURSDAY"
+      | "FRIDAY"
+      | "SATURDAY";
+    muscleGroup: string[];
     isRestDay: boolean;
     isActive: boolean;
   };
@@ -46,8 +67,16 @@ const createQuickPlanHandler = async (
     return;
   }
 
-  const { name, goal, level, dayOfWeek, dayName, isRestDay, isActive } =
-    req.body;
+  const {
+    name,
+    goal,
+    level,
+    dayOfWeek,
+    dayName,
+    muscleGroup,
+    isRestDay,
+    isActive,
+  } = req.body;
 
   try {
     const newQuickStartPlan = await prisma.quickStartPlan.create({
@@ -57,6 +86,7 @@ const createQuickPlanHandler = async (
         level,
         dayOfWeek,
         dayName,
+        muscleGroup,
         isRestDay,
         isActive,
       },
@@ -99,6 +129,59 @@ export const getQuickPlanExercise = async (
     res.status(200).json(exercises);
   } catch (error) {
     console.error("Error fetching quick plan exercises:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Update quick plan handler
+export const updateQuickPlan = async (
+  req: QuickPlanRequest,
+  res: Response
+): Promise<void> => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  const quickStartPlanId = req.params.id;
+  const {
+    name,
+    goal,
+    level,
+    dayOfWeek,
+    dayName,
+    muscleGroup,
+    isRestDay,
+    isActive,
+  } = req.body;
+
+  try {
+    const quickPlanExist = await prisma.quickStartPlan.findUnique({
+      where: { id: quickStartPlanId },
+    });
+
+    if (!quickPlanExist) {
+      res.status(404).json({ error: "Quick start plan not found" });
+      return;
+    }
+
+    const updatedQuickStartPlan = await prisma.quickStartPlan.update({
+      where: { id: quickStartPlanId },
+      data: {
+        name,
+        goal,
+        level,
+        dayOfWeek,
+        dayName,
+        muscleGroup,
+        isRestDay,
+        isActive,
+      },
+    });
+    res.status(200).json(updatedQuickStartPlan);
+  } catch (error) {
+    console.error("Error updating quick start plan:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
