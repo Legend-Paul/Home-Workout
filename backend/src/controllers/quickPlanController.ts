@@ -99,40 +99,6 @@ const createQuickPlanHandler = async (
 };
 export const createQuickPlan = [...validate, createQuickPlanHandler];
 
-// Get quick plan and its exercises handler
-export const getQuickPlanExercise = async (
-  req: QuickPlanRequest,
-  res: Response
-): Promise<void> => {
-  const quickStartPlanId = req.params.id;
-
-  try {
-    const quickPlanExist = await prisma.quickStartPlan.findUnique({
-      where: { id: quickStartPlanId },
-    });
-
-    if (!quickPlanExist) {
-      res.status(404).json({ error: "Quick start plan not found" });
-      return;
-    }
-
-    const exercises = await prisma.quickStartPlan.findUnique({
-      where: { id: quickStartPlanId },
-      include: {
-        quickStartExercises: {
-          include: { exercise: true },
-          orderBy: { order: "asc" },
-        },
-      },
-    });
-
-    res.status(200).json(exercises);
-  } catch (error) {
-    console.error("Error fetching quick plan exercises:", error);
-    res.status(500).json({ error: "Failed to fetch exercises" });
-  }
-};
-
 export const getAllQuickPlans = async (
   req: QuickPlanRequest,
   res: Response
