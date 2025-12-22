@@ -16,7 +16,7 @@ const validate = [
     .custom((value) => value >= 0 && value <= 6)
     .withMessage("Day of week must be between 0 and 6"),
   body("muscleGroup")
-    .isArray({ min: 1 })
+    .isArray({ min: 0 })
     .withMessage("Muscle group must be an array"),
   body("dayName")
     .isIn([

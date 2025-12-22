@@ -23,7 +23,7 @@ const validate = [
     ])
     .withMessage("DayName must be a valid day of the week"),
   body("muscleGroup")
-    .isArray({ min: 1 })
+    .isArray({ min: 0 })
     .withMessage("Muscle group must be an array"),
   body("isRestDay").isBoolean().withMessage("isRestDay must be a boolean"),
   body("isActive").isBoolean().withMessage("isActive must be a boolean"),
