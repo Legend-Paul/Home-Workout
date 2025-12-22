@@ -11,7 +11,7 @@ const validate = [
     .optional()
     .isNumeric()
     .withMessage("Duration must be a number"),
-  body("exerciseId").isNumeric().withMessage("exerciseId must be a number"),
+  body("exerciseId").isUUID().withMessage("Invalid exercise ID"),
 ];
 
 // Create createQuickPlanExercise handler

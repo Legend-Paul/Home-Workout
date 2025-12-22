@@ -9,9 +9,7 @@ import sigunpRouter from "./routes/sigunp.js";
 import loginRouter from "./routes/login.js";
 import forgotPaswordRouter from "./routes/forgotPassword.js";
 import quickPlanRouter from "./routes/quickPlan.js";
-import workoutRouter from "./routes/workout.js";
 import exerciseRouter from "./routes/exercise.js";
-import userWorkoutRouter from "./routes/userWorkout.js";
 import passport from "passport";
 
 const app = express();
@@ -30,10 +28,6 @@ app.use("/auth/forgot-password", forgotPaswordRouter);
 // workout routes
 app.use("/api/exercise", exerciseRouter);
 app.use("/api/quick-plan", quickPlanRouter);
-// app.use("/api/workout", workoutRouter);
-
-// user Workout exercise routes
-app.use("/api/workout/user", userWorkoutRouter);
 
 // error handling middleware
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createQuickPlan } from "../controllers/quickPlanController.js";
-import { createQuickPlanExercise } from "../controllers/quickPlanExercise.js";
+import { createQuickPlanExercise } from "../controllers/quickPlanExerciseController.js";
 
 const quickPlanRouter = Router();
 
