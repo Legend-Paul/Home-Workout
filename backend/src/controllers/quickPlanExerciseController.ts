@@ -121,7 +121,7 @@ export const getQuickPlanExercise = async (
 };
 
 // update quick plan exercise
-export const updateQuickPlanExercise = async (
+const updateQuickPlanExerciseHandler = async (
   req: QuickPlanExerciseRequest,
   res: Response
 ): Promise<void> => {
@@ -186,6 +186,11 @@ export const updateQuickPlanExercise = async (
     res.status(400).json({ error: "Failed to update quick start exercise" });
   }
 };
+
+export const updateQuickPlanExercise = [
+  ...validate,
+  updateQuickPlanExerciseHandler,
+];
 
 // delete quick plan exercise
 export const deleteQuickPlanExercise = async (

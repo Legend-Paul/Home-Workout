@@ -9,6 +9,7 @@ import sigunpRouter from "./routes/sigunp.js";
 import loginRouter from "./routes/login.js";
 import forgotPaswordRouter from "./routes/forgotPassword.js";
 import quickPlanRouter from "./routes/quickPlan.js";
+import weeklyPlanRouter from "./routes/weeklyPlan.js";
 import exerciseRouter from "./routes/exercise.js";
 import passport from "passport";
 
@@ -25,9 +26,14 @@ app.use("/auth/signup", sigunpRouter);
 app.use("/auth/login", loginRouter);
 app.use("/auth/forgot-password", forgotPaswordRouter);
 
-// workout routes
+//exercise routes
 app.use("/api/exercise", exerciseRouter);
+
+// quick plan routes
 app.use("/api/quick-plan", quickPlanRouter);
+
+// weekly plan routes
+app.use("/api/weekly-plan", weeklyPlanRouter);
 
 // error handling middleware
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {

@@ -123,7 +123,7 @@ export const getAllQuickPlans = async (
 };
 
 // Update quick plan handler
-export const updateQuickPlan = async (
+const updateQuickPlanHandler = async (
   req: QuickPlanRequest,
   res: Response
 ): Promise<void> => {
@@ -168,17 +168,17 @@ export const updateQuickPlan = async (
         isActive,
       },
     });
-    res
-      .status(200)
-      .json({
-        message: "Plan updated successifully",
-        plan: updatedQuickStartPlan,
-      });
+    res.status(200).json({
+      message: "Plan updated successifully",
+      plan: updatedQuickStartPlan,
+    });
   } catch (error) {
     console.error("Error updating quick start plan:", error);
     res.status(500).json({ error: "Failed to update plan" });
   }
 };
+
+export const updateQuickPlan = [...validate, updateQuickPlanHandler];
 
 // delete quick plan handler
 export const deleteQuickPlan = async (
