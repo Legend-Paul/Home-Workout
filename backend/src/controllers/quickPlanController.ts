@@ -10,7 +10,11 @@ const validate = [
   body("level")
     .isIn(["BEGINNER", "INTERMEDIATE", "ADVANCED", "ALL"])
     .withMessage("Level must be a string"),
-  body("dayOfWeek").isNumeric().withMessage("Day of week must be a number"),
+  body("dayOfWeek")
+    .isNumeric()
+    .withMessage("Day of week must be a number")
+    .custom((value) => value >= 0 && value <= 6)
+    .withMessage("Day of week must be between 0 and 6"),
   body("dayName").isString().withMessage("Day name must be a string"),
   body("isRestDay").isBoolean().withMessage("isRestDay must be a boolean"),
   body("isActive").isBoolean().withMessage("isActive must be a boolean"),
