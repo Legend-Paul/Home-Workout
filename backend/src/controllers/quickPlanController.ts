@@ -94,7 +94,7 @@ const createQuickPlanHandler = async (
     res.status(201).json(newQuickStartPlan);
   } catch (error) {
     console.error("Error creating quick start plan:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Failed to create plan" });
   }
 };
 export const createQuickPlan = [...validate, createQuickPlanHandler];
@@ -129,7 +129,7 @@ export const getQuickPlanExercise = async (
     res.status(200).json(exercises);
   } catch (error) {
     console.error("Error fetching quick plan exercises:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Failed to fetch exercises" });
   }
 };
 
@@ -182,6 +182,34 @@ export const updateQuickPlan = async (
     res.status(200).json(updatedQuickStartPlan);
   } catch (error) {
     console.error("Error updating quick start plan:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Failed to update plan" });
+  }
+};
+
+// delete quick plan handler
+export const deleteQuickPlan = async (
+  req: QuickPlanRequest,
+  res: Response
+): Promise<void> => {
+  const quickStartPlanId = req.params.id;
+  try {
+    const planExist = await prisma.quickStartPlan.findUnique({
+      where: {
+        id: quickStartPlanId,
+      },
+    });
+
+    if (!planExist) {
+      res.status(400).json({ message: "Plan does not exist" });
+      return;
+    }
+
+    await prisma.quickStartPlan.delete({
+      where: { id: quickStartPlanId },
+    });
+    res.status(200).json({ message: "Quick start plan deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to delete plan" });
   }
 };
