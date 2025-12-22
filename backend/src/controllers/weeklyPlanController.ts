@@ -103,22 +103,16 @@ export const createWeeklyPlan = [...validate, createWeeklyPlanHandler];
 // Get weekly plan handler
 const validateGetWeeklyPlan = [
   body("userId").isUUID().withMessage("User ID must be a valid UUID"),
-  body("dayOfWeek")
-    .isNumeric()
-    .withMessage("Day of week must be a number")
-    .custom((value) => value >= 0 && value <= 6)
-    .withMessage("Day of week must be between 0 and 6"),
 ];
 
-interface GetWeeklyPlanRequest extends Request {
+interface GetAllWeeklyPlanRequest extends Request {
   body: {
     userId: string;
-    dayOfWeek: number;
   };
 }
 
-const getWeeklyPlanHandler = async (
-  req: GetWeeklyPlanRequest,
+const getAllWeeklyPlanHandler = async (
+  req: GetAllWeeklyPlanRequest,
   res: Response
 ) => {
   const errors = validationResult(req);
@@ -127,7 +121,7 @@ const getWeeklyPlanHandler = async (
     return;
   }
 
-  const { userId, dayOfWeek } = req.body;
+  const { userId } = req.body;
   try {
     const userIdExists = await prisma.user.findUnique({
       where: { id: userId },
@@ -138,12 +132,9 @@ const getWeeklyPlanHandler = async (
       return;
     }
 
-    const weeklyPlan = await prisma.weeklyPlan.findUnique({
+    const weeklyPlan = await prisma.weeklyPlan.findMany({
       where: {
-        userId_dayOfWeek: {
-          userId,
-          dayOfWeek,
-        },
+        userId: userId,
       },
       include: {
         weeklyPlanExercises: {
@@ -166,7 +157,10 @@ const getWeeklyPlanHandler = async (
   }
 };
 
-export const getWeeklyPlan = [...validateGetWeeklyPlan, getWeeklyPlanHandler];
+export const getAllWeeklyPlan = [
+  ...validateGetWeeklyPlan,
+  getAllWeeklyPlanHandler,
+];
 
 // Update weekly plan handler
 const updateWeeklyPlanHandler = async (
