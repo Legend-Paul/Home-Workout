@@ -8,7 +8,7 @@ import passportConfig from "./auth/passport.js";
 import sigunpRouter from "./routes/sigunp.js";
 import loginRouter from "./routes/login.js";
 import forgotPaswordRouter from "./routes/forgotPassword.js";
-import categoryRouter from "./routes/category.js";
+import quickStartPlanRouter from "./routes/quickStartPlan.js";
 import workoutRouter from "./routes/workout.js";
 import exerciseRouter from "./routes/exercise.js";
 import userWorkoutRouter from "./routes/userWorkout.js";
@@ -28,7 +28,7 @@ app.use("/auth/login", loginRouter);
 app.use("/auth/forgot-password", forgotPaswordRouter);
 
 // workout routes
-app.use("/api/category", categoryRouter);
+app.use("/api/quick-start", quickStartPlanRouter);
 app.use("/api/workout", workoutRouter);
 app.use("/api/exercise", exerciseRouter);
 
