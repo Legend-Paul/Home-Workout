@@ -71,12 +71,10 @@ const createQuickPlanExerciseHandler = async (
         quickStartPlanId,
       },
     });
-    res
-      .status(201)
-      .json({
-        message: "Exercise created successifully",
-        exercise: newQuickStartExercise,
-      });
+    res.status(201).json({
+      message: "Exercise created successifully",
+      exercise: newQuickStartExercise,
+    });
   } catch (error) {
     console.error("Error creating quick plan exercise:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -146,11 +144,11 @@ export const updateQuickPlanExercise = async (
         where: { id: quickStartPlanId },
       }),
       prisma.quickStartExercise.findUnique({
-        where: { id },
+        where: { id: id },
       }),
     ]);
 
-    if (planExerciseExist) {
+    if (!planExerciseExist) {
       res.status(400).json({ error: "Quick start exercise not found" });
       return;
     }
@@ -186,5 +184,35 @@ export const updateQuickPlanExercise = async (
   } catch (error) {
     console.log(error);
     res.status(400).json({ error: "Failed to update quick start exercise" });
+  }
+};
+
+// delete quick plan exercise
+export const deleteQuickPlanExercise = async (
+  req: QuickPlanExerciseRequest,
+  res: Response
+): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const planExerciseExist = await prisma.quickStartExercise.findUnique({
+      where: { id: id },
+    });
+
+    if (!planExerciseExist) {
+      res.status(400).json({ error: "Quick start exercise not found" });
+      return;
+    }
+
+    await prisma.quickStartExercise.delete({
+      where: { id: id },
+    });
+
+    res
+      .status(200)
+      .json({ message: "Quick start exercise deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting quick start exercise:", error);
+    res.status(500).json({ error: "Failed to delete quick start exercise" });
   }
 };

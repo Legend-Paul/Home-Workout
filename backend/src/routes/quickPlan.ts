@@ -7,6 +7,7 @@ import {
 } from "../controllers/quickPlanController.js";
 import {
   createQuickPlanExercise,
+  deleteQuickPlanExercise,
   getQuickPlanExercise,
   updateQuickPlanExercise,
 } from "../controllers/quickPlanExerciseController.js";
@@ -22,5 +23,6 @@ quickPlanRouter.delete("/:id", updateQuickPlan);
 quickPlanRouter.get("/:planId/exercise", getQuickPlanExercise);
 quickPlanRouter.post("/:planId/exercise/new", createQuickPlanExercise);
 quickPlanRouter.put("/:planId/exercise/:id", updateQuickPlanExercise);
+quickPlanRouter.delete("/:planId/exercise/:id", deleteQuickPlanExercise);
 
 export default quickPlanRouter;
