@@ -35,8 +35,8 @@ model Exercise {
   description  String
   imageUrl     String
   videoUrl     String?
-  difficulty   Level    @default(ALL)
-  muscleGroups String[]
+  level   Level    @default(ALL)
+  muscleGroup  String[]
   equipment    String[] @default([])
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
@@ -44,7 +44,7 @@ model Exercise {
   createdBy    String?
 
   createdByUser       User?                @relation(fields: [createdBy], references: [id], onDelete: SetNull)
-  quickStartExercises QUICKSTARTEXERCISE[]
+  quickStartExercises QuickStartExercise[]
   weeklyPlanExercises WeeklyPlanExercise[]
 }
 
@@ -55,16 +55,16 @@ model QuickStartPlan {
   level        Level
   dayOfWeek    Int // 0-6 (Sunday-Saturday)
   dayName      String // "Monday", "Tuesday", etc.
-  muscleGroups String[] // e.g., ["Arms", "Legs"]
+  muscleGroup  String[] // e.g., ["Arms", "Legs"]
   isRestDay    Boolean  @default(false)
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  quickStartExercises QUICKSTARTEXERCISE[]
+  quickStartExercises QuickStartExercise[]
 }
 
-model QUICKSTARTEXERCISE {
+model QuickStartExercise {
   id               String @id @default(uuid())
   quickStartPlanId String
   exerciseId       String
@@ -86,7 +86,7 @@ model WeeklyPlan {
   name         String
   dayOfWeek    Int // 0-6 (Sunday-Saturday)
   dayName      String // "Monday", "Tuesday", etc.
-  muscleGroups String[] // e.g., ["Arms", "Legs"]
+  muscleGroup  String[] // e.g., ["Arms", "Legs"]
   isRestDay    Boolean  @default(false)
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())

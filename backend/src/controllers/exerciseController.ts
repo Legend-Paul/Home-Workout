@@ -9,15 +9,20 @@ const validate = [
     .isString()
     .withMessage("Description must be a string"),
   body("imageUrl").trim().isString().withMessage("Image URL must be a string"),
-  body("category").trim().isString().withMessage("Category must be a string"),
   body("videoUrl")
     .optional()
     .isString()
     .withMessage("Video URL must be a string"),
-  body("difficulty")
+  body("level")
+    .isIn(["BEGINNER", "INTERMEDIATE", "ADVANCED", "ALL"])
+    .withMessage("Level must be a string"),
+  body("muscleGroup")
+    .isArray({ min: 1 })
+    .withMessage("Muscle groups must be an array"),
+  body("equipment")
     .optional()
-    .isString()
-    .withMessage("Difficulty must be a string"),
+    .isArray({ min: 1 })
+    .withMessage("Equipment must be an array"),
 ];
 
 interface ExerciseRequest extends Request {
@@ -25,9 +30,10 @@ interface ExerciseRequest extends Request {
     name: string;
     description: string;
     imageUrl: string;
-    category: string;
     videoUrl?: string;
-    difficulty?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+    level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
+    muscleGroup: string[];
+    equipment?: string[];
   };
 }
 
@@ -42,23 +48,20 @@ const createExerciseHandler = async (
     return;
   }
 
-  const { name, description, imageUrl, category, videoUrl, difficulty } =
-    req.body;
+  const {
+    name,
+    description,
+    imageUrl,
+    videoUrl,
+    level,
+    muscleGroup,
+    equipment,
+  } = req.body;
 
   try {
-    const [categoryExists, exerciseExists] = await Promise.all([
-      prisma.category.findUnique({
-        where: { name: category },
-      }),
-      prisma.exercise.findUnique({
-        where: { name },
-      }),
-    ]);
-
-    if (!categoryExists) {
-      res.status(400).json({ error: "Category does not exist" });
-      return;
-    }
+    const exerciseExists = await prisma.exercise.findUnique({
+      where: { name },
+    });
 
     if (exerciseExists) {
       res.status(400).json({ error: "Exercise with this name already exists" });
@@ -70,9 +73,10 @@ const createExerciseHandler = async (
         name,
         description,
         imageUrl,
-        categoryId: categoryExists.id,
         videoUrl: videoUrl || null,
-        difficulty: difficulty || null,
+        level: level || null,
+        muscleGroup: muscleGroup,
+        equipment: equipment || [],
       },
     });
 
@@ -91,47 +95,10 @@ export const createExercise = [...validate, createExerciseHandler];
 // Get all exercises
 export const getAllExercises = async (req: Request, res: Response) => {
   try {
-    const exercises = await prisma.exercise.findMany({
-      include: {
-        categories: true,
-      },
-    });
+    const exercises = await prisma.exercise.findMany();
     res.json(exercises);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to fetch exercises" });
-  }
-};
-
-interface CategoryParams extends Request {
-  params: {
-    categoryName: string;
-  };
-}
-
-export const getExcrcisesByCategory = async (
-  req: CategoryParams,
-  res: Response
-) => {
-  const { categoryName } = req.params;
-  try {
-    const category = await prisma.category.findUnique({
-      where: {
-        name:
-          categoryName.charAt(0).toUpperCase() +
-          categoryName.slice(1).toLocaleLowerCase(),
-      },
-      include: {
-        exercises: true,
-      },
-    });
-    if (!category) {
-      res.status(404).json({ error: "Category not found" });
-      return;
-    }
-    res.json(category.exercises);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Failed to fetch exercises by category" });
   }
 };
