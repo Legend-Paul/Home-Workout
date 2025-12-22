@@ -214,3 +214,30 @@ const updateWeeklyPlanHandler = async (
   }
 };
 export const updateWeeklyPlan = [...validate, updateWeeklyPlanHandler];
+
+// delete weekly plan handler
+export const deleteWeeklyPlan = async (
+  req: WeeklyPlanRequest,
+  res: Response
+): Promise<void> => {
+  const weeklyPlanId = req.params.id;
+
+  try {
+    const weeklyPlanExist = await prisma.weeklyPlan.findUnique({
+      where: { id: weeklyPlanId },
+    });
+
+    if (!weeklyPlanExist) {
+      res.status(404).json({ error: "Weekly plan not found" });
+      return;
+    }
+
+    await prisma.weeklyPlan.delete({
+      where: { id: weeklyPlanId },
+    });
+    res.status(200).json({ message: "Weekly plan deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting weekly plan:", error);
+    res.status(500).json({ error: "Failed to delete weekly plan" });
+  }
+};
