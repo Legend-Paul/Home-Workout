@@ -47,6 +47,9 @@ interface WeeklyPlanRequest extends Request {
     isRestDay: boolean;
     isActive: boolean;
   };
+  params: {
+    id: string;
+  };
 }
 
 const createWeeklyPlanHandler = async (
@@ -164,3 +167,50 @@ const getWeeklyPlanHandler = async (
 };
 
 export const getWeeklyPlan = [...validateGetWeeklyPlan, getWeeklyPlanHandler];
+
+// Update weekly plan handler
+const updateWeeklyPlanHandler = async (
+  req: WeeklyPlanRequest,
+  res: Response
+): Promise<void> => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  const weeklyPlanId = req.params.id;
+  const { name, dayOfWeek, dayName, muscleGroup, isRestDay, isActive } =
+    req.body;
+
+  try {
+    const weeklyPlanExist = await prisma.weeklyPlan.findUnique({
+      where: { id: weeklyPlanId },
+    });
+
+    if (!weeklyPlanExist) {
+      res.status(404).json({ error: "Weekly plan not found" });
+      return;
+    }
+
+    const updatedWeeklyPlan = await prisma.weeklyPlan.update({
+      where: { id: weeklyPlanId },
+      data: {
+        name,
+        dayOfWeek,
+        dayName,
+        muscleGroup,
+        isRestDay,
+        isActive,
+      },
+    });
+    res.status(200).json({
+      message: "Weekly plan updated successfully",
+      plan: updatedWeeklyPlan,
+    });
+  } catch (error) {
+    console.error("Error updating weekly plan:", error);
+    res.status(500).json({ error: "Failed to update weekly plan" });
+  }
+};
+export const updateWeeklyPlan = [...validate, updateWeeklyPlanHandler];
