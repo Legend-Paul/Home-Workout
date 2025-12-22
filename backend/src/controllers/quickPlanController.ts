@@ -133,6 +133,27 @@ export const getQuickPlanExercise = async (
   }
 };
 
+export const getAllQuickPlans = async (
+  req: QuickPlanRequest,
+  res: Response
+): Promise<void> => {
+  try {
+    const allPlans = await prisma.quickStartPlan.findMany({
+      include: {
+        _count: {
+          select: {
+            quickStartExercises: true,
+          },
+        },
+      },
+    });
+    res.status(200).json(allPlans);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to fetch quick start plans" });
+  }
+};
+
 // Update quick plan handler
 export const updateQuickPlan = async (
   req: QuickPlanRequest,
