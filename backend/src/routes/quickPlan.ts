@@ -8,6 +8,7 @@ import {
 import {
   createQuickPlanExercise,
   getQuickPlanExercise,
+  updateQuickPlanExercise,
 } from "../controllers/quickPlanExerciseController.js";
 
 const quickPlanRouter = Router();
@@ -20,5 +21,6 @@ quickPlanRouter.delete("/:id", updateQuickPlan);
 // quick plan exercises
 quickPlanRouter.get("/:planId/exercise", getQuickPlanExercise);
 quickPlanRouter.post("/:planId/exercise/new", createQuickPlanExercise);
+quickPlanRouter.put("/:planId/exercise/:id", updateQuickPlanExercise);
 
 export default quickPlanRouter;

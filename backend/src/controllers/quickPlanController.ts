@@ -91,7 +91,9 @@ const createQuickPlanHandler = async (
         isActive,
       },
     });
-    res.status(201).json(newQuickStartPlan);
+    res
+      .status(201)
+      .json({ message: "Plan created successifully", plan: newQuickStartPlan });
   } catch (error) {
     console.error("Error creating quick start plan:", error);
     res.status(500).json({ error: "Failed to create plan" });
@@ -166,7 +168,12 @@ export const updateQuickPlan = async (
         isActive,
       },
     });
-    res.status(200).json(updatedQuickStartPlan);
+    res
+      .status(200)
+      .json({
+        message: "Plan updated successifully",
+        plan: updatedQuickStartPlan,
+      });
   } catch (error) {
     console.error("Error updating quick start plan:", error);
     res.status(500).json({ error: "Failed to update plan" });
