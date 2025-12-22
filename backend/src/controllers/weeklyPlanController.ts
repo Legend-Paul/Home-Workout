@@ -96,3 +96,71 @@ const createWeeklyPlanHandler = async (
 };
 
 export const createWeeklyPlan = [...validate, createWeeklyPlanHandler];
+
+// Get weekly plan handler
+const validateGetWeeklyPlan = [
+  body("userId").isUUID().withMessage("User ID must be a valid UUID"),
+  body("dayOfWeek")
+    .isNumeric()
+    .withMessage("Day of week must be a number")
+    .custom((value) => value >= 0 && value <= 6)
+    .withMessage("Day of week must be between 0 and 6"),
+];
+
+interface GetWeeklyPlanRequest extends Request {
+  body: {
+    userId: string;
+    dayOfWeek: number;
+  };
+}
+
+const getWeeklyPlanHandler = async (
+  req: GetWeeklyPlanRequest,
+  res: Response
+) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  const { userId, dayOfWeek } = req.body;
+  try {
+    const userIdExists = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!userIdExists) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    const weeklyPlan = await prisma.weeklyPlan.findUnique({
+      where: {
+        userId_dayOfWeek: {
+          userId,
+          dayOfWeek,
+        },
+      },
+      include: {
+        weeklyPlanExercises: {
+          include: {
+            exercise: true,
+          },
+        },
+      },
+    });
+
+    if (!weeklyPlan) {
+      res.status(404).json({ error: "Weekly plan not found" });
+      return;
+    }
+
+    res.status(200).json({ plan: weeklyPlan });
+  } catch (error) {
+    console.error("Error retrieving weekly plan:", error);
+    res.status(500).json({ error: "Failed to retrieve weekly plan" });
+  }
+};
+
+export const getWeeklyPlan = [...validateGetWeeklyPlan, getWeeklyPlanHandler];
