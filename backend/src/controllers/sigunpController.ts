@@ -49,7 +49,7 @@ const createUserHandler = async (
 
     // Check if user already exists
     if (userExist) {
-      res.status(409).json({ message: "User with this email already exists" });
+      res.status(409).json({ error: "User with this email already exists" });
       return;
     }
 
@@ -66,7 +66,7 @@ const createUserHandler = async (
       .json({ message: "User created successfully", userId: newUser });
   } catch (error) {
     console.error("Error creating user:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Failed to create user" });
   }
 };
 export const createUser = [...validate, createUserHandler];
@@ -104,7 +104,7 @@ export const updateGoal = [
       });
 
       if (!user) {
-        res.status(404).json({ message: "User not found" });
+        res.status(404).json({ error: "User not found" });
         return;
       }
 
@@ -117,7 +117,7 @@ export const updateGoal = [
         .json({ message: "User goal updated successfully", user: updatedUser });
     } catch (error) {
       console.error("Error updating user goal:", error);
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "Failed to update user goal" });
     }
   },
 ];
@@ -155,7 +155,7 @@ export const updateLevel = [
       });
 
       if (!user) {
-        res.status(404).json({ message: "User not found" });
+        res.status(404).json({ error: "User not found" });
         return;
       }
 
@@ -163,15 +163,13 @@ export const updateLevel = [
         where: { id: userId },
         data: { level, onboardingStep: 2 },
       });
-      res
-        .status(200)
-        .json({
-          message: "User level updated successfully",
-          user: updatedUser,
-        });
+      res.status(200).json({
+        message: "User level updated successfully",
+        user: updatedUser,
+      });
     } catch (error) {
       console.error("Error updating user level:", error);
-      res.status(500).json({ message: "Internal server error" });
+      res.status(500).json({ message: "Failed to update user level" });
     }
   },
 ];
