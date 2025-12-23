@@ -168,3 +168,41 @@ export const updateWeekDayExercises = async (
     res.status(500).json({ error: "Failed to update week day exercise" });
   }
 };
+
+// Delete week day exercise handler
+export const deleteWeekDayExercises = async (
+  req: WeekDayExerciseRequest,
+  res: Response
+): Promise<void> => {
+  const { planId, id } = req.params;
+
+  try {
+    const [weeklyPlan, weekDayExercise] = await Promise.all([
+      prisma.weeklyPlan.findUnique({
+        where: { id: planId },
+      }),
+      prisma.weeklyPlanExercise.findUnique({
+        where: { id: id },
+      }),
+    ]);
+
+    if (!weekDayExercise) {
+      res.status(404).json({ error: "Week day exercise not found" });
+      return;
+    }
+
+    if (!weeklyPlan) {
+      res.status(404).json({ error: "Weekly plan not found" });
+      return;
+    }
+
+    await prisma.weeklyPlanExercise.delete({
+      where: { id: id },
+    });
+
+    res.status(200).json({ message: "Week day exercise deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting week day exercise:", error);
+    res.status(500).json({ error: "Failed to delete week day exercise" });
+  }
+};

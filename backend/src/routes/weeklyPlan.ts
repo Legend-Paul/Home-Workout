@@ -10,6 +10,7 @@ import {
   createWeekDayExercises,
   getWeekDayExercises,
   updateWeekDayExercises,
+  deleteWeekDayExercises,
 } from "../controllers/weekDayExerciseController.js";
 
 const weeklyPlanRouter = Router();
@@ -23,5 +24,6 @@ weeklyPlanRouter.delete("/:id/delete", deleteWeeklyPlan);
 weeklyPlanRouter.get("/:planId/exercise", getWeekDayExercises);
 weeklyPlanRouter.post("/:planId/exercise/new", createWeekDayExercises);
 weeklyPlanRouter.put("/:planId/exercise/:id/update", updateWeekDayExercises);
+weeklyPlanRouter.delete("/:planId/exercise/:id/delete", deleteWeekDayExercises);
 
 export default weeklyPlanRouter;
