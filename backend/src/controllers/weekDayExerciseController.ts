@@ -78,3 +78,34 @@ export const createWeekDayExercises = [
     }
   },
 ];
+
+export const getWeekDayExercises = async (
+  req: WeekDayExerciseRequest,
+  res: Response
+): Promise<void> => {
+  const { planId } = req.params;
+
+  try {
+    const weeklyPlan = await prisma.weeklyPlan.findUnique({
+      where: { id: planId },
+    });
+
+    if (!weeklyPlan) {
+      res.status(404).json({ error: "Weekly plan not found" });
+      return;
+    }
+    const exercises = await prisma.weeklyPlanExercise.findMany({
+      where: {
+        weeklyPlanId: planId,
+      },
+      include: {
+        exercise: true,
+      },
+    });
+
+    res.status(200).json(exercises);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to get week exercises" });
+  }
+};
