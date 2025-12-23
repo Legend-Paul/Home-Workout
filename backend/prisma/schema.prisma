@@ -166,7 +166,7 @@ enum Goal {
   BUILD_MUSCLE
   LOSE_FAT
   MAINTAIN_FITNESS
-  OTHER
+  ALL
 }
 
 enum Level {

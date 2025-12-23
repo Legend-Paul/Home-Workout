@@ -171,3 +171,9 @@ export const updateLevel = [
     }
   },
 ];
+
+// Create user quick plan
+export const createUserQuickPlan = async (
+  req: UsernameRequest,
+  res: Response
+): Promise<void> => {};
