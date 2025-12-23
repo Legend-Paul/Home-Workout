@@ -3,6 +3,6 @@ import { updatePassword } from "../controllers/forgotPaswordController.js";
 
 const forgotPaswordRouter = Router();
 
-forgotPaswordRouter.post("/", updatePassword);
+forgotPaswordRouter.put("/", updatePassword);
 
 export default forgotPaswordRouter;
