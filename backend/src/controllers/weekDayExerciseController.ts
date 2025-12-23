@@ -25,6 +25,7 @@ interface WeekDayExerciseRequest extends Request {
   };
   params: {
     planId: string;
+    id: string;
   };
 }
 
@@ -107,5 +108,63 @@ export const getWeekDayExercises = async (
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Failed to get week exercises" });
+  }
+};
+
+export const updateWeekDayExercises = async (
+  req: WeekDayExerciseRequest,
+  res: Response
+): Promise<void> => {
+  const { planId, id } = req.params;
+  const { exerciseId, order, reps, sets, duration } = req.body;
+
+  try {
+    const [weeklyPlan, exercise, weekDayExercise] = await Promise.all([
+      prisma.weeklyPlan.findUnique({
+        where: { id: planId },
+      }),
+      prisma.exercise.findUnique({
+        where: { id: exerciseId },
+      }),
+      prisma.weeklyPlanExercise.findUnique({
+        where: { id: id },
+      }),
+    ]);
+
+    if (!weekDayExercise) {
+      res.status(404).json({ error: "Week day exercise not found" });
+      return;
+    }
+
+    if (!weeklyPlan) {
+      res.status(404).json({ error: "Weekly plan not found" });
+      return;
+    }
+
+    if (!exercise) {
+      res.status(404).json({ error: "Exercise not found" });
+      return;
+    }
+
+    const updatedExercise = await prisma.weeklyPlanExercise.update({
+      where: {
+        id: id,
+      },
+      data: {
+        exerciseId,
+        order,
+        reps: reps || null,
+        sets: sets || null,
+        duration: duration || null,
+      },
+    });
+
+    res.status(200).json({
+      message: "Week day exercise(s) updated successfully",
+      exercise: updatedExercise,
+    });
+  } catch (error) {
+    console.error("Error updating week day exercise:", error);
+    res.status(500).json({ error: "Failed to update week day exercise" });
   }
 };
