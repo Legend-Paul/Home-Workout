@@ -73,14 +73,14 @@ export const updateUsename = [
 const vidateGoal = [
   body("goal")
     .trim()
-    .isIn(["BUILD_MUSCLE", "LOSE_FAT", "MAINTAIN_FITNESS", "OTHER"])
+    .isIn(["BUILD_MUSCLE", "LOSE_FAT", "MAINTAIN_FITNESS", "ALL"])
     .withMessage("Invalid goal"),
 ];
 
 interface GoalRequest extends Request {
   params: { id: string };
   body: {
-    goal: "BUILD_MUSCLE" | "LOSE_FAT" | "MAINTAIN_FITNESS" | "OTHER";
+    goal: "BUILD_MUSCLE" | "LOSE_FAT" | "MAINTAIN_FITNESS" | "ALL";
   };
 }
 
@@ -176,4 +176,58 @@ export const updateLevel = [
 export const createUserQuickPlan = async (
   req: UsernameRequest,
   res: Response
-): Promise<void> => {};
+): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    const quickPlans = await prisma.quickStartPlan.findMany({
+      where: {
+        level: user.level ?? "ALL",
+        goal: user.goal ?? "ALL",
+      },
+      include: {
+        quickStartExercises: true,
+      },
+    });
+
+    quickPlans.forEach(async (plan) => {
+      const weeklyPlan = await prisma.weeklyPlan.create({
+        data: {
+          userId: user.id,
+          name: plan.name,
+          dayOfWeek: plan.dayOfWeek,
+          dayName: plan.dayName,
+          muscleGroup: plan.muscleGroup,
+          isRestDay: plan.isRestDay,
+          quickStartPlanId: plan.id,
+        },
+      });
+      plan.quickStartExercises.forEach(async (ex) => {
+        await prisma.weeklyPlanExercise.create({
+          data: {
+            weeklyPlanId: weeklyPlan.id,
+            exerciseId: ex.exerciseId,
+            order: ex.order,
+            reps: ex.reps,
+            sets: ex.sets,
+            duration: ex.duration,
+          },
+        });
+      });
+    });
+
+    res.json("Weekly plan exercise created successifully");
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to create user quick plan" });
+  }
+};

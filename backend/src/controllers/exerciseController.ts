@@ -17,11 +17,11 @@ const validate = [
     .isIn(["BEGINNER", "INTERMEDIATE", "ADVANCED", "ALL"])
     .withMessage("Level must be a string"),
   body("muscleGroup")
-    .isArray({ min: 1 })
+    .isArray({ min: 0 })
     .withMessage("Muscle groups must be an array"),
   body("equipment")
     .optional()
-    .isArray({ min: 1 })
+    .isArray({ min: 0 })
     .withMessage("Equipment must be an array"),
 ];
 

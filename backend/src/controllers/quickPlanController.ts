@@ -5,7 +5,7 @@ import { body, validationResult } from "express-validator";
 const validate = [
   body("name").isString().withMessage("Name must be a string"),
   body("goal")
-    .isIn(["BUILD_MUSCLE", "LOSE_FAT", "MAINTAIN_FITNESS", "OTHER"])
+    .isIn(["BUILD_MUSCLE", "LOSE_FAT", "MAINTAIN_FITNESS", "ALL"])
     .withMessage("Goal must be a string"),
   body("level")
     .isIn(["BEGINNER", "INTERMEDIATE", "ADVANCED", "ALL"])
@@ -37,7 +37,7 @@ const validate = [
 interface QuickPlanRequest extends Request {
   body: {
     name: string;
-    goal: "BUILD_MUSCLE" | "LOSE_FAT" | "MAINTAIN_FITNESS" | "OTHER";
+    goal: "BUILD_MUSCLE" | "LOSE_FAT" | "MAINTAIN_FITNESS" | "ALL";
     level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
     dayOfWeek: number;
     dayName:
