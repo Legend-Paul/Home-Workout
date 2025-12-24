@@ -51,7 +51,7 @@ export const sendNewFriendship = [
       }
 
       if (!friend) {
-        res.status(400).json({ error: "friend not found!" });
+        res.status(400).json({ error: "Friend not found!" });
         return;
       }
 
@@ -102,7 +102,7 @@ export const acceptNewFriendship = [
       }
 
       if (!friend) {
-        res.status(400).json({ error: "friend not found!" });
+        res.status(400).json({ error: "Friend not found!" });
         return;
       }
 
@@ -120,7 +120,7 @@ export const acceptNewFriendship = [
       res.status(201).json({ message: "Friendship accepted!" });
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: "Failed to send friendship" });
+      res.status(500).json({ error: "Failed to accept friendship" });
     }
   },
 ];
@@ -163,22 +163,8 @@ export const deleteFriendship = [
     const userId = req.params.id;
 
     try {
-      const friendshipExist = await prisma.friendship.findUnique({
-        where: {
-          userId_friendId: {
-            userId,
-            friendId,
-          },
-        },
-      });
-
-      if (friendshipExist) {
-        res.status(400).json({ error: "Frieship exist!" });
-        return;
-      }
-
-      await Promise.all([
-        prisma.friendship.delete({
+      const [sentByUser, sentByFriend] = await Promise.all([
+        prisma.friendship.findUnique({
           where: {
             userId_friendId: {
               userId,
@@ -186,7 +172,7 @@ export const deleteFriendship = [
             },
           },
         }),
-        prisma.friendship.delete({
+        prisma.friendship.findUnique({
           where: {
             userId_friendId: {
               userId: friendId,
@@ -195,6 +181,31 @@ export const deleteFriendship = [
           },
         }),
       ]);
+
+      if (!sentByUser && !sentByFriend) {
+        res.status(400).json({ error: "Friendship not found!" });
+        return;
+      }
+
+      if (sentByUser)
+        await prisma.friendship.delete({
+          where: {
+            userId_friendId: {
+              userId,
+              friendId,
+            },
+          },
+        });
+
+      if (sentByFriend)
+        await prisma.friendship.delete({
+          where: {
+            userId_friendId: {
+              userId: friendId,
+              friendId: userId,
+            },
+          },
+        });
       res.status(201).json({ message: "Friendship deleted!" });
     } catch (error) {
       console.log(error);

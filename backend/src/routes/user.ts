@@ -9,6 +9,7 @@ import {
   sendNewFriendship,
   acceptNewFriendship,
   getFriends,
+  deleteFriendship,
 } from "../controllers/friendshipController.js";
 
 const userRouter = Router();
@@ -21,5 +22,6 @@ userRouter.put("/:id/update/level", updateLevel);
 userRouter.get("/:id/friendship", getFriends);
 userRouter.post("/:id/friendship/new", sendNewFriendship);
 userRouter.post("/:id/friendship/accept", acceptNewFriendship);
+userRouter.delete("/:id/friendship/delete", deleteFriendship);
 
 export default userRouter;
