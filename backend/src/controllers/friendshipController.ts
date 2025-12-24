@@ -6,7 +6,7 @@ const validate = [
   body("friendId").isUUID().withMessage("Friend id must be a valid uuid"),
 ];
 
-interface NewFriendRequest extends Request {
+interface FriendshipRequest extends Request {
   body: {
     friendId: string;
   };
@@ -17,7 +17,66 @@ interface NewFriendRequest extends Request {
 
 export const sendNewFriendship = [
   ...validate,
-  async (req: NewFriendRequest, res: Response): Promise<void> => {
+  async (req: FriendshipRequest, res: Response): Promise<void> => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      return;
+    }
+
+    const { friendId } = req.body;
+    const userId = req.params.id;
+
+    try {
+      const [user, friend, friendshipExist] = await Promise.all([
+        prisma.user.findUnique({
+          where: { id: userId },
+        }),
+        prisma.user.findUnique({
+          where: { id: friendId },
+        }),
+        prisma.friendship.findUnique({
+          where: {
+            userId_friendId: {
+              userId,
+              friendId,
+            },
+          },
+        }),
+      ]);
+
+      if (!user) {
+        res.status(400).json({ error: "User not found!" });
+        return;
+      }
+
+      if (!friend) {
+        res.status(400).json({ error: "friend not found!" });
+        return;
+      }
+
+      if (friendshipExist) {
+        res.status(400).json({ error: "Frieship exist!" });
+        return;
+      }
+
+      await prisma.friendship.create({
+        data: {
+          friendId,
+          userId,
+        },
+      });
+      res.status(201).json({ message: "Friendship sent!" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Failed to send friendship" });
+    }
+  },
+];
+
+export const acceptNewFriendship = [
+  ...validate,
+  async (req: FriendshipRequest, res: Response): Promise<void> => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({ errors: errors.array() });
@@ -47,13 +106,18 @@ export const sendNewFriendship = [
         return;
       }
 
-      await prisma.friendship.create({
+      await prisma.friendship.update({
+        where: {
+          userId_friendId: {
+            userId: friendId,
+            friendId: userId,
+          },
+        },
         data: {
-          friendId,
-          userId,
+          status: "ACCEPTED",
         },
       });
-      res.status(201).json({ message: "Friendship sent!" });
+      res.status(201).json({ message: "Friendship accepted!" });
     } catch (error) {
       console.log(error);
       res.status(500).json({ error: "Failed to send friendship" });

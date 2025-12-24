@@ -15,5 +15,6 @@ userRouter.put("/:id/update/level", updateLevel);
 
 // friends
 userRouter.post("/:id/friendship/new", sendNewFriendship);
+userRouter.post("/:id/friendship/accept", sendNewFriendship);
 
 export default userRouter;
