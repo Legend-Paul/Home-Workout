@@ -149,3 +149,56 @@ export const getFriends = async (
     res.status(500).json({ error: "Failed to get friends" });
   }
 };
+
+export const deleteFriendship = [
+  ...validate,
+  async (req: FriendshipRequest, res: Response): Promise<void> => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({ errors: errors.array() });
+      return;
+    }
+
+    const { friendId } = req.body;
+    const userId = req.params.id;
+
+    try {
+      const friendshipExist = await prisma.friendship.findUnique({
+        where: {
+          userId_friendId: {
+            userId,
+            friendId,
+          },
+        },
+      });
+
+      if (friendshipExist) {
+        res.status(400).json({ error: "Frieship exist!" });
+        return;
+      }
+
+      await Promise.all([
+        prisma.friendship.delete({
+          where: {
+            userId_friendId: {
+              userId,
+              friendId,
+            },
+          },
+        }),
+        prisma.friendship.delete({
+          where: {
+            userId_friendId: {
+              userId: friendId,
+              friendId: userId,
+            },
+          },
+        }),
+      ]);
+      res.status(201).json({ message: "Friendship deleted!" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Failed to delete friendship" });
+    }
+  },
+];
