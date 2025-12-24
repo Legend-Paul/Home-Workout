@@ -124,3 +124,28 @@ export const acceptNewFriendship = [
     }
   },
 ];
+
+export const getFriends = async (
+  req: FriendshipRequest,
+  res: Response
+): Promise<void> => {
+  const { id } = req.params;
+  try {
+    const friends = await prisma.friendship.findMany({
+      where: {
+        OR: [{ userId: id }, { friendId: id }],
+      },
+      include: {
+        user: {
+          include: {
+            calendarEntries: true,
+          },
+        },
+      },
+    });
+    res.status(200).json(friends);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to get friends" });
+  }
+};
