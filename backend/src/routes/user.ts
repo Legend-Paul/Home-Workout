@@ -11,7 +11,10 @@ import {
   getFriends,
   deleteFriendship,
 } from "../controllers/friendshipController.js";
-import { createNewCalendarEntry } from "../controllers/calendarEntry.js";
+import {
+  createNewCalendarEntry,
+  getCalendarEntry,
+} from "../controllers/calendarEntry.js";
 
 const userRouter = Router();
 userRouter.get("/:id/quick-plan", createUserQuickPlan);
@@ -21,6 +24,7 @@ userRouter.put("/:id/update/level", updateLevel);
 
 // calendar entry
 userRouter.post("/:id/calendar-entry/new", createNewCalendarEntry);
+userRouter.post("/:id/calendar-entry/new", getCalendarEntry);
 
 // friends
 userRouter.get("/:id/friendship", getFriends);

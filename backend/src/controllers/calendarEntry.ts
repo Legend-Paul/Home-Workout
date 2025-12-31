@@ -83,3 +83,5 @@ export const createNewCalendarEntry = [
     }
   },
 ];
+
+export const getCalendarEntry = (req: CalendarRequest, res: Response) => {};
