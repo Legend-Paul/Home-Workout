@@ -84,4 +84,22 @@ export const createNewCalendarEntry = [
   },
 ];
 
-export const getCalendarEntry = (req: CalendarRequest, res: Response) => {};
+export const getCalendarEntry = async (
+  req: CalendarRequest,
+  res: Response
+): Promise<void> => {
+  const { id } = req.params;
+  try {
+    const userExist = await prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!userExist) {
+      res.status(400).json({ error: "User not found!" });
+      return;
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Failed to create calendar entry" });
+  }
+};

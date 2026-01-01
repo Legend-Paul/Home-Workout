@@ -23,8 +23,8 @@ userRouter.put("/:id/update/goal", updateGoal);
 userRouter.put("/:id/update/level", updateLevel);
 
 // calendar entry
+userRouter.post("/:id/calendar-entry", getCalendarEntry);
 userRouter.post("/:id/calendar-entry/new", createNewCalendarEntry);
-userRouter.post("/:id/calendar-entry/new", getCalendarEntry);
 
 // friends
 userRouter.get("/:id/friendship", getFriends);
