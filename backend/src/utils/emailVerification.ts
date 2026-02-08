@@ -35,7 +35,7 @@ export const sendVerificationEmail = async (
   });
 
   const verificationLink = `${process.env.FRONTEND_URL || "http://localhost:3000"}
-  /verify-email?token=${token}`;
+  ${route}?token=${token}`;
 
   await trasporter.sendMail({
     from: process.env.EMAIL_USER,

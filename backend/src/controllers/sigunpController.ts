@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import bcrypt from "bcryptjs";
 import { body, validationResult } from "express-validator";
+import { sendVerificationEmail } from "../utils/emailVerification.js";
 
 const validate = [
   body("email").trim().isEmail().withMessage("Invalid email format"),
@@ -30,7 +31,7 @@ interface UserRequest extends Request {
 
 const createUserHandler = async (
   req: UserRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -49,8 +50,14 @@ const createUserHandler = async (
 
     // Check if user already exists
     if (userExist) {
-      res.status(409).json({ error: "User with this email already exists" });
-      return;
+      if (userExist.isVerified) {
+        res.status(409).json({ error: "User with this email already exists" });
+        return;
+      } else {
+        await prisma.user.delete({
+          where: { email },
+        });
+      }
     }
 
     // Create new user
@@ -61,9 +68,21 @@ const createUserHandler = async (
         password: hashedPassword,
       },
     });
-    res
-      .status(201)
-      .json({ message: "User created successfully", userId: newUser });
+    try {
+      await sendVerificationEmail(
+        newUser.id,
+        newUser.email,
+        "/verify-email",
+        "Verify Your Email",
+        "verify your email",
+      );
+      res.status(201).json({
+        message:
+          "User created successfully. Please check your email to verify your account.",
+      });
+    } catch (error) {
+      console.error("Error sending verification email:", error);
+    }
   } catch (error) {
     console.error("Error creating user:", error);
     res.status(500).json({ message: "Failed to create user" });
