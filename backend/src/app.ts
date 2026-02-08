@@ -8,6 +8,7 @@ import passportConfig from "./auth/passport.js";
 import sigunpRouter from "./routes/sigunp.js";
 import loginRouter from "./routes/login.js";
 import forgotPaswordRouter from "./routes/forgotPassword.js";
+import verificationEmailRouter from "./routes/verificationEmail.js";
 import userRouter from "./routes/user.js";
 import quickPlanRouter from "./routes/quickPlan.js";
 import weeklyPlanRouter from "./routes/weeklyPlan.js";
@@ -27,6 +28,7 @@ app.use("/auth/signup", sigunpRouter);
 app.use("/auth/login", loginRouter);
 app.use("/auth/forgot-password", forgotPaswordRouter);
 app.use("/auth/user", userRouter);
+app.use("/auth/verification-email", verificationEmailRouter);
 
 //exercise routes
 app.use("/api/exercise", exerciseRouter);
