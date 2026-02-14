@@ -1,29 +1,21 @@
 import type { Request, Response } from "express";
-import bcrypt from "bcryptjs";
 import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
+import { sendVerificationEmail } from "../utils/sendEmailVerification.js";
 
 const validate = [
   body("email").trim().isEmail().withMessage("Invalid email format"),
-  body("password")
-    .trim()
-    .isLength({ min: 8 })
-    .withMessage("Password must be at least 8 characters long"),
-  body("confirmPassword")
-    .trim()
-    .isLength({ min: 8 })
-    .custom((value, { req }) => value === req.body.password)
-    .withMessage("Passwords do not match"),
 ];
 
-interface Data {
-  email: string;
-  password: string;
+interface ForgotPasswordRequest extends Request {
+  body: {
+    email: string;
+  };
 }
 
 const updatePasswordHandler = async (
-  req: Request,
-  res: Response
+  req: ForgotPasswordRequest,
+  res: Response,
 ): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -31,7 +23,7 @@ const updatePasswordHandler = async (
     return;
   }
 
-  const { email, password }: Data = req.body;
+  const { email } = req.body;
 
   try {
     const user = await prisma.user.findUnique({
@@ -43,14 +35,19 @@ const updatePasswordHandler = async (
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (!user.isVerified) {
+      res.status(400).json({ message: "Email not verified" });
+      return;
+    }
 
-    await prisma.user.update({
-      where: { email },
-      data: { password: hashedPassword },
-    });
-
-    res.status(200).json({ message: "Password updated successfully" });
+    await sendVerificationEmail(
+      user.id,
+      user.email,
+      "forgot-password",
+      "Reset Your Password",
+      "reset your password",
+    );
+    res.status(200).json({ message: "Verification email sent successfully" });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }

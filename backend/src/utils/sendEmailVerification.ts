@@ -44,10 +44,10 @@ export const sendVerificationEmail = async (
 
     html: `<h2 style="color: #007bff;">FitTrack</h2>
     <p><strong>This link expires in 1 hour.</strong></p>
-    <p>Please click the link below to ${action.charAt(0).toLocaleUpperCase() + action.slice(1)}</p>
+    <p>Please click the link below to ${action}</p>
     <button 
     style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px;"><a href="${verificationLink}" style="color: white; text-decoration: none;">
-    Verify Email</a></button>
+    ${action.charAt(0).toLocaleUpperCase() + action.slice(1)}</a></button>
     `,
   });
 };
