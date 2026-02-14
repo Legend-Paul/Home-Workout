@@ -3,7 +3,7 @@ import { prisma } from "../lib/prisma.js";
 import jwt from "jsonwebtoken";
 
 interface VerifyEmailRequest extends Request {
-  query: {
+  params: {
     token: string;
   };
 }
@@ -12,11 +12,13 @@ export const verifyVerificationEmail = async (
   req: VerifyEmailRequest,
   res: Response,
 ): Promise<void> => {
-  const { token } = req.query;
+  const { token } = req.params;
+  console.log("Received token:", token);
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: string;
     };
+    console.log("Decoded token:", decoded);
     const verificationToken = await prisma.verificationToken.findUnique({
       where: { token },
     });

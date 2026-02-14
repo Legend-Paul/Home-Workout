@@ -35,14 +35,14 @@ export const sendVerificationEmail = async (
   });
 
   const verificationLink = `${process.env.FRONTEND_URL || "http://localhost:5000"}
-  ${route}?token=${token}`;
+  /verification-email/${route}/${token}`;
 
   await trasporter.sendMail({
     from: process.env.EMAIL_USER,
     to: email,
     subject: heading,
 
-    html: `<h1 style="color: #007bff;">FitTrack</h1>
+    html: `<h2 style="color: #007bff;">FitTrack</h2>
     <p><strong>This link expires in 1 hour.</strong></p>
     <p>Please click the link below to ${action.charAt(0).toLocaleUpperCase() + action.slice(1)}</p>
     <button 

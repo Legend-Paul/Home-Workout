@@ -2,5 +2,5 @@ import { Router } from "express";
 import { verifyVerificationEmail } from "../controllers/verificationEmail.js";
 
 const verificationEmailRouter = Router();
-verificationEmailRouter.put("/verify/:token", verifyVerificationEmail);
+verificationEmailRouter.post("/signup/:token", verifyVerificationEmail);
 export default verificationEmailRouter;

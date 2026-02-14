@@ -72,7 +72,7 @@ const createUserHandler = async (
       await sendVerificationEmail(
         newUser.id,
         newUser.email,
-        "/verify-email",
+        "signup",
         "Verify Your Email",
         "verify your email",
       );
