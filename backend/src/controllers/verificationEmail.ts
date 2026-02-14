@@ -1,8 +1,6 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import jwt from "jsonwebtoken";
-import { body, validationResult } from "express-validator";
-import { sendVerificationEmail } from "../utils/emailVerification.js";
 
 interface VerifyEmailRequest extends Request {
   query: {

@@ -16,17 +16,27 @@ model User {
   level          Level?
   role           Role    @default(USER)
   isBoarded      Boolean @default(false)
+  isVerified    Boolean        @default(false)
   onboardingStep Int     @default(0)
-
   setupMethod SetupMethod @default(QUICK_START)
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
+  vcerificationToken VerificationToken[]
   calendarEntries  CalendarEntry[]
   exercisesCreated Exercise[]
   weeklyPlans      WeeklyPlan[]
   friendsInitiated Friendship[]    @relation("FriendshipInitiator")
   friendsReceived  Friendship[]    @relation("FriendshipReceiver")
+}
+
+model VerificationToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt   DateTime    @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Exercise {

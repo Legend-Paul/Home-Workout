@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import bcrypt from "bcryptjs";
 import { body, validationResult } from "express-validator";
-import { sendVerificationEmail } from "../utils/emailVerification.js";
+import { sendVerificationEmail } from "../utils/sendEmailVerification.js";
 
 const validate = [
   body("email").trim().isEmail().withMessage("Invalid email format"),
