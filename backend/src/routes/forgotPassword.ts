@@ -1,8 +1,7 @@
 import { Router } from "express";
-import { updatePassword } from "../controllers/forgotPaswordController.js";
+import { sendEmailConfirmation } from "../controllers/forgotPaswordController.js";
 
 const forgotPaswordRouter = Router();
 
-forgotPaswordRouter.post("/", updatePassword);
-
+forgotPaswordRouter.post("/", sendEmailConfirmation);
 export default forgotPaswordRouter;

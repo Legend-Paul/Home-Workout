@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
-import { sendVerificationEmail } from "../utils/sendEmailVerification.js";
+import { sendPasswordResetEmail } from "../utils/passwordReset.js";
 
 const validate = [
   body("email").trim().isEmail().withMessage("Invalid email format"),
@@ -40,14 +40,14 @@ const sendEmailConfirmationHandler = async (
       return;
     }
 
-    await sendVerificationEmail(
-      user.id,
-      user.email,
-      "forgot-password",
-      "Reset Your Password",
-      "reset your password",
-    );
-    res.status(200).json({ message: "Verification email sent successfully" });
+    try {
+      await sendPasswordResetEmail(user.id, user.email);
+      res.json({ message: "Password reset email sent successfully" });
+    } catch (error) {
+      console.error("Error sending password reset email:", error);
+      res.status(500).json({ message: "Failed to send password reset email" });
+      return;
+    }
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
