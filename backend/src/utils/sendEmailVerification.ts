@@ -38,11 +38,11 @@ export const sendVerificationEmail = async (
   /verification-email/${route}/${token}`;
 
   await trasporter.sendMail({
-    from: process.env.EMAIL_USER,
+    from: `FitTrack <${process.env.EMAIL_USER}>`,
     to: email,
     subject: heading,
 
-    html: `<h2 style="color: #007bff;">FitTrack</h2>
+    html: `<h2 style="color: #007bff;">${heading}</h2>
     <p><strong>This link expires in 1 hour.</strong></p>
     <p>Please click the link below to ${action}</p>
     <button 
