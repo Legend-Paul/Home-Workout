@@ -13,7 +13,7 @@ interface ForgotPasswordRequest extends Request {
   };
 }
 
-const updatePasswordHandler = async (
+const sendEmailConfirmationHandler = async (
   req: ForgotPasswordRequest,
   res: Response,
 ): Promise<void> => {
@@ -52,6 +52,6 @@ const updatePasswordHandler = async (
     res.status(500).json({ message: "Internal server error" });
   }
 };
-const updatePassword = [...validate, updatePasswordHandler];
+const sendEmailConfirmation = [...validate, sendEmailConfirmationHandler];
 
-export { updatePassword };
+export { sendEmailConfirmation };
