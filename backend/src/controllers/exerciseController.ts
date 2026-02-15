@@ -28,6 +28,7 @@ interface ExerciseRequest extends Request {
     muscleGroup: string[];
     equipment?: string[];
   };
+  files?: { [fieldname: string]: Express.Multer.File[] };
 }
 
 // Create exercise handler
