@@ -1,3 +1,4 @@
+// multerError.ts
 import type { Request, Response, NextFunction } from "express";
 import multer, { type MulterError } from "multer";
 
@@ -10,17 +11,17 @@ const multerError = (
   next: NextFunction,
 ) => {
   if (error instanceof multer.MulterError) {
-    // Multer-specific errors
     if (error.code === "LIMIT_FILE_SIZE") {
       res.status(400).json({
-        error: "File too large. Maximum size is 1MB.",
+        error:
+          "File too large. Maximum size is 50MB for videos and 5MB for images.",
       });
       return;
     }
 
     if (error.code === "LIMIT_FILE_COUNT") {
       res.status(400).json({
-        error: "Too many files. Maximum is 12 files.",
+        error: "Too many files. Maximum is 5 files.",
       });
       return;
     }
@@ -35,12 +36,14 @@ const multerError = (
     res.status(400).json({
       error: error.message,
     });
+    return;
   } else if (error) {
-    // Other errors (like file filter errors)
     res.status(400).json({
       error: error.message,
     });
+    return;
   }
+
   next();
 };
 
