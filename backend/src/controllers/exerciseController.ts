@@ -144,3 +144,77 @@ export const getExerciseById = async (
     res.status(500).json({ error: "Failed to fetch exercise" });
   }
 };
+
+// Update exercise handler
+interface UpdateExerciseRequest extends ExerciseRequest {
+  params: {
+    id: string;
+  };
+}
+
+const updateExerciseHandler = async (
+  req: UpdateExerciseRequest,
+  res: Response,
+): Promise<void> => {
+  const { id } = req.params;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  // Get uploaded files
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const imageFile = files?.image?.[0];
+  const videoFile = files?.video?.[0];
+
+  try {
+    const exercise = await prisma.exercise.findUnique({
+      where: { id },
+    });
+
+    if (!exercise || !exercise.isActive) {
+      res.status(404).json({ error: "Exercise not found" });
+      return;
+    }
+
+    // Build file URLs (adjust path based on your server setup)
+    const imageUrl = imageFile
+      ? `/uploads/${imageFile.filename}`
+      : exercise.imageUrl;
+    const videoUrl = videoFile
+      ? `/uploads/${videoFile.filename}`
+      : exercise.videoUrl;
+
+    const { name, description, level, muscleGroup, equipment } = req.body;
+
+    const updatedExercise = await prisma.exercise.update({
+      where: { id },
+      data: {
+        name,
+        description,
+        imageUrl,
+        videoUrl,
+        level,
+        muscleGroup: Array.isArray(muscleGroup) ? muscleGroup : [muscleGroup],
+        equipment: equipment || [],
+      },
+    });
+
+    res.status(200).json({
+      message: "Exercise updated successfully",
+      exercise: {
+        ...updatedExercise,
+        imageUrl,
+        videoUrl,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating exercise:", error);
+    res.status(500).json({ error: "Failed to update exercise" });
+  }
+};
+
+// Update exercise
+export const updateExercise = [...validate, updateExerciseHandler];

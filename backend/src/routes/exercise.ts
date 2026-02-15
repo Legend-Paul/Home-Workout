@@ -4,6 +4,7 @@ import {
   createExercise,
   getAllExercises,
   getExerciseById,
+  updateExercise,
 } from "../controllers/exerciseController.js";
 import { uploadImageAndVideo } from "../middleware/multer.js";
 import multerError from "../middleware/multerError.js";
@@ -21,6 +22,15 @@ exerciseRouter.post(
     { name: "video", maxCount: 1 },
   ]),
   createExercise,
+);
+
+exerciseRouter.put(
+  "/:id",
+  uploadImageAndVideo.fields([
+    { name: "image", maxCount: 1 },
+    { name: "video", maxCount: 1 },
+  ]),
+  updateExercise,
 );
 
 // Error handler MUST be last
