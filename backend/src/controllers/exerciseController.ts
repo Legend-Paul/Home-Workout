@@ -114,3 +114,33 @@ export const getAllExercises = async (
     res.status(500).json({ error: "Failed to fetch exercises" });
   }
 };
+
+// Get exercise by ID
+interface GetExerciseByIdRequest extends Request {
+  params: {
+    id: string;
+  };
+}
+
+export const getExerciseById = async (
+  req: GetExerciseByIdRequest,
+  res: Response,
+): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const exercise = await prisma.exercise.findUnique({
+      where: { id },
+    });
+
+    if (!exercise || !exercise.isActive) {
+      res.status(404).json({ error: "Exercise not found" });
+      return;
+    }
+
+    res.status(200).json({ exercise });
+  } catch (error) {
+    console.error("Error fetching exercise:", error);
+    res.status(500).json({ error: "Failed to fetch exercise" });
+  }
+};
