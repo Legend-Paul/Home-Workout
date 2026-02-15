@@ -252,3 +252,38 @@ export const deactivateExercise = async (
     res.status(500).json({ error: "Failed to deactivate exercise" });
   }
 };
+
+// Activate exercise
+interface ActivateExerciseRequest extends Request {
+  params: {
+    id: string;
+  };
+}
+
+export const activateExercise = async (
+  req: ActivateExerciseRequest,
+  res: Response,
+): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const exercise = await prisma.exercise.findUnique({
+      where: { id },
+    });
+
+    if (!exercise) {
+      res.status(404).json({ error: "Exercise not found" });
+      return;
+    }
+
+    await prisma.exercise.update({
+      where: { id },
+      data: { isActive: true },
+    });
+
+    res.status(200).json({ message: "Exercise activated successfully" });
+  } catch (error) {
+    console.error("Error activating exercise:", error);
+    res.status(500).json({ error: "Failed to activate exercise" });
+  }
+};
