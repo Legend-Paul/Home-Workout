@@ -215,6 +215,40 @@ const updateExerciseHandler = async (
     res.status(500).json({ error: "Failed to update exercise" });
   }
 };
-
 // Update exercise
 export const updateExercise = [...validate, updateExerciseHandler];
+
+// Deactivate exercise (soft delete)
+interface DeactivateExerciseRequest extends Request {
+  params: {
+    id: string;
+  };
+}
+
+export const deactivateExercise = async (
+  req: DeactivateExerciseRequest,
+  res: Response,
+): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const exercise = await prisma.exercise.findUnique({
+      where: { id },
+    });
+
+    if (!exercise || !exercise.isActive) {
+      res.status(404).json({ error: "Exercise not found" });
+      return;
+    }
+
+    await prisma.exercise.update({
+      where: { id },
+      data: { isActive: false },
+    });
+
+    res.status(200).json({ message: "Exercise deactivated successfully" });
+  } catch (error) {
+    console.error("Error deactivating exercise:", error);
+    res.status(500).json({ error: "Failed to deactivate exercise" });
+  }
+};

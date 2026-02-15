@@ -5,6 +5,7 @@ import {
   getAllExercises,
   getExerciseById,
   updateExercise,
+  deactivateExercise,
 } from "../controllers/exerciseController.js";
 import { uploadImageAndVideo } from "../middleware/multer.js";
 import multerError from "../middleware/multerError.js";
@@ -32,6 +33,7 @@ exerciseRouter.put(
   ]),
   updateExercise,
 );
+exerciseRouter.put("/:id/deactivate", deactivateExercise);
 
 // Error handler MUST be last
 exerciseRouter.use(multerError);
