@@ -8,17 +8,12 @@ const validate = [
     .trim()
     .isString()
     .withMessage("Description must be a string"),
-  body("imageUrl").trim().isString().withMessage("Image URL must be a string"),
-  body("videoUrl")
-    .optional()
-    .isString()
-    .withMessage("Video URL must be a string"),
   body("level")
     .isIn(["BEGINNER", "INTERMEDIATE", "ADVANCED", "ALL"])
-    .withMessage("Level must be a string"),
+    .withMessage("Level must be BEGINNER, INTERMEDIATE, ADVANCED, or ALL"),
   body("muscleGroup")
-    .isArray({ min: 0 })
-    .withMessage("Muscle groups must be an array"),
+    .isArray({ min: 1 })
+    .withMessage("Muscle groups must be an array with at least one item"),
   body("equipment")
     .optional()
     .isArray({ min: 0 })
@@ -29,8 +24,6 @@ interface ExerciseRequest extends Request {
   body: {
     name: string;
     description: string;
-    imageUrl: string;
-    videoUrl?: string;
     level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
     muscleGroup: string[];
     equipment?: string[];
@@ -40,7 +33,7 @@ interface ExerciseRequest extends Request {
 // Create exercise handler
 const createExerciseHandler = async (
   req: ExerciseRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -48,15 +41,18 @@ const createExerciseHandler = async (
     return;
   }
 
-  const {
-    name,
-    description,
-    imageUrl,
-    videoUrl,
-    level,
-    muscleGroup,
-    equipment,
-  } = req.body;
+  // Get uploaded files
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const imageFile = files?.image?.[0];
+  const videoFile = files?.video?.[0];
+
+  // Validate that image is uploaded (required)
+  if (!imageFile) {
+    res.status(400).json({ error: "Image is required" });
+    return;
+  }
+
+  const { name, description, level, muscleGroup, equipment } = req.body;
 
   try {
     const exerciseExists = await prisma.exercise.findUnique({
@@ -68,37 +64,53 @@ const createExerciseHandler = async (
       return;
     }
 
+    // Build file URLs (adjust path based on your server setup)
+    const imageUrl = `/uploads/${imageFile.filename}`;
+    const videoUrl = videoFile ? `/uploads/${videoFile.filename}` : null;
+
     const exercise = await prisma.exercise.create({
       data: {
         name,
         description,
         imageUrl,
-        videoUrl: videoUrl || null,
-        level: level || null,
-        muscleGroup: muscleGroup,
+        videoUrl,
+        level,
+        muscleGroup: Array.isArray(muscleGroup) ? muscleGroup : [muscleGroup],
         equipment: equipment || [],
       },
     });
 
-    res
-      .status(201)
-      .json({ message: "Exercise created successfully", exercise });
+    res.status(201).json({
+      message: "Exercise created successfully",
+      exercise: {
+        ...exercise,
+        imageUrl: imageUrl,
+        videoUrl: videoUrl,
+      },
+    });
   } catch (error) {
-    console.error(error);
+    console.error("Error creating exercise:", error);
     res.status(500).json({ error: "Failed to create exercise" });
   }
 };
 
-// create exercise
+// Create exercise
 export const createExercise = [...validate, createExerciseHandler];
 
 // Get all exercises
-export const getAllExercises = async (req: Request, res: Response) => {
+export const getAllExercises = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
-    const exercises = await prisma.exercise.findMany();
-    res.json(exercises);
+    const exercises = await prisma.exercise.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.status(200).json({ exercises });
   } catch (error) {
-    console.error(error);
+    console.error("Error fetching exercises:", error);
     res.status(500).json({ error: "Failed to fetch exercises" });
   }
 };
