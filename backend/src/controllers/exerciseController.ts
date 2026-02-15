@@ -287,3 +287,37 @@ export const activateExercise = async (
     res.status(500).json({ error: "Failed to activate exercise" });
   }
 };
+
+// Delete exercise (hard delete)
+interface DeleteExerciseRequest extends Request {
+  params: {
+    id: string;
+  };
+}
+
+export const deleteExercise = async (
+  req: DeleteExerciseRequest,
+  res: Response,
+): Promise<void> => {
+  const { id } = req.params;
+
+  try {
+    const exercise = await prisma.exercise.findUnique({
+      where: { id },
+    });
+
+    if (!exercise) {
+      res.status(404).json({ error: "Exercise not found" });
+      return;
+    }
+
+    await prisma.exercise.delete({
+      where: { id },
+    });
+
+    res.status(200).json({ message: "Exercise deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting exercise:", error);
+    res.status(500).json({ error: "Failed to delete exercise" });
+  }
+};

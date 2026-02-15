@@ -7,10 +7,10 @@ import {
   updateExercise,
   deactivateExercise,
   activateExercise,
+  deleteExercise,
 } from "../controllers/exerciseController.js";
 import { uploadImageAndVideo } from "../middleware/multer.js";
 import multerError from "../middleware/multerError.js";
-import { act } from "react";
 
 const exerciseRouter = Router();
 
@@ -37,6 +37,7 @@ exerciseRouter.put(
 );
 exerciseRouter.put("/:id/deactivate", deactivateExercise);
 exerciseRouter.put("/:id/activate", activateExercise);
+exerciseRouter.delete("/:id", deleteExercise);
 
 // Error handler MUST be last
 exerciseRouter.use(multerError);
