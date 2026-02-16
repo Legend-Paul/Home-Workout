@@ -17,12 +17,12 @@ const svgs = {
 export default function Header() {
   const headerApp = document.getElementById("header-app");
   const currentTheme = (localStorage.getItem(THEME_KEY) as Theme) || "auto";
-
+  console.log(localStorage.getItem(THEME_KEY) || "auto");
   headerApp!.innerHTML = `
   <div class="${styles["header-container"]}">
     <div class="${styles["top-header"]}">
       <div class="${styles["logo"]}">
-          <h1>Home Workout</h1>
+          <h1>FitTrack</h1>
       </div>
 
       <div class="${styles["theme-toggle"]}">
@@ -39,7 +39,7 @@ export default function Header() {
             ${currentTheme === "auto" ? styles["current-theme"] : ""}">
               ${svgs.auto}
             </span>
-            <svg class="${styles["theme-icon"]}" fill="currentColor" viewBox="0 0 24 24">
+            <svg fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 15L7 10h10l-5 5z"/>
             </svg>
         </div>
@@ -62,46 +62,70 @@ export default function Header() {
         </div>
       </div>
     </div>
+    <div class="${styles["nav-container"]}">
         <nav class="${styles["nav"]}">
             <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/workouts">Workouts</a></li>
-                <li><a href="/profile">Profile</a></li>
+                <li class="${styles["nav-link"]} ${styles["active-nav-link"]}"><a href="/">Dashboard</a></li>
+                <li class="${styles["nav-link"]}"><a href="#">Exercise</a></li>
+                <li class="${styles["nav-link"]}"><a href="#">Plans</a></li>
             </ul>
         </nav>
+      </div>
     </div>
     `;
   const themeOptions = headerApp!.querySelectorAll(
     `.${styles["theme-option"]}`,
   );
+  const navLinks = headerApp!.querySelectorAll(`.${styles["nav-link"]}`);
+
   themeOptions.forEach((option) => {
     option.addEventListener("click", () => {
       const selectedTheme = option.getAttribute("data-theme") as Theme;
-
-      applyTheme(selectedTheme);
-      themeOptions.forEach((opt) =>
-        opt.classList.remove(styles["active-theme"]),
-      );
-
-      option.classList.add(styles["active-theme"]);
+      // change theme
+      changeTheme(themeOptions, option, selectedTheme);
 
       // Update current theme icon
-      const currentThemeIcons = headerApp!.querySelectorAll(
-        `.${styles["current-theme"]}`,
-      );
-      currentThemeIcons.forEach((icon) => {
-        icon.classList.remove(styles["current-theme"]);
-      });
-
-      const selectedIcon = headerApp!.querySelector(
-        `.${styles[selectedTheme]}`,
-      );
-      console.log("Selected Icon:", selectedIcon);
-      if (selectedIcon) {
-        selectedIcon.classList.add(styles["current-theme"]);
-      }
+      updateCurrentThemeIcon(headerApp, selectedTheme);
     });
   });
+
+  navLinks.forEach((navLink) => {
+    navLink.addEventListener("click", (e) => {
+      const activeLink = headerApp!.querySelector(
+        `.${styles["active-nav-link"]}`,
+      );
+      activeLink?.classList.remove(styles["active-nav-link"]);
+      navLink.classList.add(styles["active-nav-link"]);
+    });
+  });
+}
+
+function changeTheme(
+  themeOptions: NodeListOf<Element>,
+  option: Element,
+  selectedTheme: Theme,
+) {
+  applyTheme(selectedTheme);
+  themeOptions.forEach((opt) => opt.classList.remove(styles["active-theme"]));
+
+  option.classList.add(styles["active-theme"]);
+}
+
+function updateCurrentThemeIcon(
+  headerApp: HTMLHeadElement | null,
+  selectedTheme: Theme,
+) {
+  const currentThemeIcons = headerApp!.querySelectorAll(
+    `.${styles["current-theme"]}`,
+  );
+  currentThemeIcons.forEach((icon) => {
+    icon.classList.remove(styles["current-theme"]);
+  });
+
+  const selectedIcon = headerApp!.querySelector(`.${styles[selectedTheme]}`);
+  if (selectedIcon) {
+    selectedIcon.classList.add(styles["current-theme"]);
+  }
 }
 
 export function applyTheme(theme: Theme) {
