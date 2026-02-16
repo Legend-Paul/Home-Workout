@@ -96,6 +96,19 @@
   --status-active: var(--success);
   --status-rest: var(--warning);
   --status-complete: var(--info);
+
+  /* ===== CONTAINER WIDTHS ===== */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+
+  /* Container padding */
+  --container-padding: 1rem;
+
+  /* Max width for content */
+  --content-max-width: 1200px;
 }
 
 /* ===== DARK MODE ===== */
@@ -221,6 +234,19 @@
   --status-active: var(--success);
   --status-rest: var(--warning);
   --status-complete: var(--info);
+
+  /* ===== CONTAINER WIDTHS ===== */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+
+  /* Container padding */
+  --container-padding: 1rem;
+
+  /* Max width for content */
+  --content-max-width: 1200px;
 }
 
 /* ===== MANUAL DARK MODE ===== */
@@ -257,4 +283,9 @@ body {
   font-family: var(--font);
   background-color: var(--bg);
   color: var(--text);
+}
+main {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--container-padding);
 }
