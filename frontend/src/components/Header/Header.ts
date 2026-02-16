@@ -21,33 +21,47 @@ export default function Header() {
   headerApp!.innerHTML = `
   <div class="${styles["header-container"]}">
     <div class="${styles["top-header"]}">
-        <div class="${styles["logo"]}">
-            <h1>Home Workout</h1>
-        </div>       
-        <div class="${styles["themeToggle"]}">
-        <div class="${styles["current-theme"]}">
-      ${svgs[currentTheme]}
-        <svg class="${styles["theme-icon"]}" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 15L7 10h10l-5 5z"/>
-        </svg>
-        </div>
+      <div class="${styles["logo"]}">
+          <h1>Home Workout</h1>
+      </div>
 
-            <div class="${styles["theme-select"]}">
-             <span>
-               ${svgs.light}
-                <p>Light</p>
-             </span>
-             <span>
-                ${svgs.dark}
-                <p>Dark</p>
-             </span>
-             <span>
+      <div class="${styles["theme-toggle"]}">
+        <div class="${styles["current-theme-contaier"]}">
+            <span class="${styles["light"]} 
+            ${currentTheme === "light" ? styles["current-theme"] : ""}">
+              ${svgs.light}
+            </span>
+            <span class="${styles["dark"]} 
+            ${currentTheme === "dark" ? styles["current-theme"] : ""}">
+              ${svgs.dark}
+            </span>
+            <span class="${styles["auto"]} 
+            ${currentTheme === "auto" ? styles["current-theme"] : ""}">
               ${svgs.auto}
-                <p>Auto</p> 
-             </span>
-            </div>
+            </span>
+            <svg class="${styles["theme-icon"]}" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 15L7 10h10l-5 5z"/>
+            </svg>
         </div>
+        <div class="${styles["theme-select"]}">
+            <span data-theme="light" class=" ${styles["theme-option"]} 
+            ${styles[currentTheme === "light" ? "active-theme" : ""]}">
+              ${svgs.light}
+              <p>Light</p>
+            </span>
+            <span data-theme="dark" class="${styles["theme-option"]} 
+            ${styles[currentTheme === "dark" ? "active-theme" : ""]}">
+              ${svgs.dark}
+              <p>Dark</p>
+            </span>
+            <span data-theme="auto" class="${styles["theme-option"]} 
+            ${styles[currentTheme === "auto" ? "active-theme" : ""]}">
+            ${svgs.auto}
+              <p>Auto</p> 
+            </span>
         </div>
+      </div>
+    </div>
         <nav class="${styles["nav"]}">
             <ul>
                 <li><a href="/">Home</a></li>
@@ -57,14 +71,36 @@ export default function Header() {
         </nav>
     </div>
     `;
-  const themeSelect = document.getElementById(
-    styles["themeSelect"],
-  ) as HTMLSelectElement;
-  themeSelect.value = currentTheme;
+  const themeOptions = headerApp!.querySelectorAll(
+    `.${styles["theme-option"]}`,
+  );
+  themeOptions.forEach((option) => {
+    option.addEventListener("click", () => {
+      const selectedTheme = option.getAttribute("data-theme") as Theme;
 
-  themeSelect.addEventListener("change", (event) => {
-    const selectedTheme = (event.target as HTMLSelectElement).value as Theme;
-    applyTheme(selectedTheme);
+      applyTheme(selectedTheme);
+      themeOptions.forEach((opt) =>
+        opt.classList.remove(styles["active-theme"]),
+      );
+
+      option.classList.add(styles["active-theme"]);
+
+      // Update current theme icon
+      const currentThemeIcons = headerApp!.querySelectorAll(
+        `.${styles["current-theme"]}`,
+      );
+      currentThemeIcons.forEach((icon) => {
+        icon.classList.remove(styles["current-theme"]);
+      });
+
+      const selectedIcon = headerApp!.querySelector(
+        `.${styles[selectedTheme]}`,
+      );
+      console.log("Selected Icon:", selectedIcon);
+      if (selectedIcon) {
+        selectedIcon.classList.add(styles["current-theme"]);
+      }
+    });
   });
 }
 
