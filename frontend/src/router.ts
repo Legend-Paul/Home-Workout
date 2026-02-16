@@ -26,7 +26,7 @@ export function navigate(path: string) {
   handleRoute();
 }
 
-export function statrtRouter() {
+export function startRouter() {
   window.addEventListener("popstate", () => handleRoute());
   handleRoute();
 }
