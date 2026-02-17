@@ -116,6 +116,13 @@ export default function Header() {
   }
   const newActiveLink = headerApp!.querySelector(`a[href="${currentPath}"]`);
   if (newActiveLink) {
+    if (currentPath === "/") {
+      const dashboardLink = headerApp!.querySelector(`a[href="/dashboard"]`);
+      if (dashboardLink)
+        dashboardLink.parentElement!.classList.add(styles["active-nav-link"]);
+
+      return;
+    }
     newActiveLink.parentElement!.classList.add(styles["active-nav-link"]);
   }
 }

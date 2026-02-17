@@ -66,6 +66,12 @@ header {
   &:hover {
     background-color: var(--secondary);
   }
+  &:hover p {
+    color: #fff;
+  }
+  &:hover svg {
+    color: #fff;
+  }
 }
 .signout-icon {
   display: none;
@@ -208,6 +214,7 @@ svg {
 .active-nav-link a {
   border-radius: var(--radius);
   background-color: var(--secondary-light);
+  color: #fff;
   &:hover {
     background-color: var(--secondary-light);
   }
