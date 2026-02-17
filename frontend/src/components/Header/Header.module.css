@@ -5,11 +5,11 @@ header {
   padding: var(--space-3) var(--space-4);
   background-color: var(--bg-surface);
   box-shadow: var(--shadow);
+  a {
+    text-decoration: none;
+  }
 }
-a {
-  text-decoration: none;
-  color: inherit;
-}
+
 .header-container {
   display: flex;
   flex-direction: column;
@@ -161,6 +161,8 @@ svg {
   align-items: center;
   gap: var(--space-2);
   flex-direction: row-reverse;
+  text-decoration: none;
+  color: inherit;
   img {
     width: 40px;
     height: 40px;
