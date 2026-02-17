@@ -15,10 +15,12 @@ import quickPlanRouter from "./routes/quickPlan.js";
 import weeklyPlanRouter from "./routes/weeklyPlan.js";
 import exerciseRouter from "./routes/exercise.js";
 import passport from "passport";
+import cors from "cors";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 passportConfig(passport);
+app.use(cors());
 
 // Middleware
 app.use(express.json());
