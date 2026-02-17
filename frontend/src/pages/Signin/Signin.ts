@@ -18,6 +18,7 @@ export default function Signin() {
           name: "email",
           required: true,
           placeholder: "example@gmail.com",
+          errorMessage: "Please enter a valid email address",
         })}
         ${Input({
           label: "Password",
@@ -26,6 +27,8 @@ export default function Signin() {
           name: "password",
           required: true,
           placeholder: "********",
+          minLength: 8,
+          errorMessage: "Password must be at least 8 characters",
         })}
         ${Button({
           label: "Sign In",

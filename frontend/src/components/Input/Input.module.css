@@ -8,15 +8,36 @@
   input {
     padding: var(--space-1) var(--space-2);
     height: var(--space-10);
-    border: 2px solid var(--bg-input);
+    border: 1px solid var(--bg-input);
     border-radius: var(--radius-sm);
     background-color: var(--bg-card);
     color: var(--text);
+    outline: none;
     transition: var(--transition-all-base);
     &:focus {
       outline: none;
       border-color: var(--info);
       box-shadow: 0 0 0 2px var(--info-light);
     }
+  }
+}
+
+.error-message {
+  color: var(--error);
+  font-size: var(--text-sm);
+  opacity: 0;
+  transition: var(--transition-opacity-base);
+}
+
+input:not(:focus):not(:placeholder-shown):valid {
+  border-color: var(--success);
+  box-shadow: 0 0 0 1px var(--success-light);
+}
+
+input:not(:focus):not(:placeholder-shown):invalid {
+  border-color: var(--error);
+  box-shadow: 0 0 0 1px var(--error-light);
+  & + .error-message {
+    opacity: 1;
   }
 }

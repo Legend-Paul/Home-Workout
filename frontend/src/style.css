@@ -14,9 +14,9 @@
   --warning: #f39c12;
   --warning-dark: #e67e22;
   --warning-light: #f7b731;
-  --danger: #e74c3c;
-  --danger-dark: #c0392b;
-  --danger-light: #ff6b6b;
+  --error: #e74c3c;
+  --error-dark: #c0392b;
+  --error-light: #ff6b6b;
   --info: #3498db;
 
   /* ===== WORKOUT TYPES ===== */

@@ -6,6 +6,9 @@ type InputProps = {
   name: string;
   required?: boolean;
   placeholder: string;
+  minLength?: number;
+  maxLength?: number;
+  errorMessage?: string;
 };
 
 export default function Input({
@@ -15,12 +18,17 @@ export default function Input({
   name,
   required = false,
   placeholder,
+  minLength,
+  maxLength,
+  errorMessage = "Invalid input",
 }: InputProps) {
   return `
     <div class="${styles["input-container"]}">
       <label for="${id}">${label}</label>
-      <input type="${type}" id="${id}" name="${name}" 
-      placeholder="${placeholder}" ${required ? "required" : ""} />
+      <input type="${type}" id="${id}" name="${name}"  
+      placeholder="${placeholder}" ${required ? "required" : ""} 
+      ${minLength ? `minLength="${minLength}"` : ""} ${maxLength ? `maxLength="${maxLength}"` : ""} />
+      <span class="${styles["error-message"]}">${errorMessage}</span>
     </div>
   `;
 }
