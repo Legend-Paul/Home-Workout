@@ -4,6 +4,7 @@ type ButtonProps = {
   onClick?: () => void;
   type?: "button" | "submit" | "reset";
   btnClass?: string;
+  disabled?: boolean;
 };
 
 export default function Button({
@@ -11,9 +12,11 @@ export default function Button({
   onClick,
   type = "button",
   btnClass = "",
+  disabled = false,
 }: ButtonProps) {
   return `
-    <button class="${styles["custom-button"]} ${btnClass}" type="${type}" ${onClick ? `onclick="${onClick()}"` : ""}>
+    <button class="${styles["custom-button"]} ${btnClass}" type="${type}" 
+    ${disabled ? "disabled" : ""} ${onClick ? `onclick="${onClick()}"` : ""}>
       ${label}
     </button>
   `;
