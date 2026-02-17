@@ -25,7 +25,20 @@ export default function Header() {
           <h1>FitTrack</h1>
       </div>
 
+    <div class="${styles["header-icon-container"]}">
+      <div class="${styles["user-profile"]}">
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+          <div class="${styles["user-dropdown"]}">
+              <span>Profile</span>
+              <span>Settings</span>
+              <span>Logout</span>
+          </div>
+      </div>
+   
       <div class="${styles["theme-toggle"]}">
+        
         <div class="${styles["current-theme-contaier"]}">
             <span class="${styles["light"]} 
             ${currentTheme === "light" ? styles["current-theme"] : ""}">
@@ -61,6 +74,7 @@ export default function Header() {
             </span>
         </div>
       </div>
+      </div>
     </div>
     <div class="${styles["nav-container"]}">
         <nav class="${styles["nav"]}">
@@ -90,7 +104,7 @@ export default function Header() {
   });
 
   navLinks.forEach((navLink) => {
-    navLink.addEventListener("click", (e) => {
+    navLink.addEventListener("click", () => {
       const activeLink = headerApp!.querySelector(
         `.${styles["active-nav-link"]}`,
       );

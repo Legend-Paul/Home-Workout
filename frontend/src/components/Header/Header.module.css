@@ -14,10 +14,55 @@ header {
   margin: 0 auto;
   width: 100%;
 }
+
 .top-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.header-icon-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: var(--bg-input);
+  color: var(--text);
+  cursor: pointer;
+  position: relative;
+  &:hover .user-dropdown {
+    display: flex;
+  }
+}
+
+.user-dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: var(--bg-surface);
+  padding: var(--space-2) var(--space-1);
+  box-shadow: var(--shadow);
+  border-radius: var(--radius);
+  display: none;
+  span {
+    padding: var(--space-1) var(--space-2);
+    cursor: pointer;
+    &:hover {
+      background-color: var(--bg-input);
+      border-radius: var(--radius-sm);
+    }
+  }
 }
 
 .theme-toggle {
@@ -33,7 +78,7 @@ header {
   gap: var(--space-1);
   position: absolute;
   top: 100%;
-  right: 0;
+  right: -0.5rem;
   display: none;
   background-color: var(--bg-surface);
   padding: var(--space-2) var(--space-1);
