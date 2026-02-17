@@ -1,4 +1,5 @@
 import styles from "./Signin.module.css";
+import Input from "../../components/Input/Input";
 
 export default function Signin() {
   const mainApp = document.getElementById("main-app");
@@ -9,14 +10,20 @@ export default function Signin() {
           <p> If already have an account <a href="/signup">Sign Up</a></p>
       </div>
       <form id="${styles["signin-form"]}">
-        <div class="${styles["form-group"]}">
-          <label for="email">Email:</label>
-          <input type="email" id="email" name="email" required />
-        </div>
-        <div class="${styles["form-group"]}">
-          <label for="password">Password:</label>
-          <input type="password" id="password" name="password" required />
-        </div>
+        ${Input({
+          label: "Email",
+          type: "email",
+          id: "email",
+          name: "email",
+          required: true,
+        })}
+        ${Input({
+          label: "Password",
+          type: "password",
+          id: "password",
+          name: "password",
+          required: true,
+        })}
         <button type="submit">Sign In</button>
       </form>
     </div>

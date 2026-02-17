@@ -97,7 +97,6 @@ export default function Header() {
   const themeOptions = headerApp!.querySelectorAll(
     `.${styles["theme-option"]}`,
   );
-  const navLinks = headerApp!.querySelectorAll(`.${styles["nav-link"]}`);
 
   themeOptions.forEach((option) => {
     option.addEventListener("click", () => {

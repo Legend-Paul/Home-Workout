@@ -36,29 +36,6 @@
   width: 100%;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  label {
-    font-size: var(--text-md);
-  }
-  input {
-    padding: var(--space-1) var(--space-2);
-    height: var(--space-10);
-    border: 2px solid var(--bg-input);
-    border-radius: var(--radius-sm);
-    background-color: var(--bg-card);
-    color: var(--text);
-    transition: var(--transition-all-base);
-    &:focus {
-      outline: none;
-      border-color: var(--info);
-      box-shadow: 0 0 0 2px var(--info-light);
-    }
-  }
-}
-
 .signin-container button {
   padding: var(--space-2);
   background-color: var(--primary);
