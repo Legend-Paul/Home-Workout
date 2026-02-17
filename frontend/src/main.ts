@@ -3,11 +3,19 @@ import "./style.css";
 import ErrorRoute from "./errorRoute/errorRoute";
 import Header, { initTheme } from "./components/Header/Header";
 import Home from "./pages/Home/home";
+import Signin from "./pages/Signin/Signin";
 
+register("/signin", Signin);
 initTheme();
 Header();
 register("/", Home);
-
+register("/exercises", () => {
+  const mainApp = document.getElementById("main-app");
+  mainApp!.innerHTML = `
+    <h1>Exercises Page</h1>
+    <p>This is the exercises page.</p>
+  `;
+});
 notFound(ErrorRoute);
 
 startRouter();

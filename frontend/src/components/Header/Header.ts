@@ -29,7 +29,7 @@ export default function Header() {
 
     <div class="${styles["header-icon-container"]}">
       <div class="${styles["user-profile"]}">
-          <a href="/signin" class="${styles["signin-icon"]}">
+          <a href="/signin" class="${styles["signin-icon"]} ${styles["nav-link"]}">
               <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
@@ -88,7 +88,7 @@ export default function Header() {
         <nav class="${styles["nav"]}">
             <ul>
                 <li class="${styles["nav-link"]} ${styles["active-nav-link"]}"><a href="/">Dashboard</a></li>
-                <li class="${styles["nav-link"]}"><a href="#">Exercise</a></li>
+                <li class="${styles["nav-link"]}"><a href="/exercises">Exercises</a></li>
                 <li class="${styles["nav-link"]}"><a href="#">Plans</a></li>
             </ul>
         </nav>
