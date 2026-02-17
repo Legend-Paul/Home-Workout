@@ -6,7 +6,10 @@ header {
   background-color: var(--bg-surface);
   box-shadow: var(--shadow);
 }
-
+a {
+  text-decoration: none;
+  color: inherit;
+}
 .header-container {
   display: flex;
   flex-direction: column;
@@ -154,7 +157,15 @@ svg {
 }
 
 .logo {
-  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-direction: row-reverse;
+  img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+  }
 }
 
 .nav-container {

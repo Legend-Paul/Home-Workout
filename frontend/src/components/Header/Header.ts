@@ -1,4 +1,5 @@
 import styles from "./Header.module.css";
+import logo from "../../assets/logo.png";
 
 type Theme = "light" | "dark" | "auto";
 const THEME_KEY = "app-theme";
@@ -21,9 +22,10 @@ export default function Header() {
   headerApp!.innerHTML = `
   <div class="${styles["header-container"]}">
     <div class="${styles["top-header"]}">
-      <div class="${styles["logo"]}">
+      <a href="/" class="${styles["logo"]}">
           <h1>FitTrack</h1>
-      </div>
+          <img src=${logo} alt="FitTrack Logo" />
+      </a>
 
     <div class="${styles["header-icon-container"]}">
       <div class="${styles["user-profile"]}">
