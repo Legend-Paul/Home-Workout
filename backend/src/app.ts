@@ -16,6 +16,7 @@ import weeklyPlanRouter from "./routes/weeklyPlan.js";
 import exerciseRouter from "./routes/exercise.js";
 import passport from "passport";
 import cors from "cors";
+import authMiddleware from "./middleware/auth.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -42,6 +43,11 @@ app.use("/api/quick-plan", quickPlanRouter);
 
 // weekly plan routes
 app.use("/api/weekly-plan", weeklyPlanRouter);
+
+// Authentication middleware
+app.get("/", authMiddleware, (req, res) => {
+  res.json({ user: req.user });
+});
 
 // error handling middleware
 app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
