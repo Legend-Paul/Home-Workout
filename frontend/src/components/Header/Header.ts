@@ -18,7 +18,6 @@ const svgs = {
 export default function Header() {
   const headerApp = document.getElementById("header-app");
   const currentTheme = (localStorage.getItem(THEME_KEY) as Theme) || "auto";
-  console.log(localStorage.getItem(THEME_KEY) || "auto");
   headerApp!.innerHTML = `
   <div class="${styles["header-container"]}">
     <div class="${styles["top-header"]}">
@@ -87,9 +86,9 @@ export default function Header() {
     <div class="${styles["nav-container"]}">
         <nav class="${styles["nav"]}">
             <ul>
-                <li class="${styles["nav-link"]} ${styles["active-nav-link"]}"><a href="/">Dashboard</a></li>
+                <li class="${styles["nav-link"]} ${styles["active-nav-link"]}"><a href="/dashboard">Dashboard</a></li>
                 <li class="${styles["nav-link"]}"><a href="/exercises">Exercises</a></li>
-                <li class="${styles["nav-link"]}"><a href="#">Plans</a></li>
+                <li class="${styles["nav-link"]}"><a href="/plans">Plans</a></li>
             </ul>
         </nav>
       </div>
@@ -111,15 +110,15 @@ export default function Header() {
     });
   });
 
-  navLinks.forEach((navLink) => {
-    navLink.addEventListener("click", () => {
-      const activeLink = headerApp!.querySelector(
-        `.${styles["active-nav-link"]}`,
-      );
-      activeLink?.classList.remove(styles["active-nav-link"]);
-      navLink.classList.add(styles["active-nav-link"]);
-    });
-  });
+  const currentPath = window.location.pathname;
+  const activeLink = headerApp!.querySelector(`.${styles["active-nav-link"]}`);
+  if (activeLink) {
+    activeLink.classList.remove(styles["active-nav-link"]);
+  }
+  const newActiveLink = headerApp!.querySelector(`a[href="${currentPath}"]`);
+  if (newActiveLink) {
+    newActiveLink.parentElement!.classList.add(styles["active-nav-link"]);
+  }
 }
 
 function changeTheme(

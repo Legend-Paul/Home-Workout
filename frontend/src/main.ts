@@ -5,10 +5,11 @@ import Header, { initTheme } from "./components/Header/Header";
 import Home from "./pages/Home/home";
 import Signin from "./pages/Signin/Signin";
 
-register("/signin", Signin);
 initTheme();
 Header();
 register("/", Home);
+register("/dashboard", Home);
+register("/signin", Signin);
 register("/exercises", () => {
   const mainApp = document.getElementById("main-app");
   mainApp!.innerHTML = `
