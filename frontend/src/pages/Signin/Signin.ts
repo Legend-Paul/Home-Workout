@@ -1,5 +1,6 @@
 import styles from "./Signin.module.css";
 import Input from "../../components/Input/Input";
+import Button from "../../components/Button/Button";
 
 export default function Signin() {
   const mainApp = document.getElementById("main-app");
@@ -16,6 +17,7 @@ export default function Signin() {
           id: "email",
           name: "email",
           required: true,
+          placeholder: "example@gmail.com",
         })}
         ${Input({
           label: "Password",
@@ -23,8 +25,14 @@ export default function Signin() {
           id: "password",
           name: "password",
           required: true,
+          placeholder: "********",
         })}
-        <button type="submit">Sign In</button>
+        ${Button({
+          label: "Sign In",
+          type: "submit",
+          btnClass: styles["signin-button"],
+        })}
+        
       </form>
     </div>
     `;

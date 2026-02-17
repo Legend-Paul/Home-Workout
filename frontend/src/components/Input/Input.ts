@@ -5,6 +5,7 @@ type InputProps = {
   id: string;
   name: string;
   required?: boolean;
+  placeholder: string;
 };
 
 export default function Input({
@@ -13,11 +14,13 @@ export default function Input({
   id,
   name,
   required = false,
+  placeholder,
 }: InputProps) {
   return `
     <div class="${styles["input-container"]}">
       <label for="${id}">${label}</label>
-      <input type="${type}" id="${id}" name="${name}" ${required ? "required" : ""} />
+      <input type="${type}" id="${id}" name="${name}" 
+      placeholder="${placeholder}" ${required ? "required" : ""} />
     </div>
   `;
 }
