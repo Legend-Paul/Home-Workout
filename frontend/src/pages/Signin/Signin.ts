@@ -10,7 +10,7 @@ export default async function Signin() {
   const mainApp = document.getElementById("main-app");
   const isAuth = await isAuthenticated();
   if (isAuth) {
-    window.location.href = "/dashboard";
+    window.location.href = "/dashboard?alreadySignedIn=true";
     return;
   }
 
@@ -126,7 +126,7 @@ async function signinUser(
 
     if (response.ok) {
       const data = await response.json();
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("Authorization", data.token);
       window.location.href = "/dashboard";
     } else {
       const errorData = await response.json();

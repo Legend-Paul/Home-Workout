@@ -2,7 +2,7 @@ const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 
 export default async function isAuthenticated(): Promise<boolean> {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("Authorization");
   console.log(token);
   if (!token) return false;
 
@@ -17,12 +17,11 @@ export default async function isAuthenticated(): Promise<boolean> {
     if (response.ok) {
       return true;
     } else {
-      localStorage.removeItem("token");
+      localStorage.removeItem("Authorization");
       return false;
     }
   } catch (error) {
     console.error("Error verifying authentication:", error);
-    localStorage.removeItem("token");
     return false;
   }
 }

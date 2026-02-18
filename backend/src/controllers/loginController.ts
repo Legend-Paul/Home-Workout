@@ -19,7 +19,7 @@ interface Data {
 
 const validateUserHandle = async (
   req: Request,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -28,7 +28,6 @@ const validateUserHandle = async (
 
   const { email, password }: Data = req.body;
   try {
-    console.log(email);
     const user = await prisma.user.findUnique({
       where: { email },
     });
@@ -52,7 +51,7 @@ const validateUserHandle = async (
       process.env.JWT_SECRET as string,
       {
         expiresIn: "7days",
-      }
+      },
     );
 
     res.status(200).json({
