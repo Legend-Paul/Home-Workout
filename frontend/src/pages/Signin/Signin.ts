@@ -1,4 +1,4 @@
-import styles from "./Signin.module.css";
+import styles from "../../assets/FormStyles.module.css";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import isAuthenticated from "../../utils/auth";
@@ -15,13 +15,13 @@ export default async function Signin() {
   }
 
   mainApp!.innerHTML = `
-    <div class="${styles["signin-container"]}">
-      <div class="${styles["signin-form-container"]}">
+    <div class="${styles["auth-container"]}">
+      <div class="${styles["auth-form-container"]}">
           <h1>👋Welcome Back!</h1>
           <p> If already have an account <a href="/auth/signup">Sign Up</a></p>
       </div>
       <div class="${styles["res-error-message"]}"></div>
-      <form id="${styles["signin-form"]}">
+      <form id="${styles["auth-form"]}">
         ${Input({
           label: "Email",
           type: "email",
@@ -47,7 +47,7 @@ export default async function Signin() {
         ${Button({
           label: "Sign In",
           type: "submit",
-          btnClass: styles["signin-button"],
+          btnClass: styles["auth-button"],
           disabled: true,
         })}
         
@@ -56,12 +56,12 @@ export default async function Signin() {
     `;
 
   const signinForm = document.querySelector(
-    `#${styles["signin-form"]}`,
+    `#${styles["auth-form"]}`,
   ) as HTMLFormElement;
   const emailInput = document.getElementById("email") as HTMLInputElement;
   const passwordInput = document.getElementById("password") as HTMLInputElement;
   const submitButton = mainApp!.querySelector(
-    `.${styles["signin-button"]}`,
+    `.${styles["auth-button"]}`,
   ) as HTMLButtonElement;
   const errorMessage = mainApp!.querySelector(
     `.${styles["res-error-message"]}`,

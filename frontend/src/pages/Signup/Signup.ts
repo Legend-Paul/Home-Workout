@@ -1,4 +1,4 @@
-import styles from "./Signup.module.css";
+import styles from "../../assets/FormStyles.module.css";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import isAuthenticated from "../../utils/auth";
@@ -12,13 +12,13 @@ export default async function Signup() {
   }
 
   mainApp!.innerHTML = `
-    <div class="${styles["signup-container"]}">
-      <div class="${styles["signup-form-container"]}">
-          <h1>👋Welcome to Home Workout!</h1>
+    <div class="${styles["auth-container"]}">
+      <div class="${styles["auth-form-container"]}">
+          <h1>👋Welcome to FitTrack!</h1>
           <p> If already have an account <a href="/auth/signin">Sign In</a></p>
       </div>
       <div class="${styles["res-error-message"]}"></div>
-      <form id="${styles["signup-form"]}">
+      <form id="${styles["auth-form"]}">
         
         ${Input({
           label: "Email",
@@ -61,9 +61,9 @@ export default async function Signup() {
         })}
         
         ${Button({
-          label: "Sign In",
+          label: "Sign Up",
           type: "submit",
-          btnClass: styles["signup-button"],
+          btnClass: styles["auth-button"],
           disabled: true,
         })}
         
