@@ -13,8 +13,7 @@ export default function ErrorRoute() {
 
   const homeLink = document.getElementById(styles["home-link"]);
   if (homeLink) {
-    homeLink.addEventListener("click", (e) => {
-      e.preventDefault();
+    homeLink.addEventListener("click", () => {
       navigate("/");
     });
   }
