@@ -45,7 +45,7 @@ app.use("/api/quick-plan", quickPlanRouter);
 app.use("/api/weekly-plan", weeklyPlanRouter);
 
 // Authentication middleware
-app.get("/", authMiddleware, (req, res) => {
+app.get("/auth", authMiddleware, (req, res) => {
   res.json({ user: req.user });
 });
 

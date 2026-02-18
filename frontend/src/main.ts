@@ -9,8 +9,8 @@ initTheme();
 await Header();
 register("/", Home);
 register("/dashboard", Home);
-register("/signin", Signin);
-register("/exercises", () => {
+register("/auth/signin", Signin);
+register("/api/exercises", () => {
   const mainApp = document.getElementById("main-app");
   mainApp!.innerHTML = `
     <h1>Exercises Page</h1>

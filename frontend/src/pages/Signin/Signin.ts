@@ -1,12 +1,18 @@
 import styles from "./Signin.module.css";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
+import isAuthenticated from "../../utils/auth";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 
 export default async function Signin() {
   const mainApp = document.getElementById("main-app");
+  const isAuth = await isAuthenticated();
+  if (isAuth) {
+    window.location.href = "/dashboard";
+    return;
+  }
 
   mainApp!.innerHTML = `
     <div class="${styles["signin-container"]}">
