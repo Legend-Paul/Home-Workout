@@ -6,6 +6,7 @@ import Home from "./pages/Home/home";
 import Signin from "./pages/Signin/Signin";
 import Signout from "./pages/Signout/Signout";
 import Signup from "./pages/Signup/Signup";
+import VerifyEmail from "./pages/EmailVerification.ts/SignupVerification";
 
 initTheme();
 await Header();
@@ -16,6 +17,7 @@ register("/dashboard", Home);
 register("/auth/signin", Signin);
 register("/auth/signup", Signup);
 register("/auth/signout", Signout);
+register("/auth/signup/verify-email", VerifyEmail);
 
 register("/api/exercises", () => {
   const mainApp = document.getElementById("main-app");
