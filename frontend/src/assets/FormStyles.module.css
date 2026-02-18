@@ -12,6 +12,14 @@
   p {
     color: #fff;
   }
+  a {
+    color: var(--info);
+    text-decoration: none;
+    font-weight: 500;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 
 .res-error-message {

@@ -15,13 +15,13 @@ export default async function Signin() {
   }
 
   mainApp!.innerHTML = `
-    <div class="${styles["auth-container"]}">
+    <div class="${styles["auth-container"]} ${styles["signin-container"]}">
       <div class="${styles["auth-form-container"]}">
           <h1>👋Welcome Back!</h1>
           <p> If already have an account <a href="/auth/signup">Sign Up</a></p>
       </div>
       <div class="${styles["res-error-message"]}"></div>
-      <form id="${styles["auth-form"]}">
+      <form id="${styles["auth-form"]}" method="POST">
         ${Input({
           label: "Email",
           type: "email",
@@ -55,15 +55,22 @@ export default async function Signin() {
     </div>
     `;
 
-  const signinForm = document.querySelector(
+  const signinContainer = mainApp!.querySelector(
+    `.${styles["signin-container"]}`,
+  ) as HTMLDivElement;
+  const signinForm = signinContainer!.querySelector(
     `#${styles["auth-form"]}`,
   ) as HTMLFormElement;
-  const emailInput = document.getElementById("email") as HTMLInputElement;
-  const passwordInput = document.getElementById("password") as HTMLInputElement;
-  const submitButton = mainApp!.querySelector(
+  const emailInput = signinContainer!.querySelector(
+    "#email",
+  ) as HTMLInputElement;
+  const passwordInput = signinContainer!.querySelector(
+    "#password",
+  ) as HTMLInputElement;
+  const submitButton = signinContainer!.querySelector(
     `.${styles["auth-button"]}`,
   ) as HTMLButtonElement;
-  const errorMessage = mainApp!.querySelector(
+  const errorMessage = signinContainer!.querySelector(
     `.${styles["res-error-message"]}`,
   ) as HTMLDivElement;
 
