@@ -73,9 +73,6 @@ header {
     color: #fff;
   }
 }
-.signout-icon {
-  display: none;
-}
 
 .user-dropdown {
   display: flex;

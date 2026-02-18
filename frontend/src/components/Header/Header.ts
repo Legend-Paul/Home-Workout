@@ -1,5 +1,6 @@
 import styles from "./Header.module.css";
 import logo from "../../assets/logo.png";
+import isAuthenticated from "../../utils/auth";
 
 type Theme = "light" | "dark" | "auto";
 const THEME_KEY = "app-theme";
@@ -15,9 +16,12 @@ const svgs = {
 </svg>`,
 };
 
-export default function Header() {
+export default async function Header() {
   const headerApp = document.getElementById("header-app");
   const currentTheme = (localStorage.getItem(THEME_KEY) as Theme) || "auto";
+  const isAuth = await isAuthenticated();
+  console.log(isAuth);
+
   headerApp!.innerHTML = `
   <div class="${styles["header-container"]}">
     <div class="${styles["top-header"]}">
@@ -28,18 +32,22 @@ export default function Header() {
 
     <div class="${styles["header-icon-container"]}">
       <div class="${styles["user-profile"]}">
-          <a href="/signin" class="${styles["signin-icon"]} ${styles["nav-link"]}">
+          ${
+            !isAuth
+              ? `
+            <a href="/signin" class="${styles["signin-icon"]} ${styles["nav-link"]}">
               <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
               <p>Sign In</p>
-          </a>
-          <a href="/signout" class="${styles["signout-icon"]}">
+          </a>`
+              : `<a href="/signout" class="${styles["signout-icon"]}">
               <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
               </svg>
               <p>Sign Out</p>
-          </a>
+          </a>`
+          }
           
           
       </div>

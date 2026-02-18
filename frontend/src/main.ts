@@ -6,7 +6,7 @@ import Home from "./pages/Home/home";
 import Signin from "./pages/Signin/Signin";
 
 initTheme();
-Header();
+await Header();
 register("/", Home);
 register("/dashboard", Home);
 register("/signin", Signin);
