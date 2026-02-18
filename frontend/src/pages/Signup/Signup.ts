@@ -3,11 +3,19 @@ import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import isAuthenticated from "../../utils/auth";
 
+const backendUrl =
+  import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
+
+const errorSvg = `
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg> `;
+
 export default async function Signup() {
   const mainApp = document.getElementById("main-app");
   const isAuth = await isAuthenticated();
   if (isAuth) {
-    window.location.href = "/dashboard?alreadySignedIn=true";
+    window.location.href = "/dashboard";
     return;
   }
 
@@ -35,7 +43,7 @@ export default async function Signup() {
           id: "username",
           name: "username",
           required: true,
-          placeholder: "john_doe",
+          placeholder: "Legend Paul",
           minLength: 3,
           errorMessage: "Username must be at least 3 characters",
         })}
@@ -95,6 +103,12 @@ export default async function Signup() {
     `.${styles["res-error-message"]}`,
   ) as HTMLDivElement;
 
+  emailInput.addEventListener("input", validateForm);
+  usernameInput.addEventListener("input", validateForm);
+  passwordInput.addEventListener("input", validateForm);
+  confirmPasswordInput.addEventListener("input", validateForm);
+  signupForm.addEventListener("submit", handleSignup);
+
   // Validate form inputs
   function validateForm(e: Event) {
     const email = emailInput.value.trim();
@@ -137,21 +151,59 @@ export default async function Signup() {
     }
   }
 
-  function checkPasswordsMatch() {
+  async function handleSignup(event: Event) {
+    event.preventDefault();
+    const email = emailInput.value.trim();
+    const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();
     const confirmPassword = confirmPasswordInput.value.trim();
 
-    if (password !== confirmPassword) {
-      confirmPasswordInput.nextElementSibling!.textContent =
-        "Passwords do not match";
-    } else {
-      confirmPasswordInput.nextElementSibling!.textContent = "";
+    submitButton.disabled = true;
+    submitButton.style.backgroundColor = "var(--primary-light) !important";
+    submitButton.innerText = "Signing Up...";
+    try {
+      await signupUser(
+        email,
+        username,
+        password,
+        confirmPassword,
+        errorMessage,
+      );
+    } catch (error) {
+      console.error("Error signing up:", error);
+      errorMessage.innerHTML = `${errorSvg}<span>An error occurred. Please try again.</span>`;
+    } finally {
+      submitButton.disabled = false;
+      submitButton.style.backgroundColor = "var(--primary-dark) !important";
+      submitButton.innerText = "Sign Up";
     }
   }
+}
 
-  emailInput.addEventListener("input", validateForm);
-  usernameInput.addEventListener("input", validateForm);
-  passwordInput.addEventListener("input", validateForm);
-  confirmPasswordInput.addEventListener("input", validateForm);
-  //   confirmPasswordInput.addEventListener("input", checkPasswordsMatch);
+async function signupUser(
+  email: string,
+  username: string,
+  password: string,
+  confirmPassword: string,
+  errorMessage: HTMLDivElement,
+) {
+  try {
+    const response = await fetch(`${backendUrl}/auth/signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, username, password, confirmPassword }),
+    });
+
+    if (response.ok) {
+      window.location.href = "/auth/signin";
+    } else {
+      const data = await response.json();
+      errorMessage.innerHTML = `${errorSvg}<span>${data.error || "Signup failed. Please try again."}</span>`;
+    }
+  } catch (error) {
+    console.error("Error signing up:", error);
+    errorMessage.innerHTML = `${errorSvg}<span>An error occurred. Please try again.</span>`;
+  }
 }
