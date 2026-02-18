@@ -13,6 +13,13 @@ register("/dashboard", Home);
 
 // auth routes
 register("/auth/signin", Signin);
+register("/auth/signup", () => {
+  const mainApp = document.getElementById("main-app");
+  mainApp!.innerHTML = `
+    <h1>Signup Page</h1>
+    <p>This is the signup page.</p>
+  `;
+});
 register("/auth/signout", Signout);
 
 register("/api/exercises", () => {

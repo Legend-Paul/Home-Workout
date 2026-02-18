@@ -18,7 +18,7 @@ export default async function Signin() {
     <div class="${styles["signin-container"]}">
       <div class="${styles["signin-form-container"]}">
           <h1>👋Welcome Back!</h1>
-          <p> If already have an account <a href="/signup">Sign Up</a></p>
+          <p> If already have an account <a href="/auth/signup">Sign Up</a></p>
       </div>
       <div class="${styles["res-error-message"]}"></div>
       <form id="${styles["signin-form"]}">
@@ -41,6 +41,9 @@ export default async function Signin() {
           minLength: 8,
           errorMessage: "Password must be at least 8 characters",
         })}
+        <div class="${styles["forgot-password"]}">
+          <a href="/auth/forgot-password">Forgot Password?</a>
+        </div>
         ${Button({
           label: "Sign In",
           type: "submit",

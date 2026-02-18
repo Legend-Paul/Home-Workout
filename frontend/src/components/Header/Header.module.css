@@ -44,7 +44,8 @@ header {
 }
 
 .signin-icon,
-.signout-icon {
+.signout-icon,
+.signup-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -199,5 +200,16 @@ svg {
   color: #fff;
   &:hover {
     background-color: var(--secondary-light);
+  }
+}
+
+.active-auth-link {
+  display: none;
+}
+.inactive-auth-link {
+  background-color: var(--bg-input) !important;
+  color: var(--text) !important;
+  &:hover {
+    background-color: var(--secondary-light) !important;
   }
 }
