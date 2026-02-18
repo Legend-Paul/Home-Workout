@@ -73,26 +73,11 @@ header {
     color: #fff;
   }
 }
-
-.user-dropdown {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: var(--bg-surface);
-  padding: var(--space-2) var(--space-1);
-  box-shadow: var(--shadow);
-  border-radius: var(--radius);
-  display: none;
-  span {
-    padding: var(--space-1) var(--space-2);
-    cursor: pointer;
-    &:hover {
-      background-color: var(--bg-input);
-      border-radius: var(--radius-sm);
-    }
+.signout-icon {
+  background-color: var(--error-light);
+  color: #fff;
+  &:hover {
+    background-color: var(--error);
   }
 }
 
