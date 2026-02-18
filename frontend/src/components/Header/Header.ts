@@ -20,7 +20,6 @@ export default async function Header() {
   const headerApp = document.getElementById("header-app");
   const currentTheme = (localStorage.getItem(THEME_KEY) as Theme) || "auto";
   const isAuth = await isAuthenticated();
-  console.log(isAuth);
 
   headerApp!.innerHTML = `
   <div class="${styles["header-container"]}">
@@ -91,7 +90,9 @@ export default async function Header() {
       </div>
       </div>
     </div>
-    <div class="${styles["nav-container"]}">
+    ${
+      isAuth
+        ? `<div class="${styles["nav-container"]}">
         <nav class="${styles["nav"]}">
             <ul>
                 <li class="${styles["nav-link"]} ${styles["active-nav-link"]}"><a href="/dashboard">Dashboard</a></li>
@@ -99,7 +100,9 @@ export default async function Header() {
                 <li class="${styles["nav-link"]}"><a href="/api/plans">Plans</a></li>
             </ul>
         </nav>
-      </div>
+      </div>`
+        : ""
+    }
     </div>
     `;
   const themeOptions = headerApp!.querySelectorAll(
