@@ -69,11 +69,18 @@ export default function ForgotPassword() {
   async function handleForgotPassword(e: Event) {
     e.preventDefault();
     const email = emailInput.value.trim();
+    submitButton.disabled = true;
+    submitButton.style.backgroundColor = "var(--primary-light) !important";
+    submitButton.innerText = "Sending...";
     try {
       await sendForgotPasswordRequest(email, resErrorMessage);
     } catch (error) {
       console.error("Error sending reset link:", error);
       resErrorMessage.innerHTML = `${errorSvg}<span>An error occurred. Please try again.</span>`;
+    } finally {
+      submitButton.disabled = false;
+      submitButton.style.backgroundColor = "var(--primary-dark) !important";
+      submitButton.innerText = "Send Reset Link";
     }
   }
 }
