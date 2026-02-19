@@ -5,6 +5,9 @@ header {
   padding: var(--space-3) var(--space-4);
   background-color: var(--bg-surface);
   box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
   a {
     text-decoration: none;
   }
