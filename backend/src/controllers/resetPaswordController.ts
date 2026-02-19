@@ -39,7 +39,7 @@ const resetPasswordHandler = async (
     });
 
     if (!resetToken || resetToken.expiresAt < new Date()) {
-      res.status(400).json({ message: "Invalid or expired token" });
+      res.status(400).json({ error: "Invalid or expired token" });
       return;
     }
 
@@ -57,7 +57,7 @@ const resetPasswordHandler = async (
     res.json({ message: "Password reset successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 

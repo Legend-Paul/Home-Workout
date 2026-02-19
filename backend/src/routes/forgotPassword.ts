@@ -8,7 +8,7 @@ import emailLimit from "../middleware/rateLimit.js";
 
 const forgotPasswordRouter = Router();
 
-forgotPasswordRouter.post("/reset", emailLimit, resetPassword);
+forgotPasswordRouter.post("/reset", resetPassword);
 forgotPasswordRouter.post("/resend", emailLimit, resendEmailConfirmation);
 forgotPasswordRouter.post("/", emailLimit, sendEmailConfirmation);
 export default forgotPasswordRouter;
