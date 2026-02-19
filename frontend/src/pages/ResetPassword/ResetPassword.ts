@@ -2,6 +2,7 @@ import styles from "../../assets/FormStyles.module.css";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import Notification from "../../components/Notification/Notification";
+import Spinner from "../../components/Spinner/Spinner";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -46,6 +47,7 @@ export default function ResetPassword() {
                   <div class="${styles["reset-password-footer"]}">      
                     <a href="/auth/signin" class="${styles["back-signup"]}">Back to Sign In</a>
                     <a  class="${styles["resend-link"]}">Resend Reset Link</a>
+                    ${Spinner()}
                </div>
             
             </form>
