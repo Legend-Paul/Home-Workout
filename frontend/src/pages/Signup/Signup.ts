@@ -120,12 +120,7 @@ export default async function Signup() {
     if (e.target === confirmPasswordInput) {
       const errorSpan =
         confirmPasswordInput.nextElementSibling as HTMLSpanElement;
-      console.log(
-        "Validating passwords:",
-        password,
-        confirmPassword,
-        password === confirmPassword,
-      );
+      
       if (password !== confirmPassword) {
         errorSpan.textContent = "Passwords do not match";
         errorSpan.style.opacity = "1";
