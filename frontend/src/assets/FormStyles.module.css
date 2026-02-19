@@ -60,3 +60,12 @@
 .auth-button {
   background-color: var(--primary-light) !important;
 }
+
+.reset-password-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-4);
+  .resend-link {
+    cursor: pointer;
+  }
+}

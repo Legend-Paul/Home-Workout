@@ -3,6 +3,14 @@ import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import Notification from "../../components/Notification/Notification";
 
+const backendUrl =
+  import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
+
+const errorSvg = `
+      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg> `;
+
 export default function ResetPassword() {
   const mainApp = document.getElementById("main-app")!;
   mainApp.innerHTML = `
@@ -35,6 +43,11 @@ export default function ResetPassword() {
                   type: "submit",
                   btnClass: styles["auth-button"],
                 })}
+                  <div class="${styles["reset-password-footer"]}">      
+                    <a href="/auth/signin" class="${styles["resend-link"]}">Back to Sign In</a>
+                    <a  class="${styles["resend-link"]}">Resend Reset Link</a>
+               </div>
+            
             </form>
         </div>
     `;
@@ -59,6 +72,8 @@ export default function ResetPassword() {
 
   newPasswordInput.addEventListener("input", validateForm);
   confirmNewPasswordInput.addEventListener("input", validateForm);
+  resetPasswordForm.addEventListener("submit", handleResetPassword);
+
   // Validate form inputs
   function validateForm(e: Event) {
     const password = newPasswordInput.value.trim();
@@ -91,5 +106,54 @@ export default function ResetPassword() {
       submitButton.disabled = true;
       submitButton.style.backgroundColor = "var(--primary-light) !important";
     }
+  }
+
+  async function handleResetPassword(e: Event) {
+    e.preventDefault();
+    const newPassword = newPasswordInput.value.trim();
+    const confirmNewPassword = confirmNewPasswordInput.value.trim();
+    resErrorMessage.innerHTML = "";
+    submitButton.disabled = true;
+    submitButton.style.backgroundColor = "var(--primary-light) !important";
+    submitButton.innerText = "Resetting...";
+    try {
+      await resetPassword(newPassword, confirmNewPassword, resErrorMessage);
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      resErrorMessage.innerHTML = `${errorSvg}<span>An error occurred. Please try again.</span>`;
+    } finally {
+      submitButton.innerText = "Reset Password";
+      submitButton.disabled = false;
+      submitButton.style.backgroundColor = "var(--primary-dark) !important";
+    }
+  }
+}
+
+async function resetPassword(
+  password: string,
+  confirmPassword: string,
+  resErrorMessage: HTMLDivElement,
+) {
+  const token = window.location.search;
+
+  const response = await fetch(
+    `${backendUrl}/auth/forgot-password/reset${token}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        password,
+        confirmPassword,
+      }),
+    },
+  );
+
+  if (response.ok) {
+    window.location.href = "/auth/signin?passwordReset=success";
+  } else {
+    const data = await response.json();
+    resErrorMessage.innerHTML = `${errorSvg}<span>${data.error || "Failed to reset password. Please try again."}</span>`;
   }
 }
