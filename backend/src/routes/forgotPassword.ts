@@ -1,10 +1,14 @@
 import { Router } from "express";
-import { sendEmailConfirmation } from "../controllers/forgotPaswordController.js";
+import {
+  sendEmailConfirmation,
+  resendEmailConfirmation,
+} from "../controllers/forgotPaswordController.js";
 import { resetPassword } from "../controllers/resetPaswordController.js";
 import emailLimit from "../middleware/rateLimit.js";
 
 const forgotPasswordRouter = Router();
 
 forgotPasswordRouter.post("/reset", emailLimit, resetPassword);
+forgotPasswordRouter.post("/resend", emailLimit, resendEmailConfirmation);
 forgotPasswordRouter.post("/", emailLimit, sendEmailConfirmation);
 export default forgotPasswordRouter;

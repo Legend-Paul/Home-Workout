@@ -55,3 +55,44 @@ const sendEmailConfirmationHandler = async (
 const sendEmailConfirmation = [...validate, sendEmailConfirmationHandler];
 
 export { sendEmailConfirmation };
+
+interface ResendEmailConfirmationRequest extends Request {
+  query: {
+    token: string;
+  };
+}
+
+export const resendEmailConfirmation = async (
+  req: ResendEmailConfirmationRequest,
+  res: Response,
+): Promise<void> => {
+  const { token } = req.query;
+
+  try {
+    const verificationToken = await prisma.passwordResetToken.findUnique({
+      where: { token: token as string },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!verificationToken) {
+      res.status(400).json({ error: "Invalid token" });
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(
+        verificationToken.userId,
+        verificationToken.user.email,
+      );
+      res.json({ message: "Password reset email sent successfully" });
+    } catch (error) {
+      console.error("Error sending password reset email:", error);
+      res.status(500).json({ error: "Failed to send password reset email" });
+    }
+  } catch (error) {
+    console.error("Error finding password reset token:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
