@@ -32,7 +32,6 @@ export default function ResetPassword() {
                   label: "Reset Password",
                   type: "submit",
                   btnClass: styles["auth-button"],
-                  disabled: true,
                 })}
             </form>
         </div>

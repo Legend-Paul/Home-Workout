@@ -157,6 +157,7 @@ export default async function Signup() {
     const username = usernameInput.value.trim();
     const password = passwordInput.value.trim();
     const confirmPassword = confirmPasswordInput.value.trim();
+    let errorOccoured = false;
 
     submitButton.disabled = true;
     submitButton.style.backgroundColor = "var(--primary-light) !important";
@@ -169,13 +170,23 @@ export default async function Signup() {
         confirmPassword,
         errorMessage,
       );
+      errorOccoured = false;
     } catch (error) {
       console.error("Error signing up:", error);
+      errorOccoured = true;
       errorMessage.innerHTML = `${errorSvg}<span>An error occurred. Please try again.</span>`;
     } finally {
-      submitButton.disabled = false;
-      submitButton.style.backgroundColor = "var(--primary-dark) !important";
-      submitButton.innerText = "Sign Up";
+      submitButton.innerText = "Send Reset Link";
+      if (errorOccoured) {
+        submitButton.disabled = false;
+        submitButton.style.backgroundColor = "var(--primary-dark) !important";
+      } else {
+        errorMessage.innerHTML = "";
+        setTimeout(() => {
+          submitButton.style.backgroundColor = "var(--primary-dark) !important";
+          submitButton.disabled = false;
+        }, 5000);
+      }
     }
   }
 }
