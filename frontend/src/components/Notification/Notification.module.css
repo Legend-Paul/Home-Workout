@@ -10,6 +10,7 @@
   border-radius: var(--radius-sm);
   color: var(--text);
   padding-right: var(--space-8);
+  max-width: 20rem;
 }
 .close-btn {
   position: absolute;
