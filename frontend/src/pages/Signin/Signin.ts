@@ -22,7 +22,7 @@ export default async function Signin() {
   mainApp!.innerHTML = `
     <div class="${styles["auth-container"]} ${styles["signin-container"]}">
       <div class="${styles["auth-form-container"]}">
-          <h1>👋Welcome Back!</h1>
+          <h2>👋Welcome Back!</h2>
           <p> If already have an account <a href="/auth/signup">Sign Up</a></p>
       </div>
       <div class="${styles["res-error-message"]}"></div>

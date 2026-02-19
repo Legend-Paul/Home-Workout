@@ -22,7 +22,7 @@ export default async function Signup() {
   mainApp!.innerHTML = `
     <div class="${styles["auth-container"]} ${styles["signup-container"]}">
       <div class="${styles["auth-form-container"]}">
-          <h1>👋Welcome to FitTrack!</h1>
+          <h2>👋Welcome to FitTrack!</h2>
           <p> If already have an account <a href="/auth/signin">Sign In</a></p>
       </div>
       <div class="${styles["res-error-message"]}"></div>
