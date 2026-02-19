@@ -44,7 +44,7 @@ export default function ResetPassword() {
                   btnClass: styles["auth-button"],
                 })}
                   <div class="${styles["reset-password-footer"]}">      
-                    <a href="/auth/signin" class="${styles["resend-link"]}">Back to Sign In</a>
+                    <a href="/auth/signin" class="${styles["back-signup"]}">Back to Sign In</a>
                     <a  class="${styles["resend-link"]}">Resend Reset Link</a>
                </div>
             
@@ -69,10 +69,17 @@ export default function ResetPassword() {
   const submitButton = resetPasswordForm.querySelector(
     `.${styles["auth-button"]}`,
   ) as HTMLButtonElement;
+  const resendLink = resetPasswordContainer.querySelector(
+    `.${styles["resend-link"]}`,
+  ) as HTMLAnchorElement;
 
   newPasswordInput.addEventListener("input", validateForm);
   confirmNewPasswordInput.addEventListener("input", validateForm);
   resetPasswordForm.addEventListener("submit", handleResetPassword);
+  resendLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    resendResetLink();
+  });
 
   // Validate form inputs
   function validateForm(e: Event) {
@@ -155,5 +162,40 @@ async function resetPassword(
   } else {
     const data = await response.json();
     resErrorMessage.innerHTML = `${errorSvg}<span>${data.error || "Failed to reset password. Please try again."}</span>`;
+  }
+}
+
+async function resendResetLink() {
+  const token = window.location.search;
+  try {
+    const response = await fetch(
+      `${backendUrl}/auth/forgot-password/resend${token}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (response.ok) {
+      Notification({
+        type: "success",
+        message:
+          "Reset link resent! Please check your email to reset your password.",
+      });
+    } else {
+      const data = await response.json();
+      Notification({
+        type: "error",
+        message: data.error || "Failed to resend reset link. Please try again.",
+      });
+    }
+  } catch (error) {
+    console.error("Error resending reset link:", error);
+    Notification({
+      type: "error",
+      message: "An error occurred. Please try again.",
+    });
   }
 }
