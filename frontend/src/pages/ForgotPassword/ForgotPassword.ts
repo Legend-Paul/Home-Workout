@@ -98,12 +98,10 @@ async function sendForgotPasswordRequest(
   });
 
   if (response.ok) {
-    const notificationTime = 5000; // 5 seconds
     Notification({
       type: "success",
       message:
         "Reset link sent! Please check your email to reset your password.",
-      duration: notificationTime,
     });
   } else {
     const data = await response.json();

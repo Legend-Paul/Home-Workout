@@ -8,7 +8,6 @@ import passportConfig from "./auth/passport.js";
 import sigunpRouter from "./routes/sigunp.js";
 import loginRouter from "./routes/login.js";
 import forgotPaswordRouter from "./routes/forgotPassword.js";
-import resetPaswordRouter from "./routes/resetPassword.js";
 import verificationEmailRouter from "./routes/verificationEmail.js";
 import userRouter from "./routes/user.js";
 import quickPlanRouter from "./routes/quickPlan.js";
@@ -31,7 +30,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/auth/signup", sigunpRouter);
 app.use("/auth/login", loginRouter);
 app.use("/auth/forgot-password", forgotPaswordRouter);
-app.use("/auth/reset-password", resetPaswordRouter);
 app.use("/auth/user", userRouter);
 app.use("/auth/verification-email", verificationEmailRouter);
 
