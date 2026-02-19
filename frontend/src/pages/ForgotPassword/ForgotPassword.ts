@@ -8,7 +8,7 @@ export default function ForgotPassword() {
         <div class="${styles["auth-container"]} ${styles["forgot-password-container"]}">
             <h2 class="${styles["auth-form-container"]}">Forgot Password</h2>
             <div class="${styles["res-error-message"]}"></div>
-            <form id="${styles["auth-form"]}" class="${styles["form"]}">
+            <form id="${styles["auth-form"]}" class="${styles["form"]}" method="POST">
                 ${Input({
                   label: "email",
                   type: "email",
