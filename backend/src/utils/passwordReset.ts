@@ -26,19 +26,24 @@ export const sendPasswordResetEmail = async (userId: string, email: string) => {
     },
   });
 
-  const resetLink = `${process.env.FRONTEND_URL || "http://localhost:5000"}
-    /auth/reset-password/${token}`;
+  const resetLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/auth/reset-password/${token}`;
 
   await transporter.sendMail({
     from: `FitTrack <${process.env.EMAIL_USER}>`,
     to: email,
     subject: "Reset Your Password",
-    html: `<h2 style="color: #007bff;">Reset Your Password</h2>
+    html: `<h2 style="color: #ff6b35;">Reset Your Password</h2>
         <p><strong>This link expires in 1 hour.</strong></p>
         <p>Please click the link below to reset your password</p>
-        <button 
-        style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px;"><a href="${resetLink}" style="color: white; text-decoration: none;">
-        Reset Password</a></button>
+        <a href="${resetLink}"
+          style="display:inline-block;
+            background-color: #ff6b35;
+            color:white;
+            padding:10px 20px;
+            text-decoration:none;
+            border-radius:5px;">
+            Reset Password
+        </a>
         `,
   });
 };

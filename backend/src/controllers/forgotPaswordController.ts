@@ -31,12 +31,12 @@ const sendEmailConfirmationHandler = async (
     });
 
     if (!user) {
-      res.status(400).json({ message: "User not found" });
+      res.status(400).json({ error: "User not found" });
       return;
     }
 
     if (!user.isVerified) {
-      res.status(400).json({ message: "Email not verified" });
+      res.status(400).json({ error: "Email not verified" });
       return;
     }
 
@@ -45,11 +45,11 @@ const sendEmailConfirmationHandler = async (
       res.json({ message: "Password reset email sent successfully" });
     } catch (error) {
       console.error("Error sending password reset email:", error);
-      res.status(500).json({ message: "Failed to send password reset email" });
+      res.status(500).json({ error: "Failed to send password reset email" });
       return;
     }
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 const sendEmailConfirmation = [...validate, sendEmailConfirmationHandler];
