@@ -1,0 +1,34 @@
+.notification {
+  position: fixed;
+  top: calc(var(--space-10) * 2);
+  right: var(--space-8);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow);
+  z-index: 1001;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding-right: var(--space-8);
+}
+.close-btn {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  background: none;
+  border: none;
+  font-size: var(--text-lg);
+  cursor: pointer;
+}
+
+.success {
+  background-color: var(--success-dark);
+}
+
+.error {
+  background-color: var(--error-dark);
+}
+
+.info {
+  background-color: var(--info-dark);
+}
