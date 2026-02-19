@@ -10,5 +10,5 @@ const forgotPasswordRouter = Router();
 
 forgotPasswordRouter.post("/reset", resetPassword);
 forgotPasswordRouter.post("/resend", emailLimit, resendEmailConfirmation);
-forgotPasswordRouter.post("/", emailLimit, sendEmailConfirmation);
+forgotPasswordRouter.post("/", sendEmailConfirmation);
 export default forgotPasswordRouter;

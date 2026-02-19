@@ -29,7 +29,7 @@ const sendEmailConfirmationHandler = async (
     const user = await prisma.user.findUnique({
       where: { email },
     });
-
+    console.log("User found for email:", user);
     if (!user) {
       res.status(400).json({ error: "User not found" });
       return;
