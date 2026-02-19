@@ -69,23 +69,23 @@ const createUserHandler = async (
       },
     });
     try {
-      await sendVerificationEmail(
-        newUser.id,
-        newUser.email,
-        "signup",
-        "Verify Your Email",
-        "verify your email",
-      );
+      await sendVerificationEmail({
+        userId: newUser.id,
+        email: newUser.email,
+        heading: "Verify Your Email",
+        action: "verify your email",
+      });
       res.status(201).json({
         message:
           "User created successfully. Please check your email to verify your account.",
       });
     } catch (error) {
       console.error("Error sending verification email:", error);
+      res.status(500).json({ error: "Failed to send token" });
     }
   } catch (error) {
     console.error("Error creating user:", error);
-    res.status(500).json({ message: "Failed to create user" });
+    res.status(500).json({ error: "Failed to create user" });
   }
 };
 export const createUser = [...validate, createUserHandler];

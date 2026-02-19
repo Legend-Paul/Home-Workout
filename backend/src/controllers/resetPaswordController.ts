@@ -15,9 +15,6 @@ const validate = [
 ];
 
 interface ResetPasswordRequest extends Request {
-  params: {
-    token: string;
-  };
   body: {
     password: string;
   };
@@ -34,7 +31,7 @@ const resetPasswordHandler = async (
   }
 
   const { password } = req.body;
-  const { token } = req.params;
+  const { token } = req.query;
 
   try {
     const resetToken = await prisma.passwordResetToken.findUnique({
