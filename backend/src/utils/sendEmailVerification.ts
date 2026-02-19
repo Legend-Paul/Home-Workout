@@ -13,13 +13,11 @@ const trasporter = nodemailer.createTransport({
 export const sendVerificationEmail = async ({
   userId,
   email,
-  route,
   heading,
   action,
 }: {
   userId: string;
   email: string;
-  route?: string;
   heading: string;
   action: string;
 }) => {
@@ -40,7 +38,7 @@ export const sendVerificationEmail = async ({
     },
   });
 
-  const verificationLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/auth/signup/verify-email${route ? `/${route}` : ""}?token=${token}`;
+  const verificationLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/auth/signup/verify-email?token=${token}`;
 
   await trasporter.sendMail({
     from: `FitTrack <${process.env.EMAIL_USER}>`,

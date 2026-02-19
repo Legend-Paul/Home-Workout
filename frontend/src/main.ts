@@ -18,6 +18,7 @@ register("/auth/signin", Signin);
 register("/auth/signup", Signup);
 register("/auth/signout", Signout);
 register("/auth/signup/verify-email", VerifyEmail);
+register("/auth/signup/verify-email/resend", VerifyEmail);
 
 register("/api/exercises", () => {
   const mainApp = document.getElementById("main-app");

@@ -8,8 +8,8 @@ import emailLimit from "../middleware/rateLimit.js";
 
 const sigunpRouter = Router();
 
+sigunpRouter.post("/verify-email/resend", resendVerificationEmail);
+sigunpRouter.post("/verify-email", verifyVerificationEmail);
 sigunpRouter.post("/", emailLimit, createUser);
-sigunpRouter.put("/verify-email", verifyVerificationEmail);
-sigunpRouter.put("/verify-email/resend", resendVerificationEmail);
 
 export default sigunpRouter;

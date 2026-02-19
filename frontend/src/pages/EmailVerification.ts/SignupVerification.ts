@@ -4,15 +4,15 @@ import Button from "../../components/Button/Button";
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 
+const token = window.location.search;
 export default async function VerifyEmail() {
-  const token = window.location.search;
   const currentPath = window.location.pathname;
   const url = `${backendUrl}${currentPath}${token}`;
 
   const mainApp = document.getElementById("main-app");
   try {
     const response = await fetch(url, {
-      method: "PUT",
+      method: "POST",
     });
 
     if (response.ok) {
@@ -21,9 +21,10 @@ export default async function VerifyEmail() {
       const data = await response.json();
       mainApp!.innerHTML = `
         <div class="${styles["verification-container"]}">
-        <h1 class="${styles["failed-sign"]}">X</h1>
-          <h3>Email Verification Failed!</h3>
-          <p>🤗 ${data.message || "Invalid or expired token. Please try again."}</p>
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+          <p>⚠️ ${data.message || "Invalid or expired token. Please try again."}</p>
           ${Button({
             label: "Request New Token",
           })}
@@ -34,7 +35,9 @@ export default async function VerifyEmail() {
     console.error("Error verifying email:", error);
     mainApp!.innerHTML = `
     <div class="${styles["verification-container"]}">
-        <h1 class="${styles["failed-sign"]}">X</h1>
+          <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
         <h3>🤗 Email Verification Failed!</h3>
         <p>An error occurred while verifying your email. Please try again.</p>
         ${Button({
@@ -42,5 +45,36 @@ export default async function VerifyEmail() {
         })}
       </div>
     `;
+  }
+  const verificationContainer = document.querySelector(
+    `.${styles["verification-container"]}`,
+  );
+  const button = verificationContainer?.querySelector("button");
+  if (button) button.addEventListener("click", resendVerificationEmail);
+}
+
+async function resendVerificationEmail() {
+  console.log("Resending verification email...");
+  try {
+    const response = await fetch(
+      `${backendUrl}/auth/signup/verify-email/resend${token}`,
+      {
+        method: "POST",
+      },
+    );
+
+    if (response.ok) {
+      alert("A new verification email has been sent to your email address.");
+    } else {
+      const data = await response.json();
+      alert(
+        data.error || "Failed to resend verification email. Please try again.",
+      );
+    }
+  } catch (error) {
+    console.error("Error resending verification email:", error);
+    alert(
+      "An error occurred while resending the verification email. Please try again.",
+    );
   }
 }

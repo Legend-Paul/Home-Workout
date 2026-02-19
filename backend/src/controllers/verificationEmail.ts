@@ -52,17 +52,14 @@ export async function resendVerificationEmail(
 ): Promise<void> {
   const { token } = req.query;
   try {
+    console.log("Received token for resending verification email:", token);
     const verificationToken = await prisma.verificationToken.findUnique({
       where: { token },
       include: {
-        user: {
-          omit: {
-            password: true,
-          },
-        },
+        user: true,
       },
     });
-
+    console.log(verificationToken);
     if (!verificationToken) {
       res.status(400).json({ error: "Invalid token" });
       return;
@@ -73,12 +70,8 @@ export async function resendVerificationEmail(
         await sendVerificationEmail({
           userId: verificationToken.userId,
           email: verificationToken.user.email,
-          route: "resend",
           heading: "Verify Your Email",
           action: "verify your email",
-        }),
-        await prisma.verificationToken.deleteMany({
-          where: { userId: verificationToken.userId },
         }),
       ]);
       res.status(201).json({

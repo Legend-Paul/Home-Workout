@@ -9,6 +9,9 @@
   font-size: var(--text-base);
   padding: var(--space-3) var(--space-2);
   color: #fff;
+  &:focus {
+    border: 2px solid var(--border-dark);
+  }
 }
 .custom-button:hover {
   background-color: var(--primary-dark);
