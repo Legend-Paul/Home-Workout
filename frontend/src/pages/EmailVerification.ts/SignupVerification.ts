@@ -7,11 +7,12 @@ const backendUrl =
 export default async function VerifyEmail() {
   const token = window.location.search;
   const currentPath = window.location.pathname;
+  const url = `${backendUrl}${currentPath}${token}`;
 
   const mainApp = document.getElementById("main-app");
   try {
-    const response = await fetch(`${backendUrl}${currentPath}${token}`, {
-      method: "POST",
+    const response = await fetch(url, {
+      method: "PUT",
     });
 
     if (response.ok) {

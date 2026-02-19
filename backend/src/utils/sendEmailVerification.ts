@@ -40,20 +40,25 @@ export const sendVerificationEmail = async ({
     },
   });
 
-  const verificationLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}
-  /auth/signup/verify-email/${route}?${token}`;
+  const verificationLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/auth/signup/verify-email${route ? `/${route}` : ""}?token=${token}`;
 
   await trasporter.sendMail({
     from: `FitTrack <${process.env.EMAIL_USER}>`,
     to: email,
     subject: heading,
 
-    html: `<h2 style="color: #007bff;">${heading}</h2>
+    html: `<h2 style="color: #ff6b35;">${heading}</h2>
     <p><strong>This link expires in 1 hour.</strong></p>
     <p>Please click the link below to ${action}</p>
-    <button 
-    style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px;"><a href="${verificationLink}" style="color: white; text-decoration: none;">
-    ${action.charAt(0).toLocaleUpperCase() + action.slice(1)}</a></button>
+    <a href="${verificationLink}"
+     style="display:inline-block;
+            background-color: #ff6b35;
+            color:white;
+            padding:10px 20px;
+            text-decoration:none;
+            border-radius:5px;">
+    ${action.charAt(0).toUpperCase() + action.slice(1)}
+  </a>
     `,
   });
 };
