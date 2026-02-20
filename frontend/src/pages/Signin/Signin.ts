@@ -2,6 +2,7 @@ import styles from "../../assets/FormStyles.module.css";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import isAuthenticated from "../../utils/auth";
+import Spinner from "../../components/Spinner/Spinner";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -105,7 +106,7 @@ export default async function Signin() {
     if (emailRegex.test(email) && password.length >= 8) {
       submitButton.disabled = true;
       submitButton.style.backgroundColor = "var(--primary-light) !important";
-      submitButton.innerText = "Signing In...";
+      submitButton.innerHTML = `${Spinner()} Signing In...`;
       try {
         await signinUser(email, password, errorMessage);
       } catch (error) {
@@ -114,7 +115,7 @@ export default async function Signin() {
       } finally {
         submitButton.disabled = false;
         submitButton.style.backgroundColor = "var(--primary-dark) !important";
-        submitButton.innerText = "Sign In";
+        submitButton.innerHTML = "Sign In";
       }
     }
   }

@@ -2,6 +2,7 @@ import styles from "../../assets/FormStyles.module.css";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import isAuthenticated from "../../utils/auth";
+import Spinner from "../../components/Spinner/Spinner";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -120,7 +121,7 @@ export default async function Signup() {
     if (e.target === confirmPasswordInput) {
       const errorSpan =
         confirmPasswordInput.nextElementSibling as HTMLSpanElement;
-      
+
       if (password !== confirmPassword) {
         errorSpan.textContent = "Passwords do not match";
         errorSpan.style.opacity = "1";
@@ -156,7 +157,7 @@ export default async function Signup() {
 
     submitButton.disabled = true;
     submitButton.style.backgroundColor = "var(--primary-light) !important";
-    submitButton.innerText = "Signing Up...";
+    submitButton.innerHTML = `${Spinner()} Signing Up...`;
     try {
       await signupUser(
         email,
@@ -170,7 +171,7 @@ export default async function Signup() {
 
       errorMessage.innerHTML = `${errorSvg}<span>An error occurred. Please try again.</span>`;
     } finally {
-      submitButton.innerText = "Sign Up";
+      submitButton.innerHTML = "Sign Up";
       submitButton.disabled = false;
       submitButton.style.backgroundColor = "var(--primary-dark) !important";
     }
