@@ -59,7 +59,7 @@ interface QuickPlanRequest extends Request {
 
 const createQuickPlanHandler = async (
   req: QuickPlanRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -102,8 +102,8 @@ const createQuickPlanHandler = async (
 export const createQuickPlan = [...validate, createQuickPlanHandler];
 
 export const getAllQuickPlans = async (
-  req: QuickPlanRequest,
-  res: Response
+  req: Request,
+  res: Response,
 ): Promise<void> => {
   try {
     const allPlans = await prisma.quickStartPlan.findMany({
@@ -115,7 +115,7 @@ export const getAllQuickPlans = async (
         },
       },
     });
-    res.status(200).json(allPlans);
+    res.status(200).json({ plans: allPlans });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Failed to fetch quick start plans" });
@@ -125,7 +125,7 @@ export const getAllQuickPlans = async (
 // Update quick plan handler
 const updateQuickPlanHandler = async (
   req: QuickPlanRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -183,7 +183,7 @@ export const updateQuickPlan = [...validate, updateQuickPlanHandler];
 // delete quick plan handler
 export const deleteQuickPlan = async (
   req: QuickPlanRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const quickStartPlanId = req.params.id;
   try {

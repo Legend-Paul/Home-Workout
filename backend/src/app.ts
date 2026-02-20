@@ -29,9 +29,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/auth/signup", sigunpRouter);
 app.use("/auth/login", loginRouter);
 app.use("/auth/forgot-password", forgotPaswordRouter);
-app.use("/auth/user", userRouter);
 
 //exercise routes
+app.use("/api/user", userRouter);
 app.use("/api/exercise", exerciseRouter);
 
 // quick plan routes

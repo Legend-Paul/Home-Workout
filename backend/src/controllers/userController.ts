@@ -9,7 +9,9 @@ export const getAllUsers = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const users = await prisma.user.findMany();
+    const users = await prisma.user.findMany({
+      omit: { password: true },
+    });
     res.status(200).json({ users });
   } catch (error) {
     console.error("Error fetching users:", error);
