@@ -46,8 +46,7 @@ export default function ResetPassword() {
                 })}
                   <div class="${styles["reset-password-footer"]}">      
                     <a href="/auth/signin" class="${styles["back-signup"]}">Back to Sign In</a>
-                    <a  class="${styles["resend-link"]}">Resend Reset Link</a>
-                    ${Spinner()}
+                    <a  class="${styles["resend-link"]}">Resend Reset Link</a>                 
                </div>
             
             </form>
@@ -80,7 +79,8 @@ export default function ResetPassword() {
   resetPasswordForm.addEventListener("submit", handleResetPassword);
   resendLink.addEventListener("click", (e) => {
     e.preventDefault();
-    resendResetLink();
+    resendLink.innerHTML = `${Spinner()} Resending...`;
+    resendResetLink(resendLink);
   });
 
   // Validate form inputs
@@ -91,12 +91,7 @@ export default function ResetPassword() {
     if (e.target === confirmNewPasswordInput) {
       const errorSpan =
         confirmNewPasswordInput.nextElementSibling as HTMLSpanElement;
-      console.log(
-        "Validating passwords:",
-        password,
-        confirmPassword,
-        password === confirmPassword,
-      );
+
       if (password !== confirmPassword) {
         errorSpan.textContent = "Passwords do not match";
         errorSpan.style.opacity = "1";
@@ -124,14 +119,14 @@ export default function ResetPassword() {
     resErrorMessage.innerHTML = "";
     submitButton.disabled = true;
     submitButton.style.backgroundColor = "var(--primary-light) !important";
-    submitButton.innerText = "Resetting...";
+    submitButton.innerHTML = `${Spinner()} Resetting...`;
     try {
       await resetPassword(newPassword, confirmNewPassword, resErrorMessage);
     } catch (error) {
       console.error("Error resetting password:", error);
       resErrorMessage.innerHTML = `${errorSvg}<span>An error occurred. Please try again.</span>`;
     } finally {
-      submitButton.innerText = "Reset Password";
+      submitButton.innerHTML = "Reset Password";
       submitButton.disabled = false;
       submitButton.style.backgroundColor = "var(--primary-dark) !important";
     }
@@ -167,7 +162,7 @@ async function resetPassword(
   }
 }
 
-async function resendResetLink() {
+async function resendResetLink(resendLink: HTMLAnchorElement) {
   const token = window.location.search;
   try {
     const response = await fetch(
@@ -199,5 +194,7 @@ async function resendResetLink() {
       type: "error",
       message: "An error occurred. Please try again.",
     });
+  } finally {
+    resendLink.innerHTML = "Resend Reset Link";
   }
 }
