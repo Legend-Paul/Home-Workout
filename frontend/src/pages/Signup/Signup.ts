@@ -195,7 +195,7 @@ async function signupUser(
     });
 
     if (response.ok) {
-      window.location.href = "/auth/email/confirmation?signup=success";
+      window.location.href = "/auth/email/confirmation?status=success";
     } else {
       const data = await response.json();
       errorMessage.innerHTML = `${errorSvg}<span>${data.error || "Signup failed. Please try again."}</span>`;

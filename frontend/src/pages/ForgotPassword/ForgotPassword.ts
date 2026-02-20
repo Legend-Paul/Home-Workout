@@ -1,7 +1,7 @@
 import styles from "../../assets/FormStyles.module.css";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
-import Notification from "../../components/Notification/Notification";
+import Spiner from "../../components/Spinner/Spinner";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -71,14 +71,14 @@ export default function ForgotPassword() {
     resErrorMessage.innerHTML = "";
     submitButton.disabled = true;
     submitButton.style.backgroundColor = "var(--primary-light) !important";
-    submitButton.innerText = "Sending...";
+    submitButton.innerHTML = `${Spiner()} Sending...`;
     try {
       await sendForgotPasswordRequest(email, resErrorMessage);
     } catch (error) {
       console.error("Error sending reset link:", error);
       resErrorMessage.innerHTML = `${errorSvg}<span>An error occurred. Please try again.</span>`;
     } finally {
-      submitButton.innerText = "Send Reset Link";
+      submitButton.innerHTML = "Send Reset Link";
       submitButton.disabled = false;
       submitButton.style.backgroundColor = "var(--primary-dark) !important";
     }
@@ -98,11 +98,7 @@ async function sendForgotPasswordRequest(
   });
 
   if (response.ok) {
-    Notification({
-      type: "success",
-      message:
-        "Reset link sent! Please check your email to reset your password.",
-    });
+    window.location.href = "/auth/email/confirmation?status=success";
   } else {
     const data = await response.json();
     resErrorMessage.innerHTML = `${errorSvg}<span>${data.error || "Failed to send reset link. Please try again."}</span>`;
