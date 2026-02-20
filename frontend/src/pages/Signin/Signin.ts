@@ -3,7 +3,6 @@ import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import isAuthenticated from "../../utils/auth";
 import Spinner from "../../components/Spinner/Spinner";
-import Confirmation from "../../components/Confirmation/Confirmation";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;

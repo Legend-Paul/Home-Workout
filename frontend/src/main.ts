@@ -9,6 +9,7 @@ import Signup from "./pages/Signup/Signup";
 import VerifyEmail from "./pages/EmailVerification.ts/SignupVerification";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
+import EmailConfirmation from "./pages/EmailConfirmatio/EmailConfirmation";
 
 initTheme();
 await Header();
@@ -23,6 +24,7 @@ register("/auth/signup/verify-email", VerifyEmail);
 register("/auth/signup/verify-email/resend", VerifyEmail);
 register("/auth/forgot-password", ForgotPassword);
 register("/auth/forgot-password/reset", ResetPassword);
+register("/auth/email/confirmation", EmailConfirmation);
 
 register("/api/exercises", () => {
   const mainApp = document.getElementById("main-app");
