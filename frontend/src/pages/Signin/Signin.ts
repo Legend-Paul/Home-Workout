@@ -51,7 +51,7 @@ export default async function Signin() {
           <a href="/auth/forgot-password">Forgot Password?</a>
         </div>
         ${Button({
-          label: "Sign In",
+          label: `Sign In`,
           type: "submit",
           btnClass: styles["auth-button"],
           disabled: true,
@@ -106,7 +106,7 @@ export default async function Signin() {
     if (emailRegex.test(email) && password.length >= 8) {
       submitButton.disabled = true;
       submitButton.style.backgroundColor = "var(--primary-light) !important";
-      submitButton.innerHTML = `${Spinner()} Signing In...`;
+      submitButton.innerHTML = `${Spinner({})} Signing In...`;
       try {
         await signinUser(email, password, errorMessage);
       } catch (error) {

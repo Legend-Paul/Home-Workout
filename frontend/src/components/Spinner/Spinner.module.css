@@ -2,6 +2,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+  gap: var(--space-2);
   height: 100%;
 }
 .spinner {
@@ -16,5 +18,13 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+.large {
+  min-height: 70vh;
+  .spinner {
+    width: 2.5rem;
+    height: 2.5rem;
   }
 }

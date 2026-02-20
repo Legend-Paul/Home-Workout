@@ -1,5 +1,6 @@
 import styles from "./Home.module.css";
 import Button from "../../components/Button/Button";
+import Spinner from "../../components/Spinner/Spinner";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -50,6 +51,10 @@ type QuickPlan = {
 
 export default async function AdminHome() {
   const mainApp = document.getElementById("main-app");
+  mainApp!.innerHTML = Spinner({
+    type: "large",
+    message: "Loading dashboard...",
+  });
 
   const [users, exercises, quickPlans] = await Promise.all([
     fetchUsers(),

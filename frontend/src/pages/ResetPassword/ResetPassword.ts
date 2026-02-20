@@ -79,7 +79,7 @@ export default function ResetPassword() {
   resetPasswordForm.addEventListener("submit", handleResetPassword);
   resendLink.addEventListener("click", (e) => {
     e.preventDefault();
-    resendLink.innerHTML = `${Spinner()} Resending...`;
+    resendLink.innerHTML = `${Spinner({})} Resending...`;
     resendResetLink(resendLink);
   });
 
@@ -119,7 +119,7 @@ export default function ResetPassword() {
     resErrorMessage.innerHTML = "";
     submitButton.disabled = true;
     submitButton.style.backgroundColor = "var(--primary-light) !important";
-    submitButton.innerHTML = `${Spinner()} Resetting...`;
+    submitButton.innerHTML = `${Spinner({})} Resetting...`;
     try {
       await resetPassword(newPassword, confirmNewPassword, resErrorMessage);
     } catch (error) {

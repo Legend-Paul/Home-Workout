@@ -157,7 +157,7 @@ export default async function Signup() {
 
     submitButton.disabled = true;
     submitButton.style.backgroundColor = "var(--primary-light) !important";
-    submitButton.innerHTML = `${Spinner()} Signing Up...`;
+    submitButton.innerHTML = `${Spinner({})}  Signing Up...`;
     try {
       await signupUser(
         email,

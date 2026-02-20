@@ -1,7 +1,7 @@
 import styles from "../../assets/FormStyles.module.css";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
-import Spiner from "../../components/Spinner/Spinner";
+import Spinner from "../../components/Spinner/Spinner";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -71,7 +71,7 @@ export default function ForgotPassword() {
     resErrorMessage.innerHTML = "";
     submitButton.disabled = true;
     submitButton.style.backgroundColor = "var(--primary-light) !important";
-    submitButton.innerHTML = `${Spiner()} Sending...`;
+    submitButton.innerHTML = `${Spinner({})} Sending...`;
     try {
       await sendForgotPasswordRequest(email, resErrorMessage);
     } catch (error) {
