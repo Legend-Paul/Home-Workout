@@ -10,6 +10,10 @@
   padding: var(--space-3) var(--space-2);
   color: #fff;
   transition: var(--transition-base);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2);
   &:focus {
     border: 2px solid var(--border-dark);
   }
