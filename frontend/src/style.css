@@ -29,10 +29,12 @@
 
   /* ===== BACKGROUNDS ===== */
   --bg: #ffffff;
-  --bg-surface: #f5f5f5;
-  --bg-card: #ffffff;
+  --bg-surface: #dfdfdf;
+  --bg-card: #dfdfdf;
   --bg-input: #f5f5f5;
   --bg-disabled: #e0e0e0;
+  --bg-button: #e0dede;
+  --bg-button-dark: #c9c8c8;
 
   /* ===== TEXT COLORS ===== */
   --text: #333333;
@@ -131,6 +133,8 @@
     --bg-card: #1e1e1e;
     --bg-input: #2d2d2d;
     --bg-disabled: #404040;
+    --bg-button: #404040;
+    --bg-button-dark: #333333;
     --text: #ffffff;
     --text-light: #b0b0b0;
     --text-lighter: #808080;
@@ -181,6 +185,8 @@
   --bg-card: #ffffff;
   --bg-input: #d3d0d0;
   --bg-disabled: #e0e0e0;
+  --bg-button: #e0dede;
+  --bg-button-dark: #c9c8c8;
 
   /* ===== TEXT COLORS ===== */
   --text: #333333;
@@ -269,6 +275,8 @@
     --bg-card: #1e1e1e;
     --bg-input: #2d2d2d;
     --bg-disabled: #404040;
+    --bg-button: #404040;
+    --bg-button-dark: #333333;
     --text: #ffffff;
     --text-light: #b0b0b0;
     --text-lighter: #808080;

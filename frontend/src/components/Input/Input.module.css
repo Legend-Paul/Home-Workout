@@ -17,7 +17,7 @@
     &:focus {
       outline: none;
       border-color: var(--info);
-      box-shadow: 0 0 0 2px var(--info-light);
+      box-shadow: 0 0 0 0.5px var(--info-light);
     }
   }
 }
@@ -31,12 +31,12 @@
 
 input:not(:focus):not(:placeholder-shown):valid {
   border-color: var(--success);
-  box-shadow: 0 0 0 1px var(--success-light);
+  box-shadow: 0 0 0 0.5px var(--success-light);
 }
 
 input:not(:focus):not(:placeholder-shown):invalid {
   border-color: var(--error);
-  box-shadow: 0 0 0 1px var(--error-light);
+  box-shadow: 0 0 0 0.5px var(--error-light);
   & + .error-message {
     opacity: 1;
   }
