@@ -4,6 +4,7 @@ import {
   updateGoal,
   updateLevel,
   createUserQuickPlan,
+  getAllUsers,
 } from "../controllers/userController.js";
 import {
   sendNewFriendship,
@@ -17,6 +18,7 @@ import {
 } from "../controllers/calendarEntry.js";
 
 const userRouter = Router();
+userRouter.get("/all", getAllUsers);
 userRouter.get("/:id/quick-plan", createUserQuickPlan);
 userRouter.put("/:id/update/username", updateUsename);
 userRouter.put("/:id/update/goal", updateGoal);
