@@ -53,7 +53,7 @@ export default async function AdminHome() {
   const mainApp = document.getElementById("main-app");
   mainApp!.innerHTML = Spinner({
     type: "large",
-    message: "Loading dashboard...",
+    message: "Loading...",
   });
 
   const [users, exercises, quickPlans] = await Promise.all([

@@ -10,6 +10,7 @@ import VerifyEmail from "./pages/EmailVerification.ts/SignupVerification";
 import ForgotPassword from "./pages/ForgotPassword/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import EmailConfirmation from "./pages/EmailConfirmatio/EmailConfirmation";
+import Exercises from "./pages/Exercises/Exercises";
 
 initTheme();
 await Header();
@@ -26,13 +27,9 @@ register("/auth/forgot-password", ForgotPassword);
 register("/auth/forgot-password/reset", ResetPassword);
 register("/auth/email/confirmation", EmailConfirmation);
 
-register("/api/exercises", () => {
-  const mainApp = document.getElementById("main-app");
-  mainApp!.innerHTML = `
-    <h1>Exercises Page</h1>
-    <p>This is the exercises page.</p>
-  `;
-});
+// api links
+register("/api/exercises", Exercises);
+
 notFound(ErrorRoute);
 
 startRouter();
