@@ -100,42 +100,46 @@ export default async function AdminHome() {
         </p>
         <!-- <p>It’s a slow process, but quitting won’t speed it up.</p> -->
       </div>
-      <div class="${styles["admin-links"]}">
+      <div class="${styles["admin-summary"]}">
         <article class="${styles["summary-card"]} ${styles["user-card"]}">
-          <h3>Manage Users</h3>
+          <h3>Users</h3>
           <div class="${styles["summary-status"]}">
-            <p>Active: ${activeUsers}</p>
-            <p>Inactive: ${inactiveUsers}</p> 
-            <p>Total: ${userCount}</p>         
+            <p class="${styles["active-summary-count"]}">Active: ${activeUsers}</p>
+            <p class="${styles["inactive-summary-count"]}">Inactive: ${inactiveUsers}</p> 
+            <p class="${styles["total-summary-count"]}">Total: ${userCount}</p>         
           </div>
         </article>
         <article class="${styles["summary-card"]} ${styles["admin-card"]}">
           <h3>Admins</h3>
           <div class="${styles["summary-status"]}">
-            <p>Active: ${activeAdmins}</p>
-            <p>Inactive: ${inactiveAdmins}</p> 
-            <p>Total: ${adminCount}</p>         
+            <p class="${styles["active-summary-count"]}">Active: ${activeAdmins}</p>
+            <p class="${styles["inactive-summary-count"]}">Inactive: ${inactiveAdmins}</p> 
+            <p class="${styles["total-summary-count"]}">Total: ${adminCount}</p>         
           </div>
         </article>
         <article class="${styles["summary-card"]} ${styles["exercise-card"]}">
           <h3>Exercises</h3>
           <div class="${styles["summary-status"]}">
-            <p>Active: ${activeExercises}</p>
-            <p>Inactive: ${inactiveExercises}</p> 
-            <p>Total: ${exerciseCount}</p>         
+            <p class="${styles["active-summary-count"]}">Active: ${activeExercises}</p>
+            <p class="${styles["inactive-summary-count"]}">Inactive: ${inactiveExercises}</p> 
+            <p class="${styles["total-summary-count"]}">Total: ${exerciseCount}</p>         
           </div>          
         </article>
-        <article class="${styles["summary-card"]} ${styles["plan-card"]}">
+        <article class="${styles["summary-card"]} ${styles["quick-plan-card"]}">
           <h3>Quick Plans</h3>          
           <div class="${styles["summary-status"]}">
-            <p>Active: ${activeQuickPlans}</p>
-            <p>Inactive: ${inactiveQuickPlans}</p> 
-            <p>Total: ${quickPlanCount}</p>         
+            <p class="${styles["active-summary-count"]}">Active: ${activeQuickPlans}</p>
+            <p class="${styles["inactive-summary-count"]}">Inactive: ${inactiveQuickPlans}</p> 
+            <p class="${styles["total-summary-count"]}">Total: ${quickPlanCount}</p>         
           </div>          
         </article>
       </div>
       ${Button({
-        label: `<p> + </p><p> Add Exercise </p>`,
+        label: `
+        <svg class="${styles["add-exercise-btn-icon"]}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+        </path></svg>
+        <p class="${styles["add-exercise-btn-text"]}"> Add Exercise </p>`,
+        btnClass: styles["add-exercise-btn"],
       })}
       
     </div>

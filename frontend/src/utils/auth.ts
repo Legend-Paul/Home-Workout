@@ -17,7 +17,6 @@ export default async function isAuthenticated(): Promise<boolean> {
     if (response.ok) {
       return true;
     } else {
-      localStorage.removeItem("Authorization");
       return false;
     }
   } catch (error) {
