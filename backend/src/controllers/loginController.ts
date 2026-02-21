@@ -50,7 +50,7 @@ const validateUserHandle = async (
       userWithoutPassword,
       process.env.JWT_SECRET as string,
       {
-        expiresIn: "7days",
+        expiresIn: "30days",
       },
     );
 
