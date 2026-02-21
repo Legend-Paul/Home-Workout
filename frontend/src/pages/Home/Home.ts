@@ -1,53 +1,10 @@
 import styles from "./Home.module.css";
 import Button from "../../components/Button/Button";
 import Spinner from "../../components/Spinner/Spinner";
+import { type User, type Exercise, type QuickPlan } from "../../utils/types";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
-
-type User = {
-  id: string;
-  username: string;
-  email: string;
-  role: "USER" | "ADMIN" | "MASTER";
-  goal?: "LOSE_WEIGHT" | "GAIN_MUSCLE" | "MAINTAIN_FITNESS";
-  level?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
-  isBoarder: boolean;
-  isVerified: boolean;
-  onboardingStep: number;
-  setupMethod: "QUICK_PLAN" | "CUSTOM";
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type Exercise = {
-  id: string;
-  name: string;
-  description: string;
-  imageUrl: string;
-  videoUrl?: string;
-  level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
-  muscleGroup: string[];
-  equipment: string[];
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  createdBy?: string;
-};
-
-type QuickPlan = {
-  id: string;
-  name: string;
-  goal: "LOSE_WEIGHT" | "GAIN_MUSCLE" | "MAINTAIN_FITNESS";
-  level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
-  dayOfWeek: number;
-  dayName: string;
-  muscleGroup: string[];
-  isRestDay: boolean;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-};
 
 export default async function AdminHome() {
   const mainApp = document.getElementById("main-app");
