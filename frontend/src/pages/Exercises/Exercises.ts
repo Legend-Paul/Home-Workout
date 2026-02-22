@@ -171,6 +171,14 @@ export default async function Exercises() {
                   })
                   .join("")}
         </div>
+         ${Button({
+           label: `
+              <svg class="${styles["add-exercise-btn-icon"]}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+                </path>
+              </svg>
+              <p class="${styles["add-exercise-btn-text"]}"> Add Exercise </p>`,
+           addBtn: true,
+         })}
     </div>
   `;
   const imagePreviewBtn = mainApp!.querySelector(
