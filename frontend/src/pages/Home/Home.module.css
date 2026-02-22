@@ -63,29 +63,3 @@
 .total-summary-count {
   color: var(--info);
 }
-.add-exercise-btn-text {
-  opacity: 0;
-  width: 0;
-  white-space: nowrap;
-  transition: all var(--transition-slow) !important;
-  z-index: -1;
-}
-
-.add-exercise-btn:hover .add-exercise-btn-text {
-  width: auto;
-  opacity: 1;
-}
-
-.add-exercise-btn {
-  position: fixed;
-  bottom: var(--space-4);
-  right: var(--space-4);
-  z-index: 100;
-  padding: var(--space-2) var(--space-4) !important;
-  background-color: var(--primary);
-  transition: all var(--transition-slow) !important;
-  overflow: hidden;
-}
-.add-exercise-btn-icon {
-  font-size: var(--text-2xl);
-}

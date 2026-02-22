@@ -41,3 +41,26 @@
 .tertiary:hover {
   background-color: var(--bg-input);
 }
+
+.add-button {
+  position: fixed;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--primary);
+  transition: var(--transition-all-base);
+  overflow: hidden;
+  p {
+    opacity: 0;
+    width: 0;
+    white-space: nowrap;
+    transition: var(--transition-all-base);
+    z-index: -1;
+  }
+
+  &:hover p {
+    width: auto;
+    opacity: 1;
+  }
+}

@@ -5,6 +5,7 @@ type ButtonProps = {
   type?: "button" | "submit" | "reset";
   btnClass?: string;
   disabled?: boolean;
+  addBtn?: boolean;
 };
 
 export default function Button({
@@ -13,9 +14,10 @@ export default function Button({
   type = "button",
   btnClass = "",
   disabled = false,
+  addBtn = false,
 }: ButtonProps) {
   return `
-    <button class="${styles["custom-button"]} ${btnClass}" type="${type}" 
+    <button class="${styles["custom-button"]} ${addBtn ? styles["add-button"] : ""} ${btnClass}" type="${type}" 
     ${disabled ? "disabled" : ""} ${onClick ? `onclick="${onClick()}"` : ""}>
       ${label}
     </button>
