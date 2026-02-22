@@ -19,7 +19,22 @@ export default async function Exercises() {
 
   mainApp!.innerHTML = `
    <div class="${styles["exercises-container"]}">
-        <div class="${styles["exercise-filter"]}">             
+        <div class="${styles["show-aside-btn"]} ${styles["toggle-aside-btn"]}">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3-3 3m-4-6l3 3-3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p>Show Filter</p>
+        </div>
+        <div class="${styles["exercise-filter"]} ${styles["hide"]}"> 
+            <div class="${styles["toggle-aside-btn"]} ${styles["hide-aside-btn"]}">
+                <svg fill="none" stroke="currentColor" 
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" 
+                    stroke-linejoin="round" stroke-width="2" 
+                    d="M11 15l-3-3 3-3m4 6l-3-3 3-3M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p>Hide Filter</p>
+            </div>
             <form id="${styles["search-form"]}">
                 ${Input({
                   id: "search",
@@ -167,6 +182,15 @@ export default async function Exercises() {
   const previewContainer = mainApp!.querySelector(
     `.${styles["exercise-image"]}`,
   ) as HTMLDivElement;
+  const hideAsideBtn = mainApp!.querySelector(
+    `.${styles["hide-aside-btn"]}`,
+  ) as HTMLDivElement;
+  const showAsideBtn = mainApp!.querySelector(
+    `.${styles["show-aside-btn"]}`,
+  ) as HTMLDivElement;
+  const exerciseFilter = mainApp!.querySelector(
+    `.${styles["exercise-filter"]}`,
+  ) as HTMLDivElement;
 
   imagePreviewBtn?.addEventListener("click", () => {
     const imageUrl = imagePreviewBtn.dataset.imageUrl;
@@ -181,6 +205,17 @@ export default async function Exercises() {
                 </video> `;
     else
       previewContainer!.innerHTML = `<p>Video not available at the moment!</p> `;
+  });
+
+  showAsideBtn.addEventListener("click", () => {
+    exerciseFilter.classList.add(`${styles["show"]}`);
+    exerciseFilter.classList.remove(`${styles["hide"]}`);
+    console.log("clicked");
+  });
+
+  hideAsideBtn.addEventListener("click", () => {
+    exerciseFilter.classList.add(`${styles["hide"]}`);
+    exerciseFilter.classList.remove(`${styles["show"]}`);
   });
 }
 
