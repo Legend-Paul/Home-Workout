@@ -99,12 +99,21 @@
 
 .exercise-item {
   display: grid;
-  /* grid-template-rows: 3fr 1fr; */
   border-radius: var(--radius);
   background-color: var(--bg-card);
   height: 20rem;
   position: relative;
   box-shadow: var(--shadow);
+}
+
+.active-exercise {
+  box-shadow: var(--shadow-success);
+  border-bottom: 4px solid var(--success);
+}
+
+.inactive-exercise {
+  border-bottom: 4px solid var(--error);
+  box-shadow: var(--shadow-error);
 }
 
 .exercise-equipment,
@@ -115,7 +124,8 @@
 }
 
 .exercise-image {
-  /* height: 10rem; */
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
   width: 100%;
   overflow: hidden;
   cursor: pointer;
@@ -141,13 +151,16 @@
 }
 .exercise-preview-type {
   font-size: var(--text-sm);
-  span {
+  .image-preview,
+  .video-preview {
     cursor: pointer;
+    transition: var(--transition-all-base);
     padding: var(--space-1);
     &:hover {
       border-bottom: 2px solid var(--border);
     }
   }
+
   .active-preview-type {
     border-bottom: 2px solid var(--border);
   }

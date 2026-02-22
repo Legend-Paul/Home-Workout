@@ -16,7 +16,6 @@ export default async function Exercises() {
   });
 
   const exercises = await fetchExercises();
-  console.log(exercises);
 
   mainApp!.innerHTML = `
    <div class="${styles["exercises-container"]}">
@@ -93,16 +92,22 @@ export default async function Exercises() {
                 ${exercises
                   .map((exercise: Exercise) => {
                     return `
-                        <div class="${styles["exercise-item"]}">
+                        <div class="${styles["exercise-item"]}
+                         ${exercise.isActive ? styles["active-exercise"] : styles["inactiv-exercise"]}">
+                            <h3 class="${styles["exercise-title"]}">
+                                ${exercise.name}</h3>
                             <div class="${styles["exercise-image"]}">
                                 <img src="${logo}" alt="Push-up">
-                                <h3 class="${styles["exercise-title"]}">
-                                    ${exercise.name}</h3>
                             </div>
                             <div class="${styles["exercise-description"]}">
                                 <div class="${styles["exercise-preview-type"]}">
-                                    <span class="${styles["active-preview-type"]}">Image</span>
-                                    <span>Video</span>
+                                    <span data-image-url="${exercise.imageUrl}" 
+                                        class="${styles["image-preview"]} 
+                                        ${styles["active-preview-type"]}">Image
+                                    </span>
+                                    <span data-video-url="${exercise.videoUrl}"
+                                        class="${styles["video-preview"]}">Video
+                                    </span>
                                 </div>
                                 
                                 <div class="${styles["exercise-summary"]}">
@@ -153,6 +158,30 @@ export default async function Exercises() {
         </div>
     </div>
   `;
+  const imagePreviewBtn = mainApp!.querySelector(
+    `.${styles["image-preview"]}`,
+  ) as HTMLSpanElement;
+  const videoPreviewBtn = mainApp!.querySelector(
+    `.${styles["video-preview"]}`,
+  ) as HTMLSpanElement;
+  const previewContainer = mainApp!.querySelector(
+    `.${styles["exercise-image"]}`,
+  ) as HTMLDivElement;
+
+  imagePreviewBtn?.addEventListener("click", () => {
+    const imageUrl = imagePreviewBtn.dataset.imageUrl;
+    previewContainer!.innerHTML = `<img src="${imageUrl ? imageUrl : logo}" alt="Push-up">`;
+  });
+
+  videoPreviewBtn?.addEventListener("click", () => {
+    const videoUrl = videoPreviewBtn.dataset.videoUrl;
+    if (videoUrl)
+      previewContainer!.innerHTML = `<video src="${videoUrl}" controls autoplay muted>
+                    Your browser does not support the video tag.
+                </video> `;
+    else
+      previewContainer!.innerHTML = `<p>Video not available at the moment!</p> `;
+  });
 }
 
 async function fetchExercises() {
@@ -169,7 +198,6 @@ async function fetchExercises() {
     const data = await response.json();
     return data.exercises;
   } catch (error) {
-    console.error("Error fetching exercises:", error);
     return [];
   }
 }
