@@ -144,14 +144,13 @@ function changeActiveLink(currentPath: string) {
   currentPath.includes("/api/exercises");
   const newActiveLink = headerApp!.querySelector(`a[href="${currentPath}"]`);
   if (newActiveLink) {
+    // activate dashboard nav link
+    if (currentPath === "/") {
+      const dashboardLink = headerApp!.querySelector(`a[href="/dashboard"]`);
+      dashboardLink!.parentElement!.classList.add(styles["active-nav-link"]);
+      return;
+    }
     newActiveLink.parentElement!.classList.add(styles["active-nav-link"]);
-  }
-
-  // activate dashboard nav link
-  if (currentPath === "/") {
-    const dashboardLink = headerApp!.querySelector(`a[href="/dashboard"]`);
-    dashboardLink!.parentElement!.classList.add(styles["active-nav-link"]);
-    return;
   }
 
   // activate exrecise nav link
