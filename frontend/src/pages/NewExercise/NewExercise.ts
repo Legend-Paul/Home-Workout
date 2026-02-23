@@ -10,11 +10,6 @@ import Notification from "../../components/Notification/Notification";
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 
-const errorSvg = `
-      <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-      </svg> `;
-
 export default function NewExercise() {
   const mainApp = document.getElementById("main-app");
 
@@ -208,9 +203,6 @@ export default function NewExercise() {
   const submitButton = newExerciseContainer!.querySelector(
     `.${styles["create-exercise"]}`,
   ) as HTMLButtonElement;
-  const errorMessage = newExerciseContainer!.querySelector(
-    `.${styles["res-error-message"]}`,
-  ) as HTMLDivElement;
 
   // Validate form inputs
   nameInput.addEventListener("input", validateForm);
@@ -241,7 +233,7 @@ export default function NewExercise() {
       ) as HTMLInputElement
     )?.value;
 
-  function validateForm(e: Event) {
+  function validateForm() {
     const name = nameInput.value.trim();
     const image = imageInput.files && imageInput.files[0];
     // const video = videoInput.files && videoInput.files[0];

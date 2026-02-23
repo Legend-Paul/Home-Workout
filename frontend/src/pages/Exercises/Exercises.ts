@@ -16,6 +16,7 @@ export default async function Exercises() {
   });
 
   const exercises = await fetchExercises();
+  console.log(exercises);
 
   mainApp!.innerHTML = `
    <div class="${styles["exercises-container"]}">
@@ -112,16 +113,17 @@ export default async function Exercises() {
                             <h3 class="${styles["exercise-title"]}">
                                 ${exercise.name}</h3>
                             <div class="${styles["exercise-image"]}">
-                                <img src="${logo}" alt="Push-up">
+                                <img src="${`${backendUrl}${exercise.imageUrl}`}" alt="Push-up">
                             </div>
                             <div class="${styles["exercise-description"]}">
                                 <div class="${styles["exercise-preview-type"]}">
-                                    <span data-image-url="${exercise.imageUrl}" 
-                                        class="${styles["image-preview"]} 
-                                        ${styles["active-preview-type"]}">Image
+                                   <span data-image-url="${exercise.imageUrl}" 
+                                          data-exercise-id="${exercise.id}"
+                                          class="${styles["image-preview"]} ${styles["active-preview-type"]}">Image
                                     </span>
                                     <span data-video-url="${exercise.videoUrl}"
-                                        class="${styles["video-preview"]}">Video
+                                          data-exercise-id="${exercise.id}"
+                                          class="${styles["video-preview"]}">Video
                                     </span>
                                 </div>
                                 
@@ -142,7 +144,7 @@ export default async function Exercises() {
                                         ? `<div class="${styles["exercise-equipment"]}">
                                             ${exercise.equipment
                                               .map((equipment) => {
-                                                return `p>${equipment}</p>`;
+                                                return `<p>${equipment}</p>`;
                                               })
                                               .join("")}
                                         </div>`
@@ -182,15 +184,12 @@ export default async function Exercises() {
          })}
     </div>
   `;
-  const imagePreviewBtn = mainApp!.querySelector(
+  const imagePreviewBtns = mainApp!.querySelectorAll<HTMLSpanElement>(
     `.${styles["image-preview"]}`,
-  ) as HTMLSpanElement;
-  const videoPreviewBtn = mainApp!.querySelector(
+  );
+  const videoPreviewBtns = mainApp!.querySelectorAll<HTMLSpanElement>(
     `.${styles["video-preview"]}`,
-  ) as HTMLSpanElement;
-  const previewContainer = mainApp!.querySelector(
-    `.${styles["exercise-image"]}`,
-  ) as HTMLDivElement;
+  );
   const hideAsideBtn = mainApp!.querySelector(
     `.${styles["hide-aside-btn"]}`,
   ) as HTMLDivElement;
@@ -204,25 +203,46 @@ export default async function Exercises() {
     `.${styles["add-exercise-btn"]}`,
   ) as HTMLButtonElement;
 
-  imagePreviewBtn?.addEventListener("click", () => {
-    const imageUrl = imagePreviewBtn.dataset.imageUrl;
-    previewContainer!.innerHTML = `<img src="${imageUrl ? imageUrl : logo}" alt="Push-up">`;
+  imagePreviewBtns.forEach((imageBtn) => {
+    imageBtn.addEventListener("click", () => {
+      const imageUrl = imageBtn.dataset.imageUrl;
+      const card = imageBtn.closest(`.${styles["exercise-item"]}`);
+      const previewContainer = card?.querySelector(
+        `.${styles["exercise-image"]}`,
+      ) as HTMLDivElement;
+
+      previewContainer.innerHTML = `<img src="${backendUrl}${imageUrl}" alt="exercise">`;
+
+      // scope active state to this card only
+      card
+        ?.querySelector(`.${styles["video-preview"]}`)
+        ?.classList.remove(styles["active-preview-type"]);
+      imageBtn.classList.add(styles["active-preview-type"]);
+    });
   });
 
-  videoPreviewBtn?.addEventListener("click", () => {
-    const videoUrl = videoPreviewBtn.dataset.videoUrl;
-    if (videoUrl)
-      previewContainer!.innerHTML = `<video src="${videoUrl}" controls autoplay muted>
-                    Your browser does not support the video tag.
-                </video> `;
-    else
-      previewContainer!.innerHTML = `<p>Video not available at the moment!</p> `;
+  videoPreviewBtns.forEach((videoBtn) => {
+    videoBtn.addEventListener("click", () => {
+      const videoUrl = videoBtn.dataset.videoUrl;
+      const card = videoBtn.closest(`.${styles["exercise-item"]}`);
+      const previewContainer = card?.querySelector(
+        `.${styles["exercise-image"]}`,
+      ) as HTMLDivElement;
+
+      previewContainer.innerHTML = videoUrl
+        ? `<video src="${backendUrl}${videoUrl}" controls autoplay muted></video>`
+        : `<p>Video not available</p>`;
+
+      card
+        ?.querySelector(`.${styles["image-preview"]}`)
+        ?.classList.remove(styles["active-preview-type"]);
+      videoBtn.classList.add(styles["active-preview-type"]);
+    });
   });
 
   showAsideBtn.addEventListener("click", () => {
     exerciseFilter.classList.add(`${styles["show"]}`);
     exerciseFilter.classList.remove(`${styles["hide"]}`);
-    console.log("clicked");
   });
 
   hideAsideBtn.addEventListener("click", () => {
