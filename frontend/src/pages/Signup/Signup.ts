@@ -44,7 +44,7 @@ export default async function Signup() {
           id: "username",
           name: "username",
           required: true,
-          placeholder: "Legend Paul",
+          placeholder: "e.g Legend Paul",
           minLength: 3,
           errorMessage: "Username must be at least 3 characters",
         })}

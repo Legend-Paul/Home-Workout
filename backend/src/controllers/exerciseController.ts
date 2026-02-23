@@ -3,7 +3,11 @@ import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
 
 const validate = [
-  body("name").trim().isString().withMessage("Name must be a string"),
+  body("name")
+    .isLength({ min: 3 })
+    .trim()
+    .isString()
+    .withMessage("Name must be a string"),
   body("description")
     .trim()
     .isString()
