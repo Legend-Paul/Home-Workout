@@ -2,6 +2,7 @@ import styles from "./NewExercise.module.css";
 import formStyles from "../../assets/FormStyles.module.css";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
+import Textarea from "../../components/Textarea/Textarea";
 
 export default function NewExercise() {
   const mainApp = document.getElementById("main-app");
@@ -36,12 +37,12 @@ export default function NewExercise() {
             errorMessage: "Image is greater than 50Mb",
           })}
           ${Input({
-            label: "Video",
+            label: "Video (optional)",
             id: "video",
             type: "file",
             placeholder: "Max 50Mb",
             name: "video",
-            required: true,
+            required: false,
             minLength: 3,
             errorMessage: "Video is greater than 50Mb",
           })}
@@ -67,8 +68,17 @@ export default function NewExercise() {
           errorMessage:
             "Equipments group should contain at least one equipments of at least 3 characters",
         })}
+         ${Textarea({
+           label: "Desciption",
+           id: "description",
+           name: "description",
+           required: true,
+           placeholder: "Enter decription",
+           minLength: 3,
+           errorMessage: "Description should contain at least 3 characters",
+         })}
         <div class="${styles["exercise-radio-container"]} ${styles["exercise-level-container"]}">
-          <h3 class="${styles["level-heading"]}">Select exercise level</h3>
+          <h3>Select exercise level</h3>
           <div class="${styles["exercise-radio"]}">
             ${Input({
               label: "All",
@@ -114,10 +124,11 @@ export default function NewExercise() {
               errorMessage: "",
               checked: false,
             })}
+           
           </div>
         </div>
         <div class="${styles["exercise-status-container"]} ${styles["exercise-radio-container"]}">
-          <h3 class="${styles["status-heading"]}">Select Exercise Status</h3>
+          <h3>Select Exercise Status</h3>
           <div class="${styles["exercise-radio"]}">
             ${Input({
               label: "Active",
