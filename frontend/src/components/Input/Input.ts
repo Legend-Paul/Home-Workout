@@ -11,6 +11,8 @@ type InputProps = {
   errorMessage?: string;
   checked?: boolean;
   className?: string;
+  value?: string;
+  accept?: string;
 };
 
 export default function Input({
@@ -25,15 +27,17 @@ export default function Input({
   errorMessage = "Invalid input",
   checked = false,
   className = "",
+  value = "",
+  accept = "",
 }: InputProps) {
   return `
     <div class="${styles["input-container"]} ${className ? styles[className] : ""}">
       <label for="${id}">${label}</label>
-      <input type="${type}" id="${id}" name="${name}"  
+      <input type="${type}" id="${id}" name="${name}"  ${value ? `value = "${value}"` : ""}
       placeholder="${placeholder}" ${required ? "required" : ""} 
       ${minLength ? `minLength="${minLength}"` : ""} 
       ${maxLength ? `maxLength="${maxLength}"` : ""} 
-      ${checked ? "checked" : ""} />
+      ${checked ? "checked" : ""} ${accept ? `accept="${accept}"` : ""}/>
       <span class="${styles["error-message"]}">${errorMessage}</span>
     </div>
   `;

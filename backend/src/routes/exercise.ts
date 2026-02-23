@@ -14,9 +14,6 @@ import multerError from "../middleware/multerError.js";
 
 const exerciseRouter = Router();
 
-exerciseRouter.get("/", getAllExercises);
-exerciseRouter.get("/:id", getExerciseById);
-
 // Separate fields for image and video
 exerciseRouter.post(
   "/new",
@@ -26,6 +23,9 @@ exerciseRouter.post(
   ]),
   createExercise,
 );
+
+exerciseRouter.get("/", getAllExercises);
+exerciseRouter.get("/:id", getExerciseById);
 
 exerciseRouter.put(
   "/:id",

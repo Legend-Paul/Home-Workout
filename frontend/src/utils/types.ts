@@ -1,14 +1,19 @@
+export type Level = "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
+export type Goal = "LOSE_WEIGHT" | "GAIN_MUSCLE" | "MAINTAIN_FITNESS";
+export type Role = "USER" | "ADMIN" | "MASTER";
+export type SetupMethod = "QUICK_PLAN" | "CUSTOM";
+
 export type User = {
   id: string;
   username: string;
   email: string;
-  role: "USER" | "ADMIN" | "MASTER";
-  goal?: "LOSE_WEIGHT" | "GAIN_MUSCLE" | "MAINTAIN_FITNESS";
-  level?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
+  role: Role;
+  goal?: Goal;
+  level?: Level;
   isBoarder: boolean;
   isVerified: boolean;
   onboardingStep: number;
-  setupMethod: "QUICK_PLAN" | "CUSTOM";
+  setupMethod: SetupMethod;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -31,8 +36,8 @@ export type Exercise = {
 export type QuickPlan = {
   id: string;
   name: string;
-  goal: "LOSE_WEIGHT" | "GAIN_MUSCLE" | "MAINTAIN_FITNESS";
-  level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+  goal: Goal;
+  level: Level;
   dayOfWeek: number;
   dayName: string;
   muscleGroup: string[];

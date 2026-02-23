@@ -41,3 +41,6 @@
     cursor: pointer;
   }
 }
+.create-exercise {
+  background-color: var(--primary-light);
+}

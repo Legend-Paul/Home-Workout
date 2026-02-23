@@ -16,12 +16,17 @@ const validate = [
     .isIn(["BEGINNER", "INTERMEDIATE", "ADVANCED", "ALL"])
     .withMessage("Level must be BEGINNER, INTERMEDIATE, ADVANCED, or ALL"),
   body("muscleGroup")
+    .customSanitizer((value) => (Array.isArray(value) ? value : [value]))
     .isArray({ min: 1 })
     .withMessage("Muscle groups must be an array with at least one item"),
   body("equipment")
+    .customSanitizer((value) => (Array.isArray(value) ? value : [value]))
+    .isArray({ min: 1 })
+    .withMessage("Equipment must be an array with at least one item"),
+  body("status")
     .optional()
-    .isArray({ min: 0 })
-    .withMessage("Equipment must be an array"),
+    .isBoolean({ strict: false })
+    .withMessage("Status mus be true or false"),
 ];
 
 interface ExerciseRequest extends Request {
@@ -31,6 +36,7 @@ interface ExerciseRequest extends Request {
     level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
     muscleGroup: string[];
     equipment?: string[];
+    status?: boolean;
   };
 }
 
@@ -39,8 +45,11 @@ const createExerciseHandler = async (
   req: ExerciseRequest,
   res: Response,
 ): Promise<void> => {
+  console.log("Creating:");
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log(errors.array());
     res.status(400).json({ errors: errors.array() });
     return;
   }

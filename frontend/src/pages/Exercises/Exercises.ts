@@ -237,7 +237,7 @@ export default async function Exercises() {
 
 async function fetchExercises() {
   try {
-    const response = await fetch(`${backendUrl}/api/exercise`, {
+    const response = await fetch(`${backendUrl}/api/exercises`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
