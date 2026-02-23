@@ -204,7 +204,6 @@ export default function NewExercise() {
     `.${styles["create-exercise"]}`,
   ) as HTMLButtonElement;
 
-  // Validate form inputs
   nameInput.addEventListener("input", validateForm);
   imageInput.addEventListener("input", validateForm);
   videoInput.addEventListener("input", validateForm);
@@ -217,7 +216,6 @@ export default function NewExercise() {
     .querySelectorAll("input[name=status]")
     .forEach((el) => el.addEventListener("change", validateForm));
 
-  // Get checked level
   const getCheckedLevel = () =>
     (
       newExerciseContainer!.querySelector(
@@ -225,7 +223,6 @@ export default function NewExercise() {
       ) as HTMLInputElement
     )?.value;
 
-  // Get checked status
   const getCheckedStatus = () =>
     (
       newExerciseContainer!.querySelector(
@@ -236,30 +233,12 @@ export default function NewExercise() {
   function validateForm() {
     const name = nameInput.value.trim();
     const image = imageInput.files && imageInput.files[0];
-    // const video = videoInput.files && videoInput.files[0];
+
     const muscleGroup = muscleGroupInput.value.trim();
     const equipment = equipmentInput.value.trim();
     const description = descriptionInput.value.trim();
     const level = getCheckedLevel() as Level;
     const status = getCheckedStatus();
-
-    // console.log("*************");
-    // console.log(
-    //   name.length >= 3 &&
-    //     muscleGroup.length >= 3 &&
-    //     equipment.length >= 3 &&
-    //     description &&
-    //     image &&
-    //     level &&
-    //     status,
-    // );
-    // console.log(name);
-    // console.log(muscleGroup);
-    // console.log(equipment);
-    // console.log(description);
-    // console.log(image);
-    // console.log(level);
-    // console.log(status);
 
     if (
       name.length >= 3 &&
@@ -278,7 +257,6 @@ export default function NewExercise() {
     }
   }
 
-  // create new exercise
   newExerciseForm.addEventListener("submit", handleCreateNewExercise);
   async function handleCreateNewExercise(e: Event) {
     e.preventDefault();
@@ -295,8 +273,8 @@ export default function NewExercise() {
     const status = getCheckedStatus() === "Active";
 
     formdata.append("name", name);
-    formdata.append("image", image!); // required, always append
-    if (video) formdata.append("video", video); // optional
+    formdata.append("image", image!);
+    if (video) formdata.append("video", video);
     muscleGroup.forEach((m) => formdata.append("muscleGroup", m));
     equipment.forEach((eq) => formdata.append("equipment", eq));
     formdata.append("description", description);
@@ -307,13 +285,8 @@ export default function NewExercise() {
     submitButton.style.backgroundColor = "var(--primary-light) !important";
     submitButton.innerHTML = `${Spinner({})}  Creating...`;
 
-    // console.log(formdata.get("name"));
-    // console.log(formdata.get("image"));
-    // console.log(formdata.get("video"));
     console.log(formdata.get("muscleGroup"));
     console.log(formdata.get("equipment"));
-    // console.log(formdata.get("level"));
-    // console.log(formdata.get("status"));
 
     try {
       await createNewExercise(formdata);
@@ -361,5 +334,3 @@ async function createNewExercise(formdata: FormData) {
     });
   }
 }
-
-// Proper form requires starting from a dead hang, engaging the scapula (depressing shoulders), and lifting until the chin clears the bar, focusing on controlled, full-range movement.

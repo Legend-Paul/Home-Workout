@@ -1,7 +1,6 @@
 import styles from "./Exercises.module.css";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
-import logo from "../../assets/logo.png";
 import { type Exercise } from "../../utils/types";
 import Spinner from "../../components/Spinner/Spinner";
 
@@ -16,7 +15,6 @@ export default async function Exercises() {
   });
 
   const exercises = await fetchExercises();
-  console.log(exercises);
 
   mainApp!.innerHTML = `
    <div class="${styles["exercises-container"]}">
@@ -113,7 +111,7 @@ export default async function Exercises() {
                             <h3 class="${styles["exercise-title"]}">
                                 ${exercise.name}</h3>
                             <div class="${styles["exercise-image"]}">
-                                <img src="${`${backendUrl}${exercise.imageUrl}`}" alt="Push-up">
+                                <img src="${`${backendUrl}${exercise.imageUrl}`}" alt="${exercise.name}">
                             </div>
                             <div class="${styles["exercise-description"]}">
                                 <div class="${styles["exercise-preview-type"]}">
@@ -133,7 +131,7 @@ export default async function Exercises() {
                                         ? ` <div class="${styles["exercise-muscle"]}">
                                             ${exercise.muscleGroup
                                               .map((muscle) => {
-                                                return `<p>${muscle}</p>`;
+                                                return `<p>${muscle && muscle.at(0)?.toUpperCase() + muscle.slice(1)}</p>`;
                                               })
                                               .join("")}
                                         </div>`
@@ -144,7 +142,7 @@ export default async function Exercises() {
                                         ? `<div class="${styles["exercise-equipment"]}">
                                             ${exercise.equipment
                                               .map((equipment) => {
-                                                return `<p>${equipment}</p>`;
+                                                return `<p>${equipment && equipment.at(0)?.toUpperCase() + equipment.slice(1)}</p>`;
                                               })
                                               .join("")}
                                         </div>`
