@@ -173,11 +173,12 @@ export default async function Exercises() {
         </div>
          ${Button({
            label: `
-              <svg class="${styles["add-exercise-btn-icon"]}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
                 </path>
               </svg>
-              <p class="${styles["add-exercise-btn-text"]}"> Add Exercise </p>`,
+              <p> Add Exercise </p>`,
            addBtn: true,
+           btnClass: styles["add-exercise-btn"],
          })}
     </div>
   `;
@@ -199,6 +200,9 @@ export default async function Exercises() {
   const exerciseFilter = mainApp!.querySelector(
     `.${styles["exercise-filter"]}`,
   ) as HTMLDivElement;
+  const addExerciseBtn = mainApp!.querySelector(
+    `.${styles["add-exercise-btn"]}`,
+  ) as HTMLButtonElement;
 
   imagePreviewBtn?.addEventListener("click", () => {
     const imageUrl = imagePreviewBtn.dataset.imageUrl;
@@ -224,6 +228,10 @@ export default async function Exercises() {
   hideAsideBtn.addEventListener("click", () => {
     exerciseFilter.classList.add(`${styles["hide"]}`);
     exerciseFilter.classList.remove(`${styles["show"]}`);
+  });
+
+  addExerciseBtn.addEventListener("click", () => {
+    window.location.href = "/api/exercises/new";
   });
 }
 

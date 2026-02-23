@@ -18,9 +18,6 @@ export default async function AdminHome() {
     fetchExercises(),
     fetchQuickPlans(),
   ]);
-  console.log("Users:", users);
-  console.log("Exercises:", exercises);
-  console.log("Quick Plans:", quickPlans);
 
   // Total counts
   const userCount = users.length;
@@ -97,10 +94,18 @@ export default async function AdminHome() {
         </path></svg>
         <p class="${styles["add-exercise-btn-text"]}"> Add Exercise </p>`,
         addBtn: true,
+        btnClass: styles["add-exercise-btn"],
       })}
       
     </div>
   `;
+  const addExerciseBtn = mainApp!.querySelector(
+    `.${styles["add-exercise-btn"]}`,
+  ) as HTMLButtonElement;
+
+  addExerciseBtn.addEventListener("click", () => {
+    window.location.href = "/api/exercises/new";
+  });
 }
 
 async function fetchUsers() {

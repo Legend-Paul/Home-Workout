@@ -63,3 +63,7 @@
 .total-summary-count {
   color: var(--info);
 }
+
+.add-exercise-btn {
+  background-color: var(--primary);
+}

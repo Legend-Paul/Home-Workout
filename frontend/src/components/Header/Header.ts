@@ -141,16 +141,32 @@ function changeActiveLink(currentPath: string) {
   if (activeLink) {
     activeLink.classList.remove(styles["active-nav-link"]);
   }
+  currentPath.includes("/api/exercises");
   const newActiveLink = headerApp!.querySelector(`a[href="${currentPath}"]`);
   if (newActiveLink) {
-    if (currentPath === "/") {
-      const dashboardLink = headerApp!.querySelector(`a[href="/dashboard"]`);
-      if (dashboardLink)
-        dashboardLink.parentElement!.classList.add(styles["active-nav-link"]);
-
-      return;
-    }
     newActiveLink.parentElement!.classList.add(styles["active-nav-link"]);
+  }
+
+  // activate dashboard nav link
+  if (currentPath === "/") {
+    const dashboardLink = headerApp!.querySelector(`a[href="/dashboard"]`);
+    dashboardLink!.parentElement!.classList.add(styles["active-nav-link"]);
+    return;
+  }
+
+  // activate exrecise nav link
+  if (currentPath.includes("/api/exercises")) {
+    const exercisesLink = headerApp!.querySelector(`a[href="/api/exercises"]`);
+    exercisesLink!.parentElement!.classList.add(styles["active-nav-link"]);
+    return;
+  }
+
+  // activate plans nav link
+  if (currentPath.includes("/api/plans")) {
+    const plansLink = headerApp!.querySelector(`a[href="/api/plans"]`);
+    if (plansLink)
+      plansLink.parentElement!.classList.add(styles["active-nav-link"]);
+    return;
   }
 }
 

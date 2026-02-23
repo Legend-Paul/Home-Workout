@@ -245,3 +245,7 @@
     }
   }
 }
+
+.add-exercise-btn {
+  background-color: var(--primary);
+}
