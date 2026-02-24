@@ -6,6 +6,7 @@ import Textarea from "../../components/Textarea/Textarea";
 import Spinner from "../../components/Spinner/Spinner";
 import { type Level, type Exercise } from "../../utils/types";
 import Notification from "../../components/Notification/Notification";
+import { navigate } from "../../router";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -42,12 +43,12 @@ export default async function UpdateExercise(params?: Record<string, string>) {
         })}
         <div class="${styles["exercise-media"]}">
           ${Input({
-            label: "Image",
+            label: "Image (optional)",
             id: "image",
             type: "file",
             placeholder: "Max 50Mb",
             name: "image",
-            required: true,
+            required: false,
             minLength: 3,
             errorMessage: "Image is greater than 50Mb",
             accept: "image/*",
@@ -183,7 +184,7 @@ export default async function UpdateExercise(params?: Record<string, string>) {
           </div>
         </div>
         ${Button({
-          label: "Upfate Exercise",
+          label: "Update Exercise",
           type: "submit",
           btnClass: styles["create-exercise"],
         })}
@@ -246,7 +247,6 @@ export default async function UpdateExercise(params?: Record<string, string>) {
 
   function validateForm() {
     const name = nameInput.value.trim();
-    const image = imageInput.files && imageInput.files[0];
 
     const muscleGroup = muscleGroupInput.value.trim();
     const equipment = equipmentInput.value.trim();
@@ -259,7 +259,6 @@ export default async function UpdateExercise(params?: Record<string, string>) {
       muscleGroup.length >= 3 &&
       equipment.length >= 3 &&
       description &&
-      image &&
       level &&
       status
     ) {
@@ -287,7 +286,7 @@ export default async function UpdateExercise(params?: Record<string, string>) {
     const status = getCheckedStatus() === "Active";
 
     formdata.append("name", name);
-    formdata.append("image", image!);
+    if (image) formdata.append("image", image!);
     if (video) formdata.append("video", video);
     muscleGroup.forEach((m) => formdata.append("muscleGroup", m));
     equipment.forEach((eq) => formdata.append("equipment", eq));
@@ -297,7 +296,7 @@ export default async function UpdateExercise(params?: Record<string, string>) {
 
     submitButton.disabled = true;
     submitButton.style.backgroundColor = "var(--primary-light) !important";
-    submitButton.innerHTML = `${Spinner({})}  Creating...`;
+    submitButton.innerHTML = `${Spinner({})}  Updating...`;
 
     console.log(formdata.get("muscleGroup"));
     console.log(formdata.get("equipment"));
@@ -305,14 +304,14 @@ export default async function UpdateExercise(params?: Record<string, string>) {
     try {
       await createNewExercise(formdata, id);
     } catch (error) {
-      console.error("Error signing up:", error);
+      console.error("Error updating exercise:", error);
       Notification({
         message: "An error occurred. Please try again",
         type: "error",
         duration: 5000,
       });
     } finally {
-      submitButton.innerHTML = "Create New Exercise";
+      submitButton.innerHTML = "Update Exercise";
       submitButton.disabled = false;
       submitButton.style.backgroundColor = "var(--primary-dark) !important";
     }
@@ -327,10 +326,11 @@ async function createNewExercise(formdata: FormData, id: string) {
     });
     if (response.ok) {
       Notification({
-        message: "Exercise created successifully",
+        message: "Exercise Updated successifully",
         type: "success",
         duration: 5000,
       });
+      navigate("/api/exercises");
     } else {
       const data = await response.json();
       Notification({

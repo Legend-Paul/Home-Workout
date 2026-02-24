@@ -291,7 +291,7 @@ export default function NewExercise() {
     try {
       await createNewExercise(formdata);
     } catch (error) {
-      console.error("Error signing up:", error);
+      console.error("Error Creating exrecise:", error);
       Notification({
         message: "An error occurred. Please try again",
         type: "error",

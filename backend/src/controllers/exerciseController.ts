@@ -207,8 +207,8 @@ const updateExerciseHandler = async (
       data: {
         name,
         description,
-        imageUrl,
-        videoUrl,
+        imageUrl: imageUrl ? imageUrl : exercise.imageUrl,
+        videoUrl: videoUrl ? videoUrl : exercise.videoUrl,
         level,
         muscleGroup: Array.isArray(muscleGroup) ? muscleGroup : [muscleGroup],
         equipment: equipment || [],
