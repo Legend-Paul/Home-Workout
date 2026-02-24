@@ -109,7 +109,7 @@ export default async function Exercises() {
                   .map((exercise: Exercise) => {
                     return `
                         <div class="${styles["exercise-item"]}
-                         ${exercise.isActive ? styles["active-exercise"] : styles["inactiv-exercise"]}">
+                         ${exercise.isActive ? styles["active-exercise"] : styles["inactive-exercise"]}">
                             <h3 class="${styles["exercise-title"]}">
                                 ${exercise.name}</h3>
                             <div class="${styles["exercise-image"]}">

@@ -24,7 +24,7 @@ const validate = [
     .isArray({ min: 1 })
     .withMessage("Equipment must be an array with at least one item"),
   body("status")
-    .optional()
+    .customSanitizer((value) => JSON.parse(value))
     .isBoolean({ strict: false })
     .withMessage("Status mus be true or false"),
 ];
@@ -36,7 +36,7 @@ interface ExerciseRequest extends Request {
     level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
     muscleGroup: string[];
     equipment?: string[];
-    status?: boolean;
+    status: boolean;
   };
 }
 
@@ -45,8 +45,6 @@ const createExerciseHandler = async (
   req: ExerciseRequest,
   res: Response,
 ): Promise<void> => {
-  console.log("Creating:");
-
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log(errors.array());
@@ -65,7 +63,7 @@ const createExerciseHandler = async (
     return;
   }
 
-  const { name, description, level, muscleGroup, equipment } = req.body;
+  const { name, description, level, muscleGroup, equipment, status } = req.body;
 
   try {
     const exerciseExists = await prisma.exercise.findUnique({
@@ -90,6 +88,7 @@ const createExerciseHandler = async (
         level,
         muscleGroup: Array.isArray(muscleGroup) ? muscleGroup : [muscleGroup],
         equipment: equipment || [],
+        isActive: status,
       },
     });
 
@@ -117,7 +116,6 @@ export const getAllExercises = async (
 ): Promise<void> => {
   try {
     const exercises = await prisma.exercise.findMany({
-      where: { isActive: true },
       orderBy: { createdAt: "desc" },
     });
 
@@ -200,7 +198,8 @@ const updateExerciseHandler = async (
       ? `/uploads/${videoFile.filename}`
       : exercise.videoUrl;
 
-    const { name, description, level, muscleGroup, equipment } = req.body;
+    const { name, description, level, muscleGroup, equipment, status } =
+      req.body;
 
     const updatedExercise = await prisma.exercise.update({
       where: { id },
@@ -212,6 +211,7 @@ const updateExerciseHandler = async (
         level,
         muscleGroup: Array.isArray(muscleGroup) ? muscleGroup : [muscleGroup],
         equipment: equipment || [],
+        isActive: status,
       },
     });
 
