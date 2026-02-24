@@ -105,77 +105,7 @@ export default async function Exercises() {
             </div>
         </div>
         <div class="${styles["exercise-list"]}">
-                ${exercises
-                  .map((exercise: Exercise) => {
-                    return `
-                        <div class="${styles["exercise-item"]}
-                         ${exercise.isActive ? styles["active-exercise"] : styles["inactive-exercise"]}">
-                            <h3 class="${styles["exercise-title"]}">
-                                ${exercise.name}</h3>
-                            <div class="${styles["exercise-image"]}">
-                                <img src="${`${backendUrl}${exercise.imageUrl}`}" alt="${exercise.name}">
-                            </div>
-                            <div class="${styles["exercise-description"]}">
-                                <div class="${styles["exercise-preview-type"]}">
-                                   <span data-image-url="${exercise.imageUrl}" 
-                                          data-exercise-id="${exercise.id}"
-                                          class="${styles["image-preview"]} ${styles["active-preview-type"]}">Image
-                                    </span>
-                                    <span data-video-url="${exercise.videoUrl}"
-                                          data-exercise-id="${exercise.id}"
-                                          class="${styles["video-preview"]}">Video
-                                    </span>
-                                </div>
-                                
-                                <div class="${styles["exercise-summary"]}">
-                                    ${
-                                      exercise.muscleGroup.length > 0
-                                        ? ` <div class="${styles["exercise-muscle"]}">
-                                            ${exercise.muscleGroup
-                                              .map((muscle) => {
-                                                return `<p>${muscle && muscle.at(0)?.toUpperCase() + muscle.slice(1)}</p>`;
-                                              })
-                                              .join("")}
-                                        </div>`
-                                        : ""
-                                    }
-                                    ${
-                                      exercise.equipment.length > 0
-                                        ? `<div class="${styles["exercise-equipment"]}">
-                                            ${exercise.equipment
-                                              .map((equipment) => {
-                                                return `<p>${equipment && equipment.at(0)?.toUpperCase() + equipment.slice(1)}</p>`;
-                                              })
-                                              .join("")}
-                                        </div>`
-                                        : ""
-                                    }
-                                    
-                                    <p>${exercise.level}</p>
-                                </div>
-                                <div class="${styles["exercise-acions"]}">
-                                    ${Button({
-                                      label: `<svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                            </svg>`,
-                                      type: "button",
-                                      btnClass: styles["delete-exercise"],
-                                      data: `data-exercise-id="${exercise.id}"`,
-                                    })}
-                                    ${Button({
-                                      label: `<svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                            </svg>`,
-                                      type: "button",
-                                      btnClass: styles["update-exercise"],
-                                      data: `data-exercise-id="${exercise.id}"`,
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                  })
-                  .join("")}
+                
         </div>
          ${Button({
            label: `
@@ -188,12 +118,8 @@ export default async function Exercises() {
          })}
     </div>
   `;
-  const imagePreviewBtns = mainApp!.querySelectorAll<HTMLSpanElement>(
-    `.${styles["image-preview"]}`,
-  );
-  const videoPreviewBtns = mainApp!.querySelectorAll<HTMLSpanElement>(
-    `.${styles["video-preview"]}`,
-  );
+  renderExerciseList(exercises);
+
   const hideAsideBtn = mainApp!.querySelector(
     `.${styles["hide-aside-btn"]}`,
   ) as HTMLDivElement;
@@ -206,10 +132,97 @@ export default async function Exercises() {
   const addExerciseBtn = mainApp!.querySelector(
     `.${styles["add-exercise-btn"]}`,
   ) as HTMLButtonElement;
-  const deleteExerciseBtns = mainApp!.querySelectorAll<HTMLButtonElement>(
+
+  // Show aside filter
+  showAsideBtn.addEventListener("click", () => {
+    exerciseFilter.classList.add(`${styles["show"]}`);
+    exerciseFilter.classList.remove(`${styles["hide"]}`);
+  });
+
+  // Hide aside filter
+  hideAsideBtn.addEventListener("click", () => {
+    exerciseFilter.classList.add(`${styles["hide"]}`);
+    exerciseFilter.classList.remove(`${styles["show"]}`);
+  });
+
+  // Navigate to new exercise page
+  addExerciseBtn.addEventListener("click", () => {
+    window.location.href = "/api/exercises/new";
+  });
+}
+
+function renderExerciseList(exercises: Exercise[]) {
+  const exerciseList = document.querySelector(
+    `.${styles["exercise-list"]}`,
+  ) as HTMLDivElement;
+
+  exerciseList.innerHTML =
+    exercises.length > 0
+      ? exercises
+          .map(
+            (exercise: Exercise) => `
+    <div class="${styles["exercise-item"]} ${exercise.isActive ? styles["active-exercise"] : styles["inactive-exercise"]}">
+      <h3 class="${styles["exercise-title"]}">${exercise.name}</h3>
+      <div class="${styles["exercise-image"]}">
+        <img src="${backendUrl}${exercise.imageUrl}" alt="${exercise.name}">
+      </div>
+      <div class="${styles["exercise-description"]}">
+        <div class="${styles["exercise-preview-type"]}">
+          <span data-image-url="${exercise.imageUrl}" data-exercise-id="${exercise.id}"
+                class="${styles["image-preview"]} ${styles["active-preview-type"]}">Image</span>
+          <span data-video-url="${exercise.videoUrl}" data-exercise-id="${exercise.id}"
+                class="${styles["video-preview"]}">Video</span>
+        </div>
+        <div class="${styles["exercise-summary"]}">
+          ${
+            exercise.muscleGroup.length > 0
+              ? `
+            <div class="${styles["exercise-muscle"]}">
+              ${exercise.muscleGroup.map((muscle) => `<p>${muscle && muscle.at(0)?.toUpperCase() + muscle.slice(1)}</p>`).join("")}
+            </div>`
+              : ""
+          }
+          ${
+            exercise.equipment.length > 0
+              ? `
+            <div class="${styles["exercise-equipment"]}">
+              ${exercise.equipment.map((eq) => `<p>${eq && eq.at(0)?.toUpperCase() + eq.slice(1)}</p>`).join("")}
+            </div>`
+              : ""
+          }
+          <p>${exercise.level}</p>
+        </div>
+        <div class="${styles["exercise-acions"]}">
+          ${Button({
+            label: `<svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>`,
+            type: "button",
+            btnClass: styles["delete-exercise"],
+            data: `data-exercise-id="${exercise.id}"`,
+          })}
+          ${Button({
+            label: `<svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>`,
+            type: "button",
+            btnClass: styles["update-exercise"],
+            data: `data-exercise-id="${exercise.id}"`,
+          })}
+        </div>
+      </div>
+    </div>
+  `,
+          )
+          .join("")
+      : `<p class="${styles["no-exercises"]}">No exercises found.</p>`;
+
+  const imagePreviewBtns = exerciseList!.querySelectorAll<HTMLSpanElement>(
+    `.${styles["image-preview"]}`,
+  );
+  const videoPreviewBtns = exerciseList!.querySelectorAll<HTMLSpanElement>(
+    `.${styles["video-preview"]}`,
+  );
+  const deleteExerciseBtns = exerciseList!.querySelectorAll<HTMLButtonElement>(
     `.${styles["delete-exercise"]}`,
   );
-  const updateExerciseBtns = mainApp!.querySelectorAll<HTMLButtonElement>(
+  const updateExerciseBtns = exerciseList!.querySelectorAll<HTMLButtonElement>(
     `.${styles["update-exercise"]}`,
   );
 
@@ -252,23 +265,6 @@ export default async function Exercises() {
     });
   });
 
-  // Show aside filter
-  showAsideBtn.addEventListener("click", () => {
-    exerciseFilter.classList.add(`${styles["show"]}`);
-    exerciseFilter.classList.remove(`${styles["hide"]}`);
-  });
-
-  // Hide aside filter
-  hideAsideBtn.addEventListener("click", () => {
-    exerciseFilter.classList.add(`${styles["hide"]}`);
-    exerciseFilter.classList.remove(`${styles["show"]}`);
-  });
-
-  // Navigate to new exercise page
-  addExerciseBtn.addEventListener("click", () => {
-    window.location.href = "/api/exercises/new";
-  });
-
   // update exercise
   updateExerciseBtns.forEach((updateBtn: HTMLButtonElement) => {
     updateBtn.addEventListener("click", async () => {
@@ -287,6 +283,7 @@ export default async function Exercises() {
   });
 }
 
+// fetch all exercises
 async function fetchExercises() {
   try {
     const response = await fetch(`${backendUrl}/api/exercises`, {
@@ -305,6 +302,7 @@ async function fetchExercises() {
   }
 }
 
+// delete exercise by id
 async function deleteExercise(id: string, exercise: Element | null) {
   try {
     const response = await fetch(`${backendUrl}/api/exercises/${id}`, {
