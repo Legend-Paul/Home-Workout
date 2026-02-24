@@ -12,7 +12,7 @@ const backendUrl =
 
 export default async function UpdateExercise(params?: Record<string, string>) {
   const mainApp = document.getElementById("main-app");
-  const { id } = params;
+  const id = params ? params.id : "";
 
   mainApp!.innerHTML = Spinner({
     type: "large",
@@ -303,7 +303,7 @@ export default async function UpdateExercise(params?: Record<string, string>) {
     console.log(formdata.get("equipment"));
 
     try {
-      await createNewExercise(formdata);
+      await createNewExercise(formdata, id);
     } catch (error) {
       console.error("Error signing up:", error);
       Notification({
@@ -319,11 +319,11 @@ export default async function UpdateExercise(params?: Record<string, string>) {
   }
 }
 
-async function createNewExercise(formdata: FormData) {
+async function createNewExercise(formdata: FormData, id: string) {
   try {
-    const response = await fetch(`${backendUrl}/api/exercises/new`, {
+    const response = await fetch(`${backendUrl}/api/exercises/${id}`, {
       body: formdata,
-      method: "POST",
+      method: "PUT",
     });
     if (response.ok) {
       Notification({
