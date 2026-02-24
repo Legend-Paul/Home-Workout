@@ -1,4 +1,4 @@
-type RouterHandler = () => void;
+type RouterHandler = (params?: Record<string, string>) => void;
 const routes = new Map<string, RouterHandler>();
 
 let notFoundHandler: RouterHandler | null = null;
@@ -13,10 +13,32 @@ export function notFound(handler: RouterHandler) {
 
 export function handleRoute() {
   const path = window.location.pathname;
-  const handler = routes.get(path);
-  if (handler) {
-    handler();
-  } else if (notFoundHandler) {
+
+  for (const [routePath, handler] of routes.entries()) {
+    const paramNames: string[] = [];
+
+    // Convert route to regex & collect param names
+    const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
+      paramNames.push(paramName);
+      return "([^/]+)";
+    });
+
+    const routeRegex = new RegExp("^" + regexPath + "$");
+    const match = path.match(routeRegex);
+
+    if (match) {
+      const params: Record<string, string> = {};
+
+      paramNames.forEach((name, index) => {
+        params[name] = match[index + 1];
+      });
+
+      handler(params);
+      return;
+    }
+  }
+
+  if (notFoundHandler) {
     notFoundHandler();
   }
 }
