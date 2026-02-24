@@ -6,6 +6,7 @@ import Textarea from "../../components/Textarea/Textarea";
 import Spinner from "../../components/Spinner/Spinner";
 import { type Level } from "../../utils/types";
 import Notification from "../../components/Notification/Notification";
+import { navigate } from "../../router";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -317,10 +318,11 @@ async function createNewExercise(formdata: FormData) {
         type: "success",
         duration: 5000,
       });
+      navigate("/api/exercises");
     } else {
       const data = await response.json();
       Notification({
-        message: data.error,
+        message: data.error || "Failed to create exercise",
         type: "error",
         duration: 5000,
       });

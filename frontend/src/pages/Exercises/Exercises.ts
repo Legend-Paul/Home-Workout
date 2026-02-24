@@ -16,7 +16,7 @@ export default async function Exercises() {
     message: "Loading...",
   });
 
-  const exercises: Exercise[] = await fetchExercises();
+  let exercises: Exercise[] = await fetchExercises();
 
   mainApp!.innerHTML = `
    <div class="${styles["exercises-container"]}">
@@ -273,8 +273,16 @@ export default async function Exercises() {
   updateExerciseBtns.forEach((updateBtn: HTMLButtonElement) => {
     updateBtn.addEventListener("click", async () => {
       const id = updateBtn.dataset.exerciseId;
-      // window.location.href = `/api/exercises/${id}/update`;
       navigate(`/api/exercises/${id}/update`);
+    });
+  });
+
+  // update exercise
+  deleteExerciseBtns.forEach((deleteBtn: HTMLButtonElement) => {
+    deleteBtn.addEventListener("click", async () => {
+      const id = deleteBtn.dataset.exerciseId as string;
+      const exercise = deleteBtn.closest(`.${styles["exercise-item"]}`);
+      await deleteExercise(id, exercise);
     });
   });
 }
@@ -294,5 +302,40 @@ async function fetchExercises() {
     return data.exercises;
   } catch (error) {
     return [];
+  }
+}
+
+async function deleteExercise(id: string, exercise: Element | null) {
+  try {
+    const response = await fetch(`${backendUrl}/api/exercises/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      exercise?.remove();
+      Notification({
+        message: data.message || "Exercise deleted successifully",
+        type: "success",
+        duration: 5000,
+      });
+    } else {
+      const data = await response.json();
+      Notification({
+        message: data.error || "Failed to delete exercises",
+        type: "error",
+        duration: 5000,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    Notification({
+      message: "An error occurred. Please try again.",
+      type: "error",
+      duration: 5000,
+    });
   }
 }

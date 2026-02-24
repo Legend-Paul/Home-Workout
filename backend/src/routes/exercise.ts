@@ -35,9 +35,10 @@ exerciseRouter.put(
   ]),
   updateExercise,
 );
+exerciseRouter.delete("/:id", deleteExercise);
+
 exerciseRouter.put("/:id/deactivate", deactivateExercise);
 exerciseRouter.put("/:id/activate", activateExercise);
-exerciseRouter.delete("/:id", deleteExercise);
 
 // Error handler MUST be last
 exerciseRouter.use(multerError);
