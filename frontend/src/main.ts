@@ -31,6 +31,7 @@ register("/auth/email/confirmation", EmailConfirmation);
 // api links
 register("/api/exercises", Exercises);
 register("/api/exercises/new", NewExercise);
+register("/api/exercises/:id/update", NewExercise);
 
 notFound(ErrorRoute);
 

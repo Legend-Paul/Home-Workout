@@ -228,21 +228,24 @@
     background-color: var(--bg-card);
     padding: 0;
     margin: 0;
-    &:first-child {
-      color: var(--error);
-      &:hover {
-        color: var(--error-dark);
-      }
-    }
-    &:last-child {
-      color: var(--info);
-      &:hover {
-        color: var(--info-dark);
-      }
-    }
+
     &:hover {
       background-color: var(--bg-card);
     }
+  }
+}
+
+.delete-exercise {
+  color: var(--error) !important;
+  &:hover {
+    color: var(--error-dark) !important;
+  }
+}
+
+.update-exercise {
+  color: var(--info) !important;
+  &:hover {
+    color: var(--info-dark) !important;
   }
 }
 

@@ -6,6 +6,7 @@ type ButtonProps = {
   btnClass?: string;
   disabled?: boolean;
   addBtn?: boolean;
+  data?: string;
 };
 
 export default function Button({
@@ -15,9 +16,10 @@ export default function Button({
   btnClass = "",
   disabled = false,
   addBtn = false,
+  data = "",
 }: ButtonProps) {
   return `
-    <button class="${styles["custom-button"]} ${addBtn ? styles["add-button"] : ""} ${btnClass}" type="${type}" 
+    <button ${data ? data : ""} class="${styles["custom-button"]} ${addBtn ? styles["add-button"] : ""} ${btnClass}" type="${type}" 
     ${disabled ? "disabled" : ""} ${onClick ? `onclick="${onClick()}"` : ""}>
       ${label}
     </button>
