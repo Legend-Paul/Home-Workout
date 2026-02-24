@@ -26,87 +26,8 @@ export default async function Exercises() {
             </svg>
             <p>Show Filter</p>
         </div>
-        <div class="${styles["exercise-filter"]} ${styles["hide"]}"> 
-            <div class="${styles["toggle-aside-btn"]} ${styles["hide-aside-btn"]}">
-                <svg fill="none" stroke="currentColor" 
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" 
-                    stroke-linejoin="round" stroke-width="2" 
-                    d="M11 15l-3-3 3-3m4 6l-3-3 3-3M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p>Hide Filter</p>
-            </div>
-            <form id="${styles["search-form"]}">
-                ${Input({
-                  id: "search",
-                  name: "search",
-                  placeholder: "Search exercises...",
-                  label: "",
-                })}
-                ${Button({
-                  label: `
-                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>`,
-                  type: "submit",
-                })}                
-            </form>
-          
-            <h2>Filter Exercises</h2>            
-            <div class="${styles["filter-group"]}">
-                <label for="muscle-group">Muscle Group:</label>
-                <select id="${styles["muscle-group"]}">
-                    <option value="">All</option>
-                    <option value="chest">Chest</option>
-                    <option value="back">Back</option>
-                    <option value="legs">Legs</option>
-                    <option value="arms">Arms</option>
-                    <option value="shoulders">Shoulders</option>
-                </select>
-            </div>
-            <div class="${styles["filter-group"]}">
-                <label for="equipment">Equipment:</label>
-                <select id="${styles["equipment"]}">
-                    <option value="">All</option>
-                    <option value="dumbbell">Dumbbell</option>
-                    <option value="barbell">Barbell</option>
-                    <option value="bodyweight">Bodyweight</option>
-                    <option value="machine">Machine</option>
-                </select>
-            </div>
-            <div class="${styles["filter-group"]}">
-                <label for="difficulty">Difficulty:</label>
-                <select id="${styles["difficulty"]}">
-                    <option value="">All</option>
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="advanced">Advanced</option>
-                </select>
-            </div>
-            <div class="${styles["filter-group"]}">
-                <label for="exercise-status">Exercise status:</label>
-                <select id="${styles["exercise-status"]}">
-                    <option value="">All</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
-            </div>
-            <div class="${styles["filter-actions"]}">
-                ${Button({
-                  label: "Apply Filters",
-                  type: "button",
-                  btnClass: styles["filter-action-btn"],
-                })}
-                ${Button({
-                  label: "Reset Filters",
-                  type: "button",
-                  btnClass: styles["filter-action-btn"],
-                })}
-            </div>
-        </div>
-        <div class="${styles["exercise-list"]}">
-                
-        </div>
+        <div class="${styles["exercise-filter"]} ${styles["hide"]}"></div>
+        <div class="${styles["exercise-list"]}"></div>
          ${Button({
            label: `
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
@@ -118,32 +39,12 @@ export default async function Exercises() {
          })}
     </div>
   `;
+  renderExerciseFilter();
   renderExerciseList(exercises);
 
-  const hideAsideBtn = mainApp!.querySelector(
-    `.${styles["hide-aside-btn"]}`,
-  ) as HTMLDivElement;
-  const showAsideBtn = mainApp!.querySelector(
-    `.${styles["show-aside-btn"]}`,
-  ) as HTMLDivElement;
-  const exerciseFilter = mainApp!.querySelector(
-    `.${styles["exercise-filter"]}`,
-  ) as HTMLDivElement;
   const addExerciseBtn = mainApp!.querySelector(
     `.${styles["add-exercise-btn"]}`,
   ) as HTMLButtonElement;
-
-  // Show aside filter
-  showAsideBtn.addEventListener("click", () => {
-    exerciseFilter.classList.add(`${styles["show"]}`);
-    exerciseFilter.classList.remove(`${styles["hide"]}`);
-  });
-
-  // Hide aside filter
-  hideAsideBtn.addEventListener("click", () => {
-    exerciseFilter.classList.add(`${styles["hide"]}`);
-    exerciseFilter.classList.remove(`${styles["show"]}`);
-  });
 
   // Navigate to new exercise page
   addExerciseBtn.addEventListener("click", () => {
@@ -151,6 +52,7 @@ export default async function Exercises() {
   });
 }
 
+// Render all exercises
 function renderExerciseList(exercises: Exercise[]) {
   const exerciseList = document.querySelector(
     `.${styles["exercise-list"]}`,
@@ -212,20 +114,20 @@ function renderExerciseList(exercises: Exercise[]) {
           )
           .join("")
       : `<p class="${styles["no-exercises"]}">No exercises found.</p>`;
+  changeExercisePreview();
+  updateExerciseHandler();
+  deleteFunctionHandler();
+}
 
-  const imagePreviewBtns = exerciseList!.querySelectorAll<HTMLSpanElement>(
+// change preview
+function changeExercisePreview() {
+  const mainApp = document.getElementById("main-app");
+  const imagePreviewBtns = mainApp!.querySelectorAll<HTMLSpanElement>(
     `.${styles["image-preview"]}`,
   );
-  const videoPreviewBtns = exerciseList!.querySelectorAll<HTMLSpanElement>(
+  const videoPreviewBtns = mainApp!.querySelectorAll<HTMLSpanElement>(
     `.${styles["video-preview"]}`,
   );
-  const deleteExerciseBtns = exerciseList!.querySelectorAll<HTMLButtonElement>(
-    `.${styles["delete-exercise"]}`,
-  );
-  const updateExerciseBtns = exerciseList!.querySelectorAll<HTMLButtonElement>(
-    `.${styles["update-exercise"]}`,
-  );
-
   // Preview image
   imagePreviewBtns.forEach((imageBtn: HTMLSpanElement) => {
     imageBtn.addEventListener("click", () => {
@@ -264,22 +166,147 @@ function renderExerciseList(exercises: Exercise[]) {
       videoBtn.classList.add(styles["active-preview-type"]);
     });
   });
+}
 
-  // update exercise
+// update exercise handler
+function updateExerciseHandler() {
+  const mainApp = document.getElementById("main-app");
+  const updateExerciseBtns = mainApp!.querySelectorAll<HTMLButtonElement>(
+    `.${styles["update-exercise"]}`,
+  );
+
   updateExerciseBtns.forEach((updateBtn: HTMLButtonElement) => {
     updateBtn.addEventListener("click", async () => {
       const id = updateBtn.dataset.exerciseId;
       navigate(`/api/exercises/${id}/update`);
     });
   });
+}
 
-  // update exercise
+// delete function handler
+function deleteFunctionHandler() {
+  const mainApp = document.getElementById("main-app");
+
+  const deleteExerciseBtns = mainApp!.querySelectorAll<HTMLButtonElement>(
+    `.${styles["delete-exercise"]}`,
+  );
+
   deleteExerciseBtns.forEach((deleteBtn: HTMLButtonElement) => {
     deleteBtn.addEventListener("click", async () => {
       const id = deleteBtn.dataset.exerciseId as string;
       const exercise = deleteBtn.closest(`.${styles["exercise-item"]}`);
       await deleteExercise(id, exercise);
     });
+  });
+}
+
+// render exercises filter
+function renderExerciseFilter() {
+  const exerciseFilter = document.querySelector(
+    `.${styles["exercise-filter"]}`,
+  ) as HTMLDivElement;
+  exerciseFilter.innerHTML = `
+      <div class="${styles["toggle-aside-btn"]} ${styles["hide-aside-btn"]}">
+        <svg fill="none" stroke="currentColor" 
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" 
+            stroke-linejoin="round" stroke-width="2" 
+            d="M11 15l-3-3 3-3m4 6l-3-3 3-3M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <p>Hide Filter</p>
+      </div>
+      <form id="${styles["search-form"]}">
+          ${Input({
+            id: "search",
+            name: "search",
+            placeholder: "Search exercises...",
+            label: "",
+          })}
+          ${Button({
+            label: `
+              <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>`,
+            type: "submit",
+          })}                
+      </form>
+    
+      <h2>Filter Exercises</h2>            
+      <div class="${styles["filter-group"]}">
+          <label for="muscle-group">Muscle Group:</label>
+          <select id="${styles["muscle-group"]}">
+              <option value="">All</option>
+              <option value="chest">Chest</option>
+              <option value="back">Back</option>
+              <option value="legs">Legs</option>
+              <option value="arms">Arms</option>
+              <option value="shoulders">Shoulders</option>
+          </select>
+      </div>
+      <div class="${styles["filter-group"]}">
+          <label for="equipment">Equipment:</label>
+          <select id="${styles["equipment"]}">
+              <option value="">All</option>
+              <option value="dumbbell">Dumbbell</option>
+              <option value="barbell">Barbell</option>
+              <option value="bodyweight">Bodyweight</option>
+              <option value="machine">Machine</option>
+          </select>
+      </div>
+      <div class="${styles["filter-group"]}">
+          <label for="difficulty">Difficulty:</label>
+          <select id="${styles["difficulty"]}">
+              <option value="">All</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+          </select>
+      </div>
+      <div class="${styles["filter-group"]}">
+          <label for="exercise-status">Exercise status:</label>
+          <select id="${styles["exercise-status"]}">
+              <option value="">All</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+          </select>
+      </div>
+      <div class="${styles["filter-actions"]}">
+          ${Button({
+            label: "Apply Filters",
+            type: "button",
+            btnClass: styles["filter-action-btn"],
+          })}
+          ${Button({
+            label: "Reset Filters",
+            type: "button",
+            btnClass: styles["filter-action-btn"],
+          })}
+      </div>
+  `;
+  toggleExerciseFilter();
+}
+
+// toggle exercisefilter
+function toggleExerciseFilter() {
+  const mainApp = document.getElementById("main-app");
+  const hideAsideBtn = mainApp!.querySelector(
+    `.${styles["hide-aside-btn"]}`,
+  ) as HTMLDivElement;
+  const showAsideBtn = mainApp!.querySelector(
+    `.${styles["show-aside-btn"]}`,
+  ) as HTMLDivElement;
+  const exerciseFilter = mainApp!.querySelector(
+    `.${styles["exercise-filter"]}`,
+  ) as HTMLDivElement;
+
+  showAsideBtn.addEventListener("click", () => {
+    exerciseFilter.classList.add(`${styles["show"]}`);
+    exerciseFilter.classList.remove(`${styles["hide"]}`);
+  });
+
+  hideAsideBtn.addEventListener("click", () => {
+    exerciseFilter.classList.add(`${styles["hide"]}`);
+    exerciseFilter.classList.remove(`${styles["show"]}`);
   });
 }
 
