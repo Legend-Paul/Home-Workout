@@ -16,7 +16,7 @@ export default async function Exercises() {
     message: "Loading...",
   });
 
-  const exercises = await fetchExercises();
+  const exercises: Exercise[] = await fetchExercises();
 
   mainApp!.innerHTML = `
    <div class="${styles["exercises-container"]}">

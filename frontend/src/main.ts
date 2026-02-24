@@ -12,6 +12,7 @@ import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import EmailConfirmation from "./pages/EmailConfirmatio/EmailConfirmation";
 import Exercises from "./pages/Exercises/Exercises";
 import NewExercise from "./pages/NewExercise/NewExercise";
+import UpdateExercise from "./pages/UpdateExercise/UpdateExercise";
 
 initTheme();
 await Header();
@@ -31,7 +32,7 @@ register("/auth/email/confirmation", EmailConfirmation);
 // api links
 register("/api/exercises", Exercises);
 register("/api/exercises/new", NewExercise);
-register("/api/exercises/:id/update", NewExercise);
+register("/api/exercises/:id/update", UpdateExercise);
 
 notFound(ErrorRoute);
 

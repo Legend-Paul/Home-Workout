@@ -10,6 +10,7 @@ type TextareaProps = {
   maxLength?: number;
   errorMessage?: string;
   className?: string;
+  value?: string;
 };
 
 export default function Textarea({
@@ -22,6 +23,7 @@ export default function Textarea({
   maxLength,
   errorMessage = "Invalid input",
   className = "",
+  value = "",
 }: TextareaProps) {
   return `
     <div class="${styles["textarea-container"]} ${className ? styles[className] : ""}">
@@ -29,7 +31,7 @@ export default function Textarea({
       <textarea id="${id}" name="${name}" row="50"
       placeholder="${placeholder}" ${required ? "required" : ""} 
       ${minLength ? `minLength="${minLength}"` : ""} 
-      ${maxLength ? `maxLength="${maxLength}"` : ""} ></textarea>
+      ${maxLength ? `maxLength="${maxLength}"` : ""} >${value ? value : ""}</textarea>
       <span class="${styles["error-message"]}">${errorMessage}</span>
     </div>
   `;
