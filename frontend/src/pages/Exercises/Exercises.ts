@@ -361,11 +361,6 @@ function filterExercises() {
     if (exerciseStatusSelect.value)
       params.set("status", exerciseStatusSelect.value);
 
-    console.log(params.toString());
-    console.log(equipmentSelect);
-    console.log(levelSelect);
-    console.log(exerciseStatusSelect);
-
     const url = params.toString()
       ? `${window.location.pathname}?${params.toString()}`
       : window.location.search;
@@ -409,12 +404,46 @@ async function fetchExercises(params?: string) {
       },
     );
     if (!response.ok) {
-      throw new Error("Failed to fetch exercises");
+      const data = await response.json();
+      Notification({
+        message: data.error || "Failed to fetch exercises",
+        type: "error",
+        duration: 5000,
+      });
     }
     const data = await response.json();
     return data.exercises;
   } catch (error) {
     return [];
+  }
+}
+
+// fetch exercise by id
+async function fetchExercise(id: string) {
+  try {
+    const response = await fetch(`${backendUrl}/api/exercises${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      Notification({
+        message: data.error || "Failed to fetch exercise",
+        type: "error",
+        duration: 5000,
+      });
+    }
+    const data = await response.json();
+    return data.exercise;
+  } catch (error) {
+    console.error("Error fetching exercise:", error);
+    Notification({
+      message: "An error occurred. Please try again.",
+      type: "error",
+      duration: 5000,
+    });
   }
 }
 
