@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
+import type { Prisma } from "@prisma/client";
 
 const validate = [
   body("name")
@@ -110,12 +111,43 @@ const createExerciseHandler = async (
 export const createExercise = [...validate, createExerciseHandler];
 
 // Get all exercises
+interface GetAllExerciseRequest extends Request {
+  query: {
+    search?: string;
+    muscleGroup?: string;
+    equipment?: string;
+    level?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
+    status?: string;
+  };
+}
+
 export const getAllExercises = async (
-  req: Request,
+  req: GetAllExerciseRequest,
   res: Response,
 ): Promise<void> => {
+  const { search, muscleGroup, equipment, level, status } = req.query;
+
   try {
+    const where: Prisma.ExerciseWhereInput = {
+      ...(search && {
+        name: { contains: search, mode: "insensitive" },
+      }),
+      ...(muscleGroup && {
+        muscleGroup: { hasSome: [muscleGroup.toLowerCase()] },
+      }),
+      ...(equipment && {
+        equipment: { hasSome: [equipment.toLowerCase()] },
+      }),
+      ...(level && {
+        level: level,
+      }),
+      ...(status && {
+        isActive: status === "active",
+      }),
+    };
+
     const exercises = await prisma.exercise.findMany({
+      where,
       orderBy: { createdAt: "desc" },
     });
 
