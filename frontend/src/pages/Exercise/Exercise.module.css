@@ -1,18 +1,21 @@
 /* Exercise Items */
-.exercise-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--space-8);
-}
-
 .exercise-item {
   display: grid;
   border-radius: var(--radius);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  height: 100%;
   background-color: var(--bg-card);
-  height: 20rem;
   position: relative;
   box-shadow: var(--shadow);
-  max-width: 30rem;
+  summary {
+    cursor: pointer;
+  }
+  p {
+    padding-left: var(--space-4);
+    margin-bottom: var(--space-1);
+    color: var(--text-lighter);
+    /* font-size: var(--text-sm); */
+  }
 }
 
 .active-exercise {
@@ -27,9 +30,11 @@
 
 .exercise-equipment,
 .exercise-muscle {
-  display: flex;
-  gap: var(--space-4);
-  border-bottom: 2px solid var(--border);
+  /* display: flex;
+  gap: var(--space-4); */
+  border: 2px solid var(--border);
+  padding: var(--space-1);
+  border-radius: var(--space-1);
 }
 
 .exercise-image {
@@ -58,18 +63,26 @@
   left: 0;
   padding: var(--space-1);
   border-radius: 50% 0 50% 0;
-  font-size: var(--text-sm);
+  /* font-size: var(--text-sm); */
   color: var(--primary);
   z-index: 10;
   font-size: var(--text-xs);
 }
+.exercise-preview-container {
+  display: flex;
+  justify-content: space-between;
+  p {
+    color: var(--success);
+  }
+}
 .exercise-preview-type {
-  font-size: var(--text-sm);
-  .image-preview,
+  display: flex;
+  gap: var(--space-1);
+  align-items: center;
+  w100 .image-preview,
   .video-preview {
     cursor: pointer;
     transition: var(--transition-all-base);
-    padding: var(--space-1);
     &:hover {
       border-bottom: 2px solid var(--border);
     }
@@ -90,8 +103,9 @@
 
 .exercise-summary {
   display: grid;
-  font-size: var(--text-sm);
+  /* font-size: var(--text-sm); */
   gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(20px, 1fr));
 }
 .exercise-acions {
   display: flex;
@@ -124,4 +138,27 @@
 
 .add-exercise-btn {
   background-color: var(--primary);
+}
+
+.exercise {
+  position: absolute;
+  overflow-y: auto;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 110;
+  padding: var(--space-6);
+}
+
+.description {
+  border: 2px solid var(--border);
+  border-radius: var(--space-2);
+  padding: var(--space-2);
+  p {
+    white-space: pre-wrap;
+    line-height: 1.5rem;
+    color: var(--text-light) !important;
+  }
 }
