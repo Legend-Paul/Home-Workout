@@ -54,6 +54,12 @@
   cursor: pointer;
 }
 
+.no-exercise-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 #search-form {
   position: relative;
   input {
@@ -88,7 +94,10 @@
     font-weight: 500;
   }
 
-  select {
+  #muscle-group,
+  #equipment,
+  #level,
+  #exercise-status {
     padding: var(--space-1) var(--space-2);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
@@ -118,14 +127,23 @@
     padding: var(--space-2) var(--space-4);
     border: none;
     border-radius: var(--radius-sm);
-    background-color: var(--bg-button) !important;
+
     color: var(--text);
     cursor: pointer;
     white-space: nowrap;
     transition: var(--transition-all-base);
     box-shadow: var(--shadow);
-    &:hover {
-      background-color: var(--bg-button-dark) !important;
+    &:first-child {
+      background-color: var(--error) !important;
+      &:hover {
+        background-color: var(--error-dark) !important;
+      }
+    }
+    &:last-child {
+      background-color: var(--success) !important;
+      &:hover {
+        background-color: var(--success-dark) !important;
+      }
     }
   }
 }
@@ -144,6 +162,7 @@
   height: 20rem;
   position: relative;
   box-shadow: var(--shadow);
+  max-width: 30rem;
 }
 
 .active-exercise {

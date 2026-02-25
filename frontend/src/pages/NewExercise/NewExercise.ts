@@ -276,8 +276,8 @@ export default function NewExercise() {
     formdata.append("name", name);
     formdata.append("image", image!);
     if (video) formdata.append("video", video);
-    muscleGroup.forEach((m) => formdata.append("muscleGroup", m));
-    equipment.forEach((eq) => formdata.append("equipment", eq));
+    muscleGroup.forEach((m) => formdata.append("muscleGroup", m.toLowerCase()));
+    equipment.forEach((eq) => formdata.append("equipment", eq.toLowerCase()));
     formdata.append("description", description);
     formdata.append("level", level);
     formdata.append("status", String(status));

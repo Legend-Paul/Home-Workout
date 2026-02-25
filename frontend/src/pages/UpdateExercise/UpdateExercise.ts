@@ -288,8 +288,8 @@ export default async function UpdateExercise(params?: Record<string, string>) {
     formdata.append("name", name);
     if (image) formdata.append("image", image!);
     if (video) formdata.append("video", video);
-    muscleGroup.forEach((m) => formdata.append("muscleGroup", m));
-    equipment.forEach((eq) => formdata.append("equipment", eq));
+    muscleGroup.forEach((m) => formdata.append("muscleGroup", m.toLowerCase()));
+    equipment.forEach((eq) => formdata.append("equipment", eq.toLowerCase()));
     formdata.append("description", description);
     formdata.append("level", level);
     formdata.append("status", String(status));
@@ -297,9 +297,6 @@ export default async function UpdateExercise(params?: Record<string, string>) {
     submitButton.disabled = true;
     submitButton.style.backgroundColor = "var(--primary-light) !important";
     submitButton.innerHTML = `${Spinner({})}  Updating...`;
-
-    console.log(formdata.get("muscleGroup"));
-    console.log(formdata.get("equipment"));
 
     try {
       await createNewExercise(formdata, id);

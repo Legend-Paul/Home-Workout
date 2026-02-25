@@ -15,8 +15,9 @@ export default async function Exercises() {
     type: "large",
     message: "Loading...",
   });
+  const search = window.location.search;
 
-  let exercises: Exercise[] = await fetchExercises();
+  let exercises: Exercise[] = await fetchExercises(search);
 
   mainApp!.innerHTML = `
    <div class="${styles["exercises-container"]}">
@@ -113,7 +114,9 @@ function renderExerciseList(exercises: Exercise[]) {
   `,
           )
           .join("")
-      : `<p class="${styles["no-exercises"]}">No exercises found.</p>`;
+      : `<div class="${styles["no-exercise-container"]}">
+          <p>😭 Oops! No exercises found.</p>
+        </div>`;
   changeExercisePreview();
   updateExerciseHandler();
   deleteFunctionHandler();
@@ -254,12 +257,12 @@ function renderExerciseFilter() {
           </select>
       </div>
       <div class="${styles["filter-group"]}">
-          <label for="difficulty">Difficulty:</label>
-          <select id="${styles["difficulty"]}">
+          <label for="level">Level:</label>
+          <select id="${styles["level"]}">
               <option value="">All</option>
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="advanced">Advanced</option>
+              <option value="BEGINNER">Beginner</option>
+              <option value="INTERMEDIATE">Intermediate</option>
+              <option value="ADVANCED">Advanced</option>
           </select>
       </div>
       <div class="${styles["filter-group"]}">
@@ -271,19 +274,21 @@ function renderExerciseFilter() {
           </select>
       </div>
       <div class="${styles["filter-actions"]}">
+          
           ${Button({
-            label: "Apply Filters",
+            label: "Reset Filters",
             type: "button",
             btnClass: styles["filter-action-btn"],
           })}
           ${Button({
-            label: "Reset Filters",
+            label: "Apply Filters",
             type: "button",
             btnClass: styles["filter-action-btn"],
           })}
       </div>
   `;
   toggleExerciseFilter();
+  filterExercises();
 }
 
 // toggle exercisefilter
@@ -310,15 +315,99 @@ function toggleExerciseFilter() {
   });
 }
 
+// fiter exercises
+function filterExercises() {
+  const mainApp = document.getElementById("main-app");
+  const searchForm = mainApp!.querySelector(
+    `#${styles["search-form"]}`,
+  ) as HTMLFormElement;
+  const searchInput = mainApp!.querySelector("#search") as HTMLInputElement;
+  const muscleGroupSelect = mainApp!.querySelector(
+    `#${styles["muscle-group"]}`,
+  ) as HTMLSelectElement;
+  const equipmentSelect = mainApp!.querySelector(
+    `#${styles["equipment"]}`,
+  ) as HTMLSelectElement;
+  const levelSelect = mainApp!.querySelector(
+    `#${styles["level"]}`,
+  ) as HTMLSelectElement;
+  const exerciseStatusSelect = mainApp!.querySelector(
+    `#${styles["exercise-status"]}`,
+  ) as HTMLSelectElement;
+  const applyFiltersBtn = mainApp!.querySelector(
+    `.${styles["filter-action-btn"]}:last-child`,
+  ) as HTMLButtonElement;
+  const resetFiltersBtn = mainApp!.querySelector(
+    `.${styles["filter-action-btn"]}:first-child`,
+  ) as HTMLButtonElement;
+
+  const syncFilterFromUrl = () => {
+    const params = new URLSearchParams(window.location.search);
+    searchInput.value = params.get("search") || "";
+    muscleGroupSelect.value = params.get("muscleGroup") || "";
+    equipmentSelect.value = params.get("equipment") || "";
+    levelSelect.value = params.get("level") || "";
+    exerciseStatusSelect.value = params.get("exerciseStatus") || "";
+  };
+
+  const applyFilter = async () => {
+    const params = new URLSearchParams();
+    if (searchInput.value.trim())
+      params.set("search", searchInput.value.trim());
+    if (muscleGroupSelect.value)
+      params.set("muscleGroup", muscleGroupSelect.value);
+    if (equipmentSelect.value) params.set("equipment", equipmentSelect.value);
+    if (levelSelect.value) params.set("level", levelSelect.value);
+    if (exerciseStatusSelect.value)
+      params.set("status", exerciseStatusSelect.value);
+
+    console.log(params.toString());
+    console.log(equipmentSelect);
+    console.log(levelSelect);
+    console.log(exerciseStatusSelect);
+
+    const url = params.toString()
+      ? `${window.location.pathname}?${params.toString()}`
+      : window.location.search;
+
+    navigate(url);
+    const exercises = await fetchExercises(params.toString());
+    renderExerciseList(exercises);
+  };
+
+  const resetFilter = async () => {
+    searchInput.value = "";
+    muscleGroupSelect.value = " ";
+    equipmentSelect.value = " ";
+    levelSelect.value = " ";
+    exerciseStatusSelect.value = " ";
+
+    navigate(window.location.pathname);
+    const exercises = await fetchExercises();
+    renderExerciseList(exercises);
+  };
+
+  syncFilterFromUrl();
+  applyFiltersBtn.addEventListener("click", applyFilter);
+  searchForm.addEventListener("submit", (e: Event) => {
+    e.preventDefault();
+    applyFilter();
+  });
+  resetFiltersBtn.addEventListener("click", resetFilter);
+}
+
 // fetch all exercises
-async function fetchExercises() {
+async function fetchExercises(params?: string) {
   try {
-    const response = await fetch(`${backendUrl}/api/exercises`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${backendUrl}/api/exercises${params ? `?${params}` : ""}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
       },
-    });
+    );
     if (!response.ok) {
       throw new Error("Failed to fetch exercises");
     }
