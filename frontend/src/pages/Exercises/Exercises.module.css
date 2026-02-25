@@ -275,3 +275,7 @@
 .add-exercise-btn {
   background-color: var(--primary);
 }
+
+.exercise-container {
+  background-color: var(--bg);
+}

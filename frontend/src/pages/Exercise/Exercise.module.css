@@ -1,0 +1,127 @@
+/* Exercise Items */
+.exercise-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-8);
+}
+
+.exercise-item {
+  display: grid;
+  border-radius: var(--radius);
+  background-color: var(--bg-card);
+  height: 20rem;
+  position: relative;
+  box-shadow: var(--shadow);
+  max-width: 30rem;
+}
+
+.active-exercise {
+  box-shadow: var(--shadow-success);
+  border-bottom: 4px solid var(--success);
+}
+
+.inactive-exercise {
+  border-bottom: 4px solid var(--error);
+  box-shadow: var(--shadow-error);
+}
+
+.exercise-equipment,
+.exercise-muscle {
+  display: flex;
+  gap: var(--space-4);
+  border-bottom: 2px solid var(--border);
+}
+
+.exercise-image {
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+  width: 100%;
+  overflow: hidden;
+  cursor: pointer;
+  img {
+    width: 100%;
+    object-fit: fill;
+    height: 100%;
+    transition: var(--transition-all-base);
+    &:hover {
+      scale: 1.1;
+    }
+  }
+  video {
+    width: 100%;
+  }
+}
+.exercise-title {
+  position: absolute;
+  background-color: var(--bg-button);
+  top: 0;
+  left: 0;
+  padding: var(--space-1);
+  border-radius: 50% 0 50% 0;
+  font-size: var(--text-sm);
+  color: var(--primary);
+  z-index: 10;
+  font-size: var(--text-xs);
+}
+.exercise-preview-type {
+  font-size: var(--text-sm);
+  .image-preview,
+  .video-preview {
+    cursor: pointer;
+    transition: var(--transition-all-base);
+    padding: var(--space-1);
+    &:hover {
+      border-bottom: 2px solid var(--border);
+    }
+  }
+
+  .active-preview-type {
+    border-bottom: 2px solid var(--border);
+  }
+}
+
+.exercise-description {
+  padding: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.exercise-summary {
+  display: grid;
+  font-size: var(--text-sm);
+  gap: var(--space-4);
+}
+.exercise-acions {
+  display: flex;
+  justify-content: space-between;
+  button {
+    color: var(--text);
+    background-color: var(--bg-card);
+    padding: 0;
+    margin: 0;
+
+    &:hover {
+      background-color: var(--bg-card);
+    }
+  }
+}
+
+.delete-exercise {
+  color: var(--error) !important;
+  &:hover {
+    color: var(--error-dark) !important;
+  }
+}
+
+.update-exercise {
+  color: var(--info) !important;
+  &:hover {
+    color: var(--info-dark) !important;
+  }
+}
+
+.add-exercise-btn {
+  background-color: var(--primary);
+}
