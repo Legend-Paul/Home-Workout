@@ -11,6 +11,7 @@ export default async function RenderExercise(
   id: string,
   exerciseContainer: HTMLDivElement,
 ) {
+  exerciseContainer.innerHTML = Spinner({});
   const exercise = await fetchExercise(id);
   console.log(id);
   console.log(exercise);
@@ -22,31 +23,50 @@ export default async function RenderExercise(
           <img src="${backendUrl}${exercise.imageUrl}" alt="${exercise.name}">
         </div>
         <div class="${styles["exercise-description"]}">
-          <div class="${styles["exercise-preview-type"]}">
-            <span data-image-url="${exercise.imageUrl}" data-exercise-id="${exercise.id}"
-                  class="${styles["image-preview"]} ${styles["active-preview-type"]}">Image</span>
-            <span data-video-url="${exercise.videoUrl}" data-exercise-id="${exercise.id}"
-                  class="${styles["video-preview"]}">Video</span>
+          <div class="${styles["exercise-preview-container"]}">
+            <div class="${styles["exercise-preview-type"]}">
+              <span data-image-url="${exercise.imageUrl}" data-exercise-id="${exercise.id}"
+                    class="${styles["image-preview"]} ${styles["active-preview-type"]}">Image</span>
+              <span data-video-url="${exercise.videoUrl}" data-exercise-id="${exercise.id}"
+                    class="${styles["video-preview"]}">Video</span>
+              </div>
+                  <p class="${styles["level"]}">${exercise.level}</p>
           </div>
+
           <div class="${styles["exercise-summary"]}">
             ${
               exercise.muscleGroup.length > 0
                 ? `
-              <div class="${styles["exercise-muscle"]}">
-                ${exercise.muscleGroup.map((muscle: string) => `<p>${muscle && muscle.at(0)?.toUpperCase() + muscle.slice(1)}</p>`).join("")}
-              </div>`
+                <details class="${styles["exercise-muscle"]}" open>
+                  <summary>Muscle Group:</summary>
+                ${exercise.muscleGroup
+                  .map(
+                    (muscle: string) => `
+                  <p>${muscle && muscle.at(0)?.toUpperCase() + muscle.slice(1)}</p>`,
+                  )
+                  .join("")}
+              </details>`
                 : ""
             }
             ${
               exercise.equipment.length > 0
                 ? `
-              <div class="${styles["exercise-equipment"]}">
-                ${exercise.equipment.map((eq: string) => `<p>${eq && eq.at(0)?.toUpperCase() + eq.slice(1)}</p>`).join("")}
-              </div>`
+                <details class="${styles["exercise-equipment"]}" open>
+                  <summary>Equipments:</summary>  
+                ${exercise.equipment
+                  .map(
+                    (eq: string) => `
+                  <p>${eq && eq.at(0)?.toUpperCase() + eq.slice(1)}</p>`,
+                  )
+                  .join("")}
+              </details>`
                 : ""
             }
-            <p>${exercise.level}</p>
-          </div>
+            </div>
+            <details class="${styles["description"]}" open>
+              <summary>Description</summary>
+              <p>${exercise.description}</p>
+            </details>
           <div class="${styles["exercise-acions"]}">
             ${Button({
               label: `<svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>`,

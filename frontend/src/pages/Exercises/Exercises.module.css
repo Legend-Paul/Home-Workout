@@ -278,4 +278,6 @@
 
 .exercise-container {
   background-color: var(--bg);
+  overflow-y: auto;
+  background-color: red;
 }
