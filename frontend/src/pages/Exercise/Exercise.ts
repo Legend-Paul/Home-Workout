@@ -13,8 +13,7 @@ export default async function RenderExercise(
 ) {
   exerciseContainer.innerHTML = Spinner({});
   const exercise = await fetchExercise(id);
-  console.log(id);
-  console.log(exercise);
+
   exerciseContainer.innerHTML = `
     <div class="${styles["exercise"]}">
       <div class="${styles["exercise-item"]} ${exercise.isActive ? styles["active-exercise"] : styles["inactive-exercise"]}">
@@ -85,6 +84,7 @@ export default async function RenderExercise(
     </div>
   </div>
   `;
+  changeExercisePreview();
 }
 
 // fetch exercise by id
@@ -112,4 +112,51 @@ async function fetchExercise(id: string) {
       type: "error",
     });
   }
+}
+
+// change preview
+function changeExercisePreview() {
+  const mainApp = document.getElementById("main-app");
+  const imagePreviewBtn = mainApp!.querySelector(
+    `.${styles["image-preview"]}`,
+  ) as HTMLSpanElement;
+  const videoPreviewBtn = mainApp!.querySelector(
+    `.${styles["video-preview"]}`,
+  ) as HTMLSpanElement;
+
+  // Preview image
+
+  imagePreviewBtn.addEventListener("click", () => {
+    const imageUrl = imagePreviewBtn.dataset.imageUrl;
+    const card = imagePreviewBtn.closest(`.${styles["exercise-item"]}`);
+    const previewContainer = card?.querySelector(
+      `.${styles["exercise-image"]}`,
+    ) as HTMLDivElement;
+
+    previewContainer.innerHTML = `<img src="${backendUrl}${imageUrl}" alt="exercise">`;
+
+    // scope active state to this card only
+    card
+      ?.querySelector(`.${styles["video-preview"]}`)
+      ?.classList.remove(styles["active-preview-type"]);
+    imagePreviewBtn.classList.add(styles["active-preview-type"]);
+  });
+
+  // Preview video
+  videoPreviewBtn.addEventListener("click", () => {
+    const videoUrl = videoPreviewBtn.dataset.videoUrl;
+    const card = videoPreviewBtn.closest(`.${styles["exercise-item"]}`);
+    const previewContainer = card?.querySelector(
+      `.${styles["exercise-image"]}`,
+    ) as HTMLDivElement;
+
+    previewContainer.innerHTML = videoUrl
+      ? `<video src="${backendUrl}${videoUrl}" controls autoplay muted></video>`
+      : `<p>Video not available</p>`;
+
+    card
+      ?.querySelector(`.${styles["image-preview"]}`)
+      ?.classList.remove(styles["active-preview-type"]);
+    videoPreviewBtn.classList.add(styles["active-preview-type"]);
+  });
 }
