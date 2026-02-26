@@ -2,11 +2,21 @@ import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
 import type { Prisma } from "@prisma/client";
+import { type User } from "@prisma/client";
 
+declare global {
+  namespace Express {
+    interface User {
+      id: string;
+      email: string;
+      role: import("@prisma/client").Role;
+    }
+  }
+}
 const validate = [
-  body("name")
+  body("name").trim()
     .isLength({ min: 3 })
-    .trim()
+    
     .isString()
     .withMessage("Name must be a string"),
   body("description")
@@ -25,20 +35,22 @@ const validate = [
     .isArray({ min: 1 })
     .withMessage("Equipment must be an array with at least one item"),
   body("status")
-    .customSanitizer((value) => JSON.parse(value))
-    .isBoolean({ strict: false })
+    .toBoolean()
+    .isBoolean()
     .withMessage("Status mus be true or false"),
 ];
 
 interface ExerciseRequest extends Request {
+  
   body: {
     name: string;
     description: string;
     level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
     muscleGroup: string[];
-    equipment?: string[];
+    equipment: string[];
     status: boolean;
   };
+  
 }
 
 // Create exercise handler
@@ -63,12 +75,16 @@ const createExerciseHandler = async (
     res.status(400).json({ error: "Image is required" });
     return;
   }
-
   const { name, description, level, muscleGroup, equipment, status } = req.body;
 
   try {
     const exerciseExists = await prisma.exercise.findUnique({
-      where: { name },
+      where: {
+        name_createdBy: {
+          name,
+          createdBy: req.user!.id,
+        },
+      },
     });
 
     if (exerciseExists) {
@@ -90,6 +106,7 @@ const createExerciseHandler = async (
         muscleGroup: Array.isArray(muscleGroup) ? muscleGroup : [muscleGroup],
         equipment: equipment || [],
         isActive: status,
+        createdBy: req.user!.id
       },
     });
 

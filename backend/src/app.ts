@@ -38,7 +38,7 @@ app.use("/auth/forgot-password", forgotPaswordRouter);
 
 //exercise routes
 app.use("/api/user", userRouter);
-app.use("/api/exercises", exerciseRouter);
+app.use("/api/exercises", authMiddleware, exerciseRouter);
 
 // quick plan routes
 app.use("/api/quick-plan", quickPlanRouter);
