@@ -79,7 +79,7 @@
 }
 .exercise-preview-type {
   display: flex;
-  gap: var(--space-1);
+  gap: var(--space-2);
   align-items: center;
   w100 .image-preview,
   .video-preview {
@@ -109,18 +109,24 @@
   gap: var(--space-4);
   grid-template-columns: repeat(auto-fit, minmax(20px, 1fr));
 }
-.exercise-acions {
+
+.exercise-action-container {
   display: flex;
   justify-content: space-between;
+  flex-direction: row-reverse;
   button {
     color: var(--text);
-    background-color: var(--bg-card);
+    background-color: var(--bg-card) !important;
     padding: 0;
     margin: 0;
 
     &:hover {
       background-color: var(--bg-card);
     }
+  }
+  .exercise-acions {
+    display: flex;
+    gap: var(--space-8);
   }
 }
 
@@ -135,6 +141,13 @@
   color: var(--info) !important;
   &:hover {
     color: var(--info-dark) !important;
+  }
+}
+
+.back-to-exercises {
+  color: var(--success) !important;
+  &:hover {
+    color: var(--success-dark) !important;
   }
 }
 
