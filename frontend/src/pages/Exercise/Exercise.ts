@@ -97,6 +97,7 @@ export default async function RenderExercise(
   `;
   changeExercisePreview();
   backToExercises(exerciseContainer);
+  updateExerciseHandler();
 }
 
 // fetch exercise by id
@@ -181,5 +182,18 @@ function backToExercises(exerciseContainer: HTMLDivElement) {
   exerciseBtn.addEventListener("click", (e: Event) => {
     e.stopPropagation();
     navigate("/api/exercises");
+  });
+}
+
+// update exercise handler
+function updateExerciseHandler() {
+  const mainApp = document.getElementById("main-app");
+  const updateExerciseBtn = mainApp!.querySelector(
+    `.${styles["update-exercise"]}`,
+  ) as HTMLButtonElement;
+
+  updateExerciseBtn.addEventListener("click", () => {
+    const id = updateExerciseBtn.dataset.exerciseId;
+    navigate(`/api/exercises/${id}/update`);
   });
 }
