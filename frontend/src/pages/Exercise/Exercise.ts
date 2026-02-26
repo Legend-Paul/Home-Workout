@@ -1,5 +1,5 @@
 import Spinner from "../../components/Spinner/Spinner";
-import Notification from "../../components/Confirmation/Confirmation";
+import Notification from "../../components/Notification/Notification";
 import Button from "../../components/Button/Button";
 import { navigate } from "../../router";
 import styles from "./Exercise.module.css";
@@ -98,6 +98,7 @@ export default async function RenderExercise(
   changeExercisePreview();
   backToExercises(exerciseContainer);
   updateExerciseHandler();
+  deleteFunctionHandler();
 }
 
 // fetch exercise by id
@@ -196,4 +197,54 @@ function updateExerciseHandler() {
     const id = updateExerciseBtn.dataset.exerciseId;
     navigate(`/api/exercises/${id}/update`);
   });
+}
+
+// delete function handler
+function deleteFunctionHandler() {
+  const mainApp = document.getElementById("main-app");
+
+  const deleteExerciseBtn = mainApp!.querySelector(
+    `.${styles["delete-exercise"]}`,
+  ) as HTMLButtonElement;
+
+  deleteExerciseBtn.addEventListener("click", async () => {
+    const id = deleteExerciseBtn.dataset.exerciseId as string;
+    await deleteExercise(id);
+  });
+}
+
+// delete exercise by id
+async function deleteExercise(id: string) {
+  try {
+    const response = await fetch(`${backendUrl}/api/exercises/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      Notification({
+        message: data.message || "Exercise deleted successifully",
+        type: "success",
+        duration: 5000,
+      });
+      navigate("/api/exercises");
+    } else {
+      const data = await response.json();
+      Notification({
+        message: data.error || "Failed to delete exercises",
+        type: "error",
+        duration: 5000,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    Notification({
+      message: "An error occurred. Please try again.",
+      type: "error",
+      duration: 5000,
+    });
+  }
 }
