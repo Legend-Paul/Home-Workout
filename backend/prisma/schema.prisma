@@ -8,34 +8,36 @@ datasource db {
 }
 
 model User {
-  id             String  @id @default(uuid())
-  email          String  @unique
+  id             String      @id @default(uuid())
+  email          String      @unique
   username       String
   password       String
   goal           Goal?
   level          Level?
-  role           Role    @default(USER)
-  isBoarded      Boolean @default(false)
-  isVerified    Boolean        @default(false)
-  onboardingStep Int     @default(0)
-  setupMethod SetupMethod @default(QUICK_START)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  role           Role        @default(USER)
+  isBoarded      Boolean     @default(false)
+  isVerified     Boolean     @default(false)
+  onboardingStep Int         @default(0)
+  setupMethod    SetupMethod @default(QUICK_START)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
-  vcerificationToken VerificationToken[]
+  verificationToken  VerificationToken[]
   passwordResetToken PasswordResetToken[]
-  calendarEntries  CalendarEntry[]
-  exercisesCreated Exercise[]
-  weeklyPlans      WeeklyPlan[]
-  friendsInitiated Friendship[]    @relation("FriendshipInitiator")
-  friendsReceived  Friendship[]    @relation("FriendshipReceiver")
+  calendarEntries    CalendarEntry[]
+  exercisesCreated   Exercise[]
+  userPlans          UserPlan[]
+  quickStartPlans    QuickStartPlan[]
+  quickPlanUsers     QuickPlanUser[]
+  friendsInitiated   Friendship[]         @relation("FriendshipInitiator")
+  friendsReceived    Friendship[]         @relation("FriendshipReceiver")
 }
 
 model VerificationToken {
   id        String   @id @default(uuid())
   token     String   @unique
   expiresAt DateTime
-  createdAt   DateTime    @default(now())
+  createdAt DateTime @default(now())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -44,83 +46,125 @@ model PasswordResetToken {
   id        String   @id @default(uuid())
   token     String   @unique
   expiresAt DateTime
-  createdAt   DateTime    @default(now())
+  createdAt DateTime @default(now())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Exercise {
-  id           String   @id @default(uuid())
-  name         String   @unique // "Bicep Curls", "Push-ups"
-  description  String
-  imageUrl     String
-  videoUrl     String?
-  level   Level    @default(ALL)
-  muscleGroup  String[]
-  equipment    String[] @default([])
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  createdBy    String?
+  id          String   @id @default(uuid())
+  name        String // "Bicep Curls", "Push-ups"
+  description String
+  imageUrl    String
+  videoUrl    String?
+  level       Level    @default(ALL)
+  muscleGroup String[]
+  equipment   String[] @default([])
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
 
   createdByUser       User?                @relation(fields: [createdBy], references: [id], onDelete: SetNull)
   quickStartExercises QuickStartExercise[]
   weeklyPlanExercises WeeklyPlanExercise[]
+
+  @@unique([name, createdBy])
 }
 
 model QuickStartPlan {
-  id           String   @id @default(uuid())
-  name         String   @unique
-  goal         Goal
-  level        Level
-  dayOfWeek    Int // 0-6 (Sunday-Saturday)
-  dayName      Days // "Monday", "Tuesday", 
-  muscleGroup  String[] // e.g., ["Arms", "Legs"]
-  isRestDay    Boolean  @default(false)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id        String  @id @default(uuid())
+  name      String  @unique
+  goal      Goal
+  level     Level
+  isActive  Boolean @default(true)
+  createdBy String?
+
+  createdByUser User? @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  quickStartWeeklyPlan QuickStartWeeklyPlan[]
+  quickPlanUsers       QuickPlanUser[]
+}
+
+model QuickStartWeeklyPlan {
+  id               String   @id @default(uuid())
+  quickStartPlanId String
+  name             String
+  dayOfWeek        Int // 0-6 (Sunday-Saturday)
+  muscleGroup      String[] // e.g., ["Arms", "Legs"]
+  isRestDay        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   quickStartExercises QuickStartExercise[]
-  weeklyPlans         WeeklyPlan[]
+  quickStartPlan      QuickStartPlan       @relation(fields: [quickStartPlanId], references: [id], onDelete: Cascade)
+
+  @@unique([quickStartPlanId, dayOfWeek])
 }
 
 model QuickStartExercise {
-  id               String @id @default(uuid())
+  id                     String   @id @default(uuid())
+  quickStartWeeklyPlanId String
+  exerciseId             String
+  order                  Int // 1-10 (order in the plan)
+  reps                   Int?
+  sets                   Int?
+  duration               Int? // in seconds
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  quickStartWeeklyPlan QuickStartWeeklyPlan @relation(fields: [quickStartWeeklyPlanId], references: [id], onDelete: Cascade)
+  exercise             Exercise             @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([quickStartWeeklyPlanId, exerciseId])
+  @@index([quickStartWeeklyPlanId])
+}
+
+model QuickPlanUser {
+  id               String   @id @default(uuid())
+  userId           String
   quickStartPlanId String
-  exerciseId       String
-  order            Int // 1-10 (order in the plan)
-  reps             Int?
-  sets             Int?
-  duration         Int? // in seconds
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   quickStartPlan QuickStartPlan @relation(fields: [quickStartPlanId], references: [id], onDelete: Cascade)
-  exercise       Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([quickStartPlanId, exerciseId])
-  @@index([quickStartPlanId])
+  @@unique([userId, quickStartPlanId])
+}
+
+model UserPlan {
+  id        String   @id @default(uuid())
+  name      String
+  userId    String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  weeklyPlan WeeklyPlan[]
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
 }
 
 model WeeklyPlan {
-  id           String   @id @default(uuid())
-  userId       String
-  name         String 
-  dayOfWeek    Int // 0-6 (Sunday-Saturday)
-  dayName      Days // "Monday", "Tuesday", 
-  muscleGroup  String[] // e.g., ["Arms", "Legs"]
-  isRestDay    Boolean  @default(false)
-  isActive     Boolean  @default(true)
-  quickStartPlanId String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(uuid())
+  userPlanId  String
+  name        String
+  dayOfWeek   Int // 0-6 (Sunday-Saturday)
+  muscleGroup String[] // e.g., ["Arms", "Legs"]
+  isRestDay   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userPlan            UserPlan             @relation(fields: [userPlanId], references: [id], onDelete: Cascade)
   weeklyPlanExercises WeeklyPlanExercise[]
   calendarEntries     CalendarEntry[]
-  quickStartPlan     QuickStartPlan?      @relation(fields: [quickStartPlanId], references: [id], onDelete: SetNull)
 
-  @@unique([userId, dayOfWeek])
-  @@index([userId])
+  @@unique([userPlanId, dayOfWeek])
 }
 
 model WeeklyPlanExercise {
@@ -157,7 +201,6 @@ model CalendarEntry {
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   weeklyPlan WeeklyPlan? @relation(fields: [weeklyPlanId], references: [id], onDelete: SetNull)
 
-  @@unique([userId, date])
   @@index([userId, date])
 }
 
@@ -206,16 +249,6 @@ enum Status {
 enum SetupMethod {
   QUICK_START
   CUSTOM
-}
-
-enum Days {
-  SUNDAY
-  MONDAY
-  TUESDAY
-  WEDNESDAY
-  THURSDAY
-  FRIDAY
-  SATURDAY
 }
 
 enum FriendshipStatus {
