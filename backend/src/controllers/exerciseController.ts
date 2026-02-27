@@ -2,17 +2,7 @@ import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
 import type { Prisma } from "@prisma/client";
-import { type User } from "@prisma/client";
 
-declare global {
-  namespace Express {
-    interface User {
-      id: string;
-      email: string;
-      role: import("@prisma/client").Role;
-    }
-  }
-}
 const validate = [
   body("name").trim()
     .isLength({ min: 3 })
