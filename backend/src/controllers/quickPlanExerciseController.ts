@@ -26,7 +26,6 @@ interface QuickPlanExerciseRequest extends Request {
   params: {
     id: string;
     quickStartWeeklyPlanId: string;
-    quickStartExerciseId: string;
   };
 }
 
@@ -41,24 +40,38 @@ const createQuickPlanExerciseHandler = async (
   }
 
   const { reps, sets, order, duration, exerciseId } = req.body;
-  const quickStartWeeklyPlanId = req.params.quickStartWeeklyPlanId;
+  const { quickStartWeeklyPlanId } = req.params;
   try {
-    const [exerciseExists, planExists] = await Promise.all([
-      prisma.exercise.findUnique({
-        where: { id: exerciseId },
-      }),
-      prisma.quickStartPlan.findUnique({
-        where: { id: quickStartWeeklyPlanId },
-      }),
-    ]);
+    const [exerciseExists, weeklyPlanExists, quickPlanExerciseExist] =
+      await Promise.all([
+        prisma.exercise.findUnique({
+          where: { id: exerciseId },
+        }),
+        prisma.quickStartWeeklyPlan.findUnique({
+          where: { id: quickStartWeeklyPlanId },
+        }),
+        prisma.quickStartExercise.findUnique({
+          where: {
+            quickStartWeeklyPlanId_exerciseId: {
+              quickStartWeeklyPlanId,
+              exerciseId,
+            },
+          },
+        }),
+      ]);
 
     if (!exerciseExists) {
       res.status(404).json({ error: "Exercise not found" });
       return;
     }
 
-    if (!planExists) {
-      res.status(404).json({ error: "Quick start plan not found" });
+    if (!weeklyPlanExists) {
+      res.status(404).json({ error: "Quick start weekly plan not found" });
+      return;
+    }
+
+    if (!quickPlanExerciseExist) {
+      res.status(404).json({ error: "Quick start exercise not found" });
       return;
     }
 
@@ -135,22 +148,23 @@ const updateQuickPlanExerciseHandler = async (
     return;
   }
 
-  const { quickStartExerciseId, id } = req.params;
+  const { id, quickStartWeeklyPlanId } = req.params;
 
   const { reps, sets, order, duration, exerciseId } = req.body;
 
   try {
-    const [exerciseExists, planExists, planExerciseExist] = await Promise.all([
-      prisma.exercise.findUnique({
-        where: { id: exerciseId },
-      }),
-      prisma.quickStartPlan.findUnique({
-        where: { id: quickStartExerciseId },
-      }),
-      prisma.quickStartExercise.findUnique({
-        where: { id: id },
-      }),
-    ]);
+    const [exerciseExists, weeklyPlanExists, planExerciseExist] =
+      await Promise.all([
+        prisma.exercise.findUnique({
+          where: { id: exerciseId },
+        }),
+        prisma.quickStartWeeklyPlan.findUnique({
+          where: { id: quickStartWeeklyPlanId },
+        }),
+        prisma.quickStartExercise.findUnique({
+          where: { id },
+        }),
+      ]);
 
     if (!planExerciseExist) {
       res.status(400).json({ error: "Quick start exercise not found" });
@@ -161,7 +175,7 @@ const updateQuickPlanExerciseHandler = async (
       return;
     }
 
-    if (!planExists) {
+    if (!weeklyPlanExists) {
       res.status(404).json({ error: "Quick start plan not found" });
       return;
     }
