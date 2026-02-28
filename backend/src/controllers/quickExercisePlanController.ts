@@ -4,12 +4,6 @@ import { body, validationResult } from "express-validator";
 
 const validate = [
   body("name").isString().withMessage("Name must be a string"),
-  body("goal")
-    .isIn(["BUILD_MUSCLE", "LOSE_FAT", "MAINTAIN_FITNESS", "ALL"])
-    .withMessage("Goal must be a string"),
-  body("level")
-    .isIn(["BEGINNER", "INTERMEDIATE", "ADVANCED", "ALL"])
-    .withMessage("Level must be a string"),
   body("dayOfWeek")
     .isNumeric()
     .withMessage("Day of week must be a number")
@@ -18,42 +12,23 @@ const validate = [
   body("muscleGroup")
     .isArray({ min: 0 })
     .withMessage("Muscle group must be an array"),
-  body("dayName")
-    .isIn([
-      "SUNDAY",
-      "MONDAY",
-      "TUESDAY",
-      "WEDNESDAY",
-      "THURSDAY",
-      "FRIDAY",
-      "SATURDAY",
-    ])
-    .withMessage("DayName must be a valid day of the week"),
-  body("isRestDay").isBoolean().withMessage("isRestDay must be a boolean"),
-  body("isActive").isBoolean().withMessage("isActive must be a boolean"),
+  body("isRestDay")
+    .toBoolean()
+    .isBoolean()
+    .withMessage("isRestDay must be a boolean"),
 ];
 
 // Create createQuickStartPlan handler
 interface QuickPlanRequest extends Request {
   body: {
     name: string;
-    goal: "BUILD_MUSCLE" | "LOSE_FAT" | "MAINTAIN_FITNESS" | "ALL";
-    level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
     dayOfWeek: number;
-    dayName:
-      | "SUNDAY"
-      | "MONDAY"
-      | "TUESDAY"
-      | "WEDNESDAY"
-      | "THURSDAY"
-      | "FRIDAY"
-      | "SATURDAY";
     muscleGroup: string[];
     isRestDay: boolean;
-    isActive: boolean;
   };
   params: {
     id: string;
+    planId: string;
   };
 }
 
@@ -67,28 +42,25 @@ const createQuickPlanHandler = async (
     return;
   }
 
-  const {
-    name,
-    goal,
-    level,
-    dayOfWeek,
-    dayName,
-    muscleGroup,
-    isRestDay,
-    isActive,
-  } = req.body;
+  const { name, dayOfWeek, muscleGroup, isRestDay } = req.body;
+  const { planId } = req.params;
 
   try {
-    const newQuickStartPlan = await prisma.quickStartPlan.create({
+    const quickPlanExists = await prisma.quickStartPlan.findUnique({
+      where: { id: planId },
+    });
+    if (quickPlanExists) {
+      res.status(400).json({ error: "Quick start plan not found!" });
+      return;
+    }
+
+    const newQuickStartPlan = await prisma.quickStartWeeklyPlan.create({
       data: {
+        quickStartPlanId: planId,
         name,
-        goal,
-        level,
         dayOfWeek,
-        dayName,
         muscleGroup,
         isRestDay,
-        isActive,
       },
     });
     res
@@ -101,7 +73,7 @@ const createQuickPlanHandler = async (
 };
 export const createQuickPlan = [...validate, createQuickPlanHandler];
 
-export const getAllQuickPlans = async (
+export const getQuickWeeklyPlan = async (
   req: Request,
   res: Response,
 ): Promise<void> => {
