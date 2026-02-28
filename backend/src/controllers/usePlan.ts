@@ -46,3 +46,45 @@ const createUserPlanHandler = async (req: CreateUserPlan, res: Response) => {
 };
 
 export const createUserPlan = [...validate, createUserPlanHandler];
+
+// Get all UserPlans for logged in user
+export const getUserPlansHandler = async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+
+  try {
+    const plans = await prisma.userPlan.findMany({
+      where: { userId, isActive: true },
+      include: {
+        weeklyPlan: {
+          include: {
+            _count: {
+              select: { weeklyPlanExercises: true },
+            },
+          },
+        },
+      },
+    });
+
+    const formattedPlans = plans.map((plan) => {
+      const activeDays = plan.weeklyPlan.filter((day) => !day.isRestDay);
+      const totalExercises = plan.weeklyPlan.reduce(
+        (sum, day) => sum + day._count.weeklyPlanExercises,
+        0,
+      );
+
+      return {
+        id: plan.id,
+        name: plan.name,
+        isActive: plan.isActive,
+        totalExercises,
+        activeDays: activeDays.length,
+        createdAt: plan.createdAt,
+      };
+    });
+
+    res.status(200).json({ plans: formattedPlans });
+  } catch (error) {
+    console.error("Error fetching user plans:", error);
+    res.status(500).json({ error: "Failed to fetch user plans" });
+  }
+};

@@ -16,12 +16,13 @@ import {
   createNewCalendarEntry,
   getCalendarEntry,
 } from "../controllers/calendarEntry.js";
-import { createUserPlan } from "../controllers/usePlan.js";
+import { createUserPlan, getUserPlansHandler } from "../controllers/usePlan.js";
 
 const userRouter = Router();
 
 // user custom plan
 userRouter.post("/user-plan/new", createUserPlan);
+userRouter.post("/user-plans", getUserPlansHandler);
 
 // user
 userRouter.get("/all", getAllUsers);
