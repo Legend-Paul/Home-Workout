@@ -172,15 +172,21 @@ const updateQuickPlanHandler = async (
 export const updateQuickPlan = [...validate, updateQuickPlanHandler];
 
 // delete quick plan handler
+interface DeleteQuickWeeklyPlanRequest extends Request {
+  params: {
+    id: string;
+  };
+}
+
 export const deleteQuickPlan = async (
-  req: QuickPlanRequest,
+  req: DeleteQuickWeeklyPlanRequest,
   res: Response,
 ): Promise<void> => {
-  const quickStartPlanId = req.params.id;
+  const quickWeeklyPlanId = req.params.id;
   try {
-    const planExist = await prisma.quickStartPlan.findUnique({
+    const planExist = await prisma.quickStartWeeklyPlan.findUnique({
       where: {
-        id: quickStartPlanId,
+        id: quickWeeklyPlanId,
       },
     });
 
@@ -190,7 +196,7 @@ export const deleteQuickPlan = async (
     }
 
     await prisma.quickStartPlan.delete({
-      where: { id: quickStartPlanId },
+      where: { id: quickWeeklyPlanId },
     });
     res.status(200).json({ message: "Quick start plan deleted successfully" });
   } catch (error) {
