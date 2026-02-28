@@ -88,3 +88,86 @@ export const getUserPlansHandler = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch user plans" });
   }
 };
+
+// Update UserPlan
+
+interface UpdateUserPlanRequest extends Request {
+  body: {
+    name: string;
+    isActive: boolean;
+  };
+  params: {
+    id: string;
+  };
+}
+
+const updateValidate = [
+  body("name")
+    .optional()
+    .isString()
+    .trim()
+    .withMessage("Name must be a string"),
+  body("isActive")
+    .optional()
+    .toBoolean()
+    .isBoolean()
+    .withMessage("isActive must be a boolean"),
+];
+
+const updateUserPlanHandler = async (
+  req: UpdateUserPlanRequest,
+  res: Response,
+) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  const { id } = req.params;
+  const userId = req.user!.id;
+  const { name, isActive } = req.body;
+
+  try {
+    const plan = await prisma.userPlan.findUnique({
+      where: { id },
+    });
+
+    if (!plan) {
+      res.status(404).json({ error: "Plan not found" });
+      return;
+    }
+
+    if (plan.userId !== userId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
+    if (name && name !== plan.name) {
+      const nameExists = await prisma.userPlan.findUnique({
+        where: { userId_name: { userId, name } },
+      });
+      if (nameExists) {
+        res.status(400).json({ error: "Plan with that name already exists" });
+        return;
+      }
+    }
+
+    const updatedPlan = await prisma.userPlan.update({
+      where: { id },
+      data: {
+        ...(name && { name }),
+        ...(isActive !== undefined && { isActive }),
+      },
+    });
+
+    res
+      .status(200)
+      .json({ message: "Plan updated successfully", plan: updatedPlan });
+  } catch (error) {
+    console.error("Error updating user plan:", error);
+    res.status(500).json({ error: "Failed to update user plan" });
+  }
+};
+
+export const updateUserPlan = [...updateValidate, updateUserPlanHandler];
