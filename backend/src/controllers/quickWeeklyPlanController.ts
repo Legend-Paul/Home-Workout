@@ -32,7 +32,7 @@ interface QuickPlanRequest extends Request {
   };
 }
 
-const createQuickPlanHandler = async (
+const createQuickWeeklyPlanHandler = async (
   req: QuickPlanRequest,
   res: Response,
 ): Promise<void> => {
@@ -71,7 +71,10 @@ const createQuickPlanHandler = async (
     res.status(500).json({ error: "Failed to create plan" });
   }
 };
-export const createQuickPlan = [...validate, createQuickPlanHandler];
+export const createQuickWeeklyPlan = [
+  ...validate,
+  createQuickWeeklyPlanHandler,
+];
 
 // Get quik wekly plan
 interface GetQuickWeeklyPlanRequest extends Request {
@@ -116,7 +119,7 @@ export const getQuickWeeklyPlan = async (
 };
 
 // Update quick plan handler
-const updateQuickPlanHandler = async (
+const updateQuickWeeklyPlanHandler = async (
   req: QuickPlanRequest,
   res: Response,
 ): Promise<void> => {
@@ -169,24 +172,38 @@ const updateQuickPlanHandler = async (
   }
 };
 
-export const updateQuickPlan = [...validate, updateQuickPlanHandler];
+export const updateQuickWeeklyPlan = [
+  ...validate,
+  updateQuickWeeklyPlanHandler,
+];
 
 // delete quick plan handler
 interface DeleteQuickWeeklyPlanRequest extends Request {
   params: {
     id: string;
+    planId: string;
   };
 }
 
-export const deleteQuickPlan = async (
+export const deleteQuickWeeklyPlan = async (
   req: DeleteQuickWeeklyPlanRequest,
   res: Response,
 ): Promise<void> => {
-  const quickWeeklyPlanId = req.params.id;
+  const { id, planId } = req.params;
+
   try {
+    const quickPlanExists = await prisma.quickStartPlan.findUnique({
+      where: { id: planId },
+    });
+
+    if (!quickPlanExists) {
+      res.status(400).json({ error: "Quick start plan not found!" });
+      return;
+    }
+
     const planExist = await prisma.quickStartWeeklyPlan.findUnique({
       where: {
-        id: quickWeeklyPlanId,
+        id: id,
       },
     });
 
@@ -196,7 +213,7 @@ export const deleteQuickPlan = async (
     }
 
     await prisma.quickStartPlan.delete({
-      where: { id: quickWeeklyPlanId },
+      where: { id: id },
     });
     res.status(200).json({ message: "Quick start plan deleted successfully" });
   } catch (error) {
