@@ -68,7 +68,7 @@ const createQuickWeeklyPlanHandler = async (
       .json({ message: "Plan created successifully", plan: newQuickStartPlan });
   } catch (error) {
     console.error("Error creating quick start plan:", error);
-    res.status(500).json({ error: "Failed to create plan" });
+    res.status(500).json({ error: "Failed to create weekly plan" });
   }
 };
 export const createQuickWeeklyPlan = [
@@ -114,7 +114,7 @@ export const getQuickWeeklyPlan = async (
     res.status(200).json({ plans: allPlans });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: "Failed to fetch quick start plans" });
+    res.status(500).json({ error: "Failed to fetch quick weekly plans" });
   }
 };
 
@@ -168,7 +168,7 @@ const updateQuickWeeklyPlanHandler = async (
     });
   } catch (error) {
     console.error("Error updating quick start plan:", error);
-    res.status(500).json({ error: "Failed to update plan" });
+    res.status(500).json({ error: "Failed to update quick weekly plan" });
   }
 };
 
@@ -218,6 +218,6 @@ export const deleteQuickWeeklyPlan = async (
     res.status(200).json({ message: "Quick start plan deleted successfully" });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: "Failed to delete plan" });
+    res.status(500).json({ error: "Failed to delete  weekly plan" });
   }
 };

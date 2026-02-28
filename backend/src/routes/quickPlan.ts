@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { createNewQuickPlan } from "../controllers/quickStartPlan.js";
 import {
   updateQuickWeeklyPlan,
   createQuickWeeklyPlan,
@@ -14,12 +15,16 @@ import {
 
 const quickPlanRouter = Router();
 
+// quick plan
+quickPlanRouter.post("/new", createNewQuickPlan);
+
+// quick weekly plan
 quickPlanRouter.get(":planId/", updateQuickWeeklyPlan);
 quickPlanRouter.post("/:planId/new", createQuickWeeklyPlan);
 quickPlanRouter.put("/:planId/:id/update", deleteQuickWeeklyPlan);
 quickPlanRouter.delete("/:planId/:id/delete", getQuickWeeklyPlan);
 
-// quick plan exercises
+// quick weekly plan exercises
 quickPlanRouter.get("/:quickStartWeeklyPlanId/exercise", getQuickPlanExercise);
 quickPlanRouter.post(
   "/:quickStartWeeklyPlanId/exercise/new",
