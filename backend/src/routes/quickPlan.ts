@@ -15,9 +15,9 @@ import {
 const quickPlanRouter = Router();
 
 quickPlanRouter.get("/", getAllQuickPlans);
-quickPlanRouter.post("/new", createQuickPlan);
-quickPlanRouter.put("/:id/update", updateQuickPlan);
-quickPlanRouter.delete("/:id/delete", deleteQuickPlan);
+quickPlanRouter.post("/:planId/new", createQuickPlan);
+quickPlanRouter.put("/:planId/:id/update", updateQuickPlan);
+quickPlanRouter.delete("/:planId/:id/delete", deleteQuickPlan);
 
 // quick plan exercises
 quickPlanRouter.get("/:quickStartWeeklyPlanId/exercise", getQuickPlanExercise);
