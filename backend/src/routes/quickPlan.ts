@@ -20,9 +20,18 @@ quickPlanRouter.put("/:id/update", updateQuickPlan);
 quickPlanRouter.delete("/:id/delete", deleteQuickPlan);
 
 // quick plan exercises
-quickPlanRouter.get("/:planId/exercise", getQuickPlanExercise);
-quickPlanRouter.post("/:planId/exercise/new", createQuickPlanExercise);
-quickPlanRouter.put("/:planId/exercise/:id/update", updateQuickPlanExercise);
-quickPlanRouter.delete("/:planId/exercise/:id/delete", deleteQuickPlanExercise);
+quickPlanRouter.get("/:quickStartWeeklyPlanId/exercise", getQuickPlanExercise);
+quickPlanRouter.post(
+  "/:quickStartWeeklyPlanId/exercise/new",
+  createQuickPlanExercise,
+);
+quickPlanRouter.put(
+  "/:quickStartWeeklyPlanId/exercise/:id/update",
+  updateQuickPlanExercise,
+);
+quickPlanRouter.delete(
+  "/:quickStartWeeklyPlanId/exercise/:id/delete",
+  deleteQuickPlanExercise,
+);
 
 export default quickPlanRouter;
