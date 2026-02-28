@@ -171,12 +171,10 @@ const updateQuickPlanUserHandler = async (
       data: { isActive },
     });
 
-    res
-      .status(200)
-      .json({
-        message: "Enrollment updated successfully",
-        enrollment: updatedEnrollment,
-      });
+    res.status(200).json({
+      message: "Enrollment updated successfully",
+      enrollment: updatedEnrollment,
+    });
   } catch (error) {
     console.error("Error updating enrollment:", error);
     res.status(500).json({ error: "Failed to update enrollment" });
@@ -187,3 +185,40 @@ export const updateQuickPlanUser = [
   ...updateValidate,
   updateQuickPlanUserHandler,
 ];
+
+// Delete QuickPlanUser - unenroll from plan
+interface DeleteQuickPlanUserRequest extends Request {
+  params: {
+    id: string;
+  };
+}
+export const deleteQuickPlanUserHandler = async (
+  req: DeleteQuickPlanUserRequest,
+  res: Response,
+) => {
+  const { id } = req.params;
+  const userId = req.user!.id;
+
+  try {
+    const enrollment = await prisma.quickPlanUser.findUnique({
+      where: { id },
+    });
+
+    if (!enrollment) {
+      res.status(404).json({ error: "Enrollment not found" });
+      return;
+    }
+
+    if (enrollment.userId !== userId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
+    await prisma.quickPlanUser.delete({ where: { id } });
+
+    res.status(200).json({ message: "Unenrolled from plan successfully" });
+  } catch (error) {
+    console.error("Error unenrolling from plan:", error);
+    res.status(500).json({ error: "Failed to unenroll from plan" });
+  }
+};
