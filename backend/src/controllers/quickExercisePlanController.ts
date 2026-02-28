@@ -49,7 +49,7 @@ const createQuickPlanHandler = async (
     const quickPlanExists = await prisma.quickStartPlan.findUnique({
       where: { id: planId },
     });
-    if (quickPlanExists) {
+    if (!quickPlanExists) {
       res.status(400).json({ error: "Quick start plan not found!" });
       return;
     }
@@ -73,12 +73,33 @@ const createQuickPlanHandler = async (
 };
 export const createQuickPlan = [...validate, createQuickPlanHandler];
 
+// Get quik wekly plan
+interface GetQuickWeeklyPlanRequest extends Request {
+  params: {
+    planId: string;
+  };
+}
+
 export const getQuickWeeklyPlan = async (
-  req: Request,
+  req: GetQuickWeeklyPlanRequest,
   res: Response,
 ): Promise<void> => {
+  const { planId } = req.params;
+
   try {
-    const allPlans = await prisma.quickStartPlan.findMany({
+    const quickPlanExists = await prisma.quickStartPlan.findUnique({
+      where: { id: planId },
+    });
+
+    if (!quickPlanExists) {
+      res.status(400).json({ error: "Quick start plan not found!" });
+      return;
+    }
+    const allPlans = await prisma.quickStartWeeklyPlan.findMany({
+      where: {
+        quickStartPlanId: planId,
+      },
+
       include: {
         _count: {
           select: {
