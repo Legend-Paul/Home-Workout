@@ -126,44 +126,42 @@ const updateQuickPlanHandler = async (
     return;
   }
 
-  const quickStartPlanId = req.params.id;
-  const {
-    name,
-    goal,
-    level,
-    dayOfWeek,
-    dayName,
-    muscleGroup,
-    isRestDay,
-    isActive,
-  } = req.body;
+  const { name, dayOfWeek, muscleGroup, isRestDay } = req.body;
+
+  const { planId, id } = req.params;
 
   try {
-    const quickPlanExist = await prisma.quickStartPlan.findUnique({
-      where: { id: quickStartPlanId },
-    });
+    const [weeklyPlanExists, quickPlanExists] = await Promise.all([
+      prisma.quickStartPlan.findUnique({
+        where: { id: planId },
+      }),
+      prisma.quickStartPlan.findUnique({
+        where: { id },
+      }),
+    ]);
 
-    if (!quickPlanExist) {
+    if (!weeklyPlanExists) {
+      res.status(400).json({ error: "weekly start plan not found!" });
+      return;
+    }
+
+    if (!quickPlanExists) {
       res.status(404).json({ error: "Quick start plan not found" });
       return;
     }
 
-    const updatedQuickStartPlan = await prisma.quickStartPlan.update({
-      where: { id: quickStartPlanId },
+    const updatedQuickWeeklylan = await prisma.quickStartWeeklyPlan.update({
+      where: { id },
       data: {
         name,
-        goal,
-        level,
         dayOfWeek,
-        dayName,
         muscleGroup,
         isRestDay,
-        isActive,
       },
     });
     res.status(200).json({
       message: "Plan updated successifully",
-      plan: updatedQuickStartPlan,
+      plan: updatedQuickWeeklylan,
     });
   } catch (error) {
     console.error("Error updating quick start plan:", error);
