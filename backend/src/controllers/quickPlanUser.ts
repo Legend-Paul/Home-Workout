@@ -63,3 +63,57 @@ const createQuickPlanUserHandler = async (
 };
 
 export const createQuickPlanUser = [...validate, createQuickPlanUserHandler];
+
+// Get all QuickPlanUsers for logged in user
+export const getQuickPlanUsers = async (req: Request, res: Response) => {
+  const userId = req.user!.id;
+
+  try {
+    const enrollments = await prisma.quickPlanUser.findMany({
+      where: { userId, isActive: true },
+      include: {
+        quickStartPlan: {
+          include: {
+            quickStartWeeklyPlan: {
+              include: {
+                _count: {
+                  select: { quickStartExercises: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const formattedEnrollments = enrollments.map((enrollment) => {
+      const activeDays = enrollment.quickStartPlan.quickStartWeeklyPlan.filter(
+        (day) => !day.isRestDay,
+      );
+      const totalExercises =
+        enrollment.quickStartPlan.quickStartWeeklyPlan.reduce(
+          (sum, day) => sum + day._count.quickStartExercises,
+          0,
+        );
+
+      return {
+        id: enrollment.id,
+        isActive: enrollment.isActive,
+        enrolledAt: enrollment.createdAt,
+        plan: {
+          id: enrollment.quickStartPlan.id,
+          name: enrollment.quickStartPlan.name,
+          goal: enrollment.quickStartPlan.goal,
+          level: enrollment.quickStartPlan.level,
+          activeDays: activeDays.length,
+          totalExercises,
+        },
+      };
+    });
+
+    res.status(200).json({ enrollments: formattedEnrollments });
+  } catch (error) {
+    console.error("Error fetching enrollments:", error);
+    res.status(500).json({ error: "Failed to fetch enrollments" });
+  }
+};

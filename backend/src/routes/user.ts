@@ -18,23 +18,27 @@ import {
 } from "../controllers/calendarEntry.js";
 import {
   createUserPlan,
-  getUserPlansHandler,
+  getUserPlans,
   updateUserPlan,
-  deleteUserPlanHandler,
+  deleteUserPlan,
 } from "../controllers/usePlan.js";
-import { createQuickPlanUser } from "../controllers/quickPlanUser.js";
+import {
+  createQuickPlanUser,
+  getQuickPlanUsers,
+} from "../controllers/quickPlanUser.js";
 
 const userRouter = Router();
 
 // user custom plan
 userRouter.post("/user-plan/new", createUserPlan);
-userRouter.get("/user-plans", getUserPlansHandler);
+userRouter.get("/user-plans", getUserPlans);
 userRouter.put("/user-plans/:id/update", updateUserPlan);
-userRouter.delete("/user-plans/:id/update", deleteUserPlanHandler);
+userRouter.delete("/user-plans/:id/update", deleteUserPlan);
 
 // quick plan users
-userRouter.get("/:id/quick-plan", createUserQuickPlan);
-userRouter.get("/quick-plan/new", createQuickPlanUser);
+// userRouter.get("/:id/quick-plan", createUserQuickPlan);
+userRouter.get("/quick-plan", getQuickPlanUsers);
+userRouter.post("/quick-plan/new", createQuickPlanUser);
 
 // user
 userRouter.get("/all", getAllUsers);

@@ -48,7 +48,7 @@ const createUserPlanHandler = async (req: CreateUserPlan, res: Response) => {
 export const createUserPlan = [...validate, createUserPlanHandler];
 
 // Get all UserPlans for logged in user
-export const getUserPlansHandler = async (req: Request, res: Response) => {
+export const getUserPlans = async (req: Request, res: Response) => {
   const userId = req.user!.id;
 
   try {
@@ -179,7 +179,7 @@ interface DeleteUserPlanRequest extends Request {
   };
 }
 
-export const deleteUserPlanHandler = async (
+export const deleteUserPlan = async (
   req: DeleteUserPlanRequest,
   res: Response,
 ) => {
