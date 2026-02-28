@@ -3,6 +3,7 @@ import {
   createNewQuickPlan,
   getAllQuickPlans,
   deleteQuickPlanHandler,
+  updateQuickPlan,
 } from "../controllers/quickStartPlan.js";
 import requireAdmin from "../middleware/requireAuth.js";
 import {
@@ -23,7 +24,8 @@ const quickPlanRouter = Router();
 // quick plan
 quickPlanRouter.get("/", getAllQuickPlans);
 quickPlanRouter.post("/new", requireAdmin, createNewQuickPlan);
-quickPlanRouter.post("/:id/delete", requireAdmin, deleteQuickPlanHandler);
+quickPlanRouter.put("/:id/update", requireAdmin, updateQuickPlan);
+quickPlanRouter.delete("/:id/delete", requireAdmin, deleteQuickPlanHandler);
 
 // quick weekly plan
 quickPlanRouter.get(":planId/", updateQuickWeeklyPlan);

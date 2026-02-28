@@ -111,6 +111,73 @@ export const getAllQuickPlans = async (req: Request, res: Response) => {
   }
 };
 
+// update quick plan
+interface UpdateQuickPlanRequest extends NewQuickPlanRequest {
+  params: {
+    id: string;
+  };
+}
+
+const updateQuickPlanHandler = async (
+  req: UpdateQuickPlanRequest,
+  res: Response,
+) => {
+  const { id } = req.params;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  const { name, goal, level, isActive } = req.body;
+
+  try {
+    const plan = await prisma.quickStartPlan.findUnique({
+      where: { id },
+    });
+
+    if (!plan) {
+      res.status(404).json({ error: "Quick start plan not found" });
+      return;
+    }
+
+    if (name && name !== plan.name) {
+      const nameExists = await prisma.quickStartPlan.findUnique({
+        where: { name },
+      });
+      if (nameExists) {
+        res
+          .status(400)
+          .json({ error: "Quick start plan with that name already exists" });
+        return;
+      }
+    }
+
+    const updatedPlan = await prisma.quickStartPlan.update({
+      where: { id },
+      data: {
+        ...(name && { name }),
+        ...(goal && { goal }),
+        ...(level && { level }),
+        ...(isActive !== undefined && { isActive }),
+      },
+    });
+
+    res
+      .status(200)
+      .json({
+        message: "Quick start plan updated successfully",
+        plan: updatedPlan,
+      });
+  } catch (error) {
+    console.error("Error updating quick start plan:", error);
+    res.status(500).json({ error: "Failed to update quick start plan" });
+  }
+};
+
+export const updateQuickPlan = [...validate, updateQuickPlanHandler];
+
 // Delete quick plans
 interface DeleteQuickPlanRequest extends Request {
   params: {
