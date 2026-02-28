@@ -171,3 +171,41 @@ const updateUserPlanHandler = async (
 };
 
 export const updateUserPlan = [...updateValidate, updateUserPlanHandler];
+
+// Delete UserPlan
+interface DeleteUserPlanRequest extends Request {
+  params: {
+    id: string;
+  };
+}
+
+export const deleteUserPlanHandler = async (
+  req: DeleteUserPlanRequest,
+  res: Response,
+) => {
+  const { id } = req.params;
+  const userId = req.user!.id;
+
+  try {
+    const plan = await prisma.userPlan.findUnique({
+      where: { id },
+    });
+
+    if (!plan) {
+      res.status(404).json({ error: "Plan not found" });
+      return;
+    }
+
+    if (plan.userId !== userId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
+    await prisma.userPlan.delete({ where: { id } });
+
+    res.status(200).json({ message: "Plan deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user plan:", error);
+    res.status(500).json({ error: "Failed to delete user plan" });
+  }
+};

@@ -20,14 +20,16 @@ import {
   createUserPlan,
   getUserPlansHandler,
   updateUserPlan,
+  deleteUserPlanHandler,
 } from "../controllers/usePlan.js";
 
 const userRouter = Router();
 
 // user custom plan
 userRouter.post("/user-plan/new", createUserPlan);
-userRouter.post("/user-plans", getUserPlansHandler);
-userRouter.post("/user-plans/:id/update", updateUserPlan);
+userRouter.get("/user-plans", getUserPlansHandler);
+userRouter.put("/user-plans/:id/update", updateUserPlan);
+userRouter.delete("/user-plans/:id/update", deleteUserPlanHandler);
 
 // user
 userRouter.get("/all", getAllUsers);
