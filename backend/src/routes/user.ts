@@ -25,6 +25,7 @@ import {
 import {
   createQuickPlanUser,
   getQuickPlanUsers,
+  updateQuickPlanUser,
 } from "../controllers/quickPlanUser.js";
 
 const userRouter = Router();
@@ -39,6 +40,7 @@ userRouter.delete("/user-plans/:id/update", deleteUserPlan);
 // userRouter.get("/:id/quick-plan", createUserQuickPlan);
 userRouter.get("/quick-plan", getQuickPlanUsers);
 userRouter.post("/quick-plan/new", createQuickPlanUser);
+userRouter.put("/quick-plan/:id/update", updateQuickPlanUser);
 
 // user
 userRouter.get("/all", getAllUsers);

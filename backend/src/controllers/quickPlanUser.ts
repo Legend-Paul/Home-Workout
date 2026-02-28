@@ -117,3 +117,73 @@ export const getQuickPlanUsers = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch enrollments" });
   }
 };
+
+const updateValidate = [
+  body("isActive")
+    .toBoolean()
+    .isBoolean()
+    .withMessage("isActive must be a boolean"),
+];
+
+// Create QuickPlanUser - enroll user in a quick start plan
+interface UpdateQuickPlanUserRequest extends Request {
+  body: {
+    isActive: boolean;
+  };
+  params: {
+    id: string;
+  };
+}
+
+// Update QuickPlanUser - toggle isActive
+const updateQuickPlanUserHandler = async (
+  req: UpdateQuickPlanUserRequest,
+  res: Response,
+) => {
+  const { id } = req.params;
+  const userId = req.user!.id;
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  const { isActive } = req.body;
+
+  try {
+    const enrollment = await prisma.quickPlanUser.findUnique({
+      where: { id },
+    });
+
+    if (!enrollment) {
+      res.status(404).json({ error: "Enrollment not found" });
+      return;
+    }
+
+    if (enrollment.userId !== userId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
+    const updatedEnrollment = await prisma.quickPlanUser.update({
+      where: { id },
+      data: { isActive },
+    });
+
+    res
+      .status(200)
+      .json({
+        message: "Enrollment updated successfully",
+        enrollment: updatedEnrollment,
+      });
+  } catch (error) {
+    console.error("Error updating enrollment:", error);
+    res.status(500).json({ error: "Failed to update enrollment" });
+  }
+};
+
+export const updateQuickPlanUser = [
+  ...updateValidate,
+  updateQuickPlanUserHandler,
+];
