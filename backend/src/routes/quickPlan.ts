@@ -1,5 +1,8 @@
 import { Router } from "express";
-import { createNewQuickPlan } from "../controllers/quickStartPlan.js";
+import {
+  createNewQuickPlan,
+  getAllQuickPlans,
+} from "../controllers/quickStartPlan.js";
 import requireAdmin from "../middleware/requireAuth.js";
 import {
   updateQuickWeeklyPlan,
@@ -18,6 +21,7 @@ const quickPlanRouter = Router();
 
 // quick plan
 quickPlanRouter.post("/new", requireAdmin, createNewQuickPlan);
+quickPlanRouter.get("/", getAllQuickPlans);
 
 // quick weekly plan
 quickPlanRouter.get(":planId/", updateQuickWeeklyPlan);

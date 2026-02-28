@@ -68,3 +68,45 @@ const createNewQuickPlanHandler = async (
 };
 
 export const createNewQuickPlan = [...validate, createNewQuickPlanHandler];
+
+// Get all quickplans
+export const getAllQuickPlans = async (req: Request, res: Response) => {
+  try {
+    const plans = await prisma.quickStartPlan.findMany({
+      where: { isActive: true },
+      include: {
+        quickStartWeeklyPlan: {
+          include: {
+            _count: {
+              select: { quickStartExercises: true },
+            },
+          },
+        },
+      },
+    });
+
+    const formattedPlans = plans.map((plan) => {
+      const activeDays = plan.quickStartWeeklyPlan.filter(
+        (day) => !day.isRestDay,
+      );
+      const totalExercises = plan.quickStartWeeklyPlan.reduce(
+        (sum, day) => sum + day._count.quickStartExercises,
+        0,
+      );
+      return {
+        id: plan.id,
+        name: plan.name,
+        goal: plan.goal,
+        level: plan.level,
+        isActive: plan.isActive,
+        totalExercises,
+        activeDays: activeDays.length,
+      };
+    });
+
+    res.status(200).json({ plans: formattedPlans });
+  } catch (error) {
+    console.error("Error fetching quick start plans:", error);
+    res.status(500).json({ error: "Failed to fetch quick start plans" });
+  }
+};
