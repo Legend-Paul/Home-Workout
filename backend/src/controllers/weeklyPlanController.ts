@@ -214,12 +214,10 @@ const updateWeeklyPlanHandler = async (
       },
     });
 
-    res
-      .status(200)
-      .json({
-        message: "Weekly plan updated successfully",
-        weeklyPlan: updatedPlan,
-      });
+    res.status(200).json({
+      message: "Weekly plan updated successfully",
+      weeklyPlan: updatedPlan,
+    });
   } catch (error) {
     console.error("Error updating weekly plan:", error);
     res.status(500).json({ error: "Failed to update weekly plan" });
@@ -227,26 +225,43 @@ const updateWeeklyPlanHandler = async (
 };
 export const updateWeeklyPlan = [...validate, updateWeeklyPlanHandler];
 
-// delete weekly plan handler
+// Delete WeeklyPlan
+interface DeleteWeeklyPlanRequest extends Request {
+  params: {
+    userPlanId: string;
+    id: string;
+  };
+}
 export const deleteWeeklyPlan = async (
-  req: WeeklyPlanRequest,
+  req: DeleteWeeklyPlanRequest,
   res: Response,
-): Promise<void> => {
-  const weeklyPlanId = req.params.id;
+) => {
+  const { id, userPlanId } = req.params;
+  const userId = req.user!.id;
 
   try {
-    const weeklyPlanExist = await prisma.weeklyPlan.findUnique({
-      where: { id: weeklyPlanId },
+    const weeklyPlan = await prisma.weeklyPlan.findUnique({
+      where: { id },
+      include: { userPlan: true },
     });
 
-    if (!weeklyPlanExist) {
+    if (!weeklyPlan) {
       res.status(404).json({ error: "Weekly plan not found" });
       return;
     }
 
-    await prisma.weeklyPlan.delete({
-      where: { id: weeklyPlanId },
-    });
+    if (weeklyPlan.userPlan.id !== userPlanId) {
+      res.status(404).json({ error: "Invalid user plan" });
+      return;
+    }
+
+    if (weeklyPlan.userPlan.userId !== userId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
+    await prisma.weeklyPlan.delete({ where: { id } });
+
     res.status(200).json({ message: "Weekly plan deleted successfully" });
   } catch (error) {
     console.error("Error deleting weekly plan:", error);
