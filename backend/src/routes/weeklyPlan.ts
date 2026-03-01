@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   createWeeklyPlan,
-  getAllWeeklyPlan,
+  getWeeklyPlans,
   updateWeeklyPlan,
   deleteWeeklyPlan,
 } from "../controllers/weeklyPlanController.js";
@@ -15,7 +15,7 @@ import {
 
 const weeklyPlanRouter = Router();
 
-weeklyPlanRouter.get("/:userPlanId/", getAllWeeklyPlan);
+weeklyPlanRouter.get("/:userPlanId", getWeeklyPlans);
 weeklyPlanRouter.post("/:userPlanId/new", createWeeklyPlan);
 weeklyPlanRouter.put("/:id/update", updateWeeklyPlan);
 weeklyPlanRouter.delete("/:id/delete", deleteWeeklyPlan);

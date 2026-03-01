@@ -95,67 +95,61 @@ const createWeeklyPlanHandler = async (
 };
 export const createWeeklyPlan = [...validate, createWeeklyPlanHandler];
 
-// Get weekly plan handler
-const validateGetWeeklyPlan = [
-  body("userId").isUUID().withMessage("User ID must be a valid UUID"),
-];
-
-interface GetAllWeeklyPlanRequest extends Request {
-  body: {
-    userId: string;
+// Get all WeeklyPlans for a UserPlan
+interface GetWeeklyPlanRequest extends Request {
+  params: {
+    userPlanId: string;
   };
 }
 
-const getAllWeeklyPlanHandler = async (
-  req: GetAllWeeklyPlanRequest,
+export const getWeeklyPlans = async (
+  req: GetWeeklyPlanRequest,
   res: Response,
 ) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res.status(400).json({ errors: errors.array() });
-    return;
-  }
+  const { userPlanId } = req.params;
+  const userId = req.user!.id;
 
-  const { userId } = req.body;
   try {
-    const userIdExists = await prisma.user.findUnique({
-      where: { id: userId },
+    const userPlan = await prisma.userPlan.findUnique({
+      where: { id: userPlanId },
     });
 
-    if (!userIdExists) {
-      res.status(404).json({ error: "User not found" });
+    if (!userPlan) {
+      res.status(404).json({ error: "User plan not found" });
       return;
     }
 
-    const weeklyPlan = await prisma.weeklyPlan.findMany({
-      where: {
-        userId: userId,
-      },
+    if (userPlan.userId !== userId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
+    const weeklyPlans = await prisma.weeklyPlan.findMany({
+      where: { userPlanId },
       include: {
-        weeklyPlanExercises: {
-          include: {
-            exercise: true,
-          },
+        _count: {
+          select: { weeklyPlanExercises: true },
         },
       },
+      orderBy: { dayOfWeek: "asc" },
     });
 
-    if (!weeklyPlan) {
-      res.status(404).json({ error: "Weekly plan not found" });
-      return;
-    }
+    const formattedPlans = weeklyPlans.map((plan) => ({
+      id: plan.id,
+      name: plan.name,
+      dayOfWeek: plan.dayOfWeek,
+      muscleGroup: plan.muscleGroup,
+      isRestDay: plan.isRestDay,
+      isActive: plan.isActive,
+      totalExercises: plan._count.weeklyPlanExercises,
+    }));
 
-    res.status(200).json({ plan: weeklyPlan });
+    res.status(200).json({ weeklyPlans: formattedPlans });
   } catch (error) {
-    console.error("Error retrieving weekly plan:", error);
-    res.status(500).json({ error: "Failed to retrieve weekly plan" });
+    console.error("Error fetching weekly plans:", error);
+    res.status(500).json({ error: "Failed to fetch weekly plans" });
   }
 };
-
-export const getAllWeeklyPlan = [
-  ...validateGetWeeklyPlan,
-  getAllWeeklyPlanHandler,
-];
 
 // Update weekly plan handler
 const updateWeeklyPlanHandler = async (
