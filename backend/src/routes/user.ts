@@ -1,11 +1,5 @@
 import { Router } from "express";
-import {
-  updateUsename,
-  updateGoal,
-  updateLevel,
-  createUserQuickPlan,
-  getAllUsers,
-} from "../controllers/userController.js";
+import { updateUser, getAllUsers } from "../controllers/userController.js";
 import {
   sendNewFriendship,
   acceptNewFriendship,
@@ -21,7 +15,7 @@ import {
   getUserPlans,
   updateUserPlan,
   deleteUserPlan,
-} from "../controllers/usePlan.js";
+} from "../controllers/userPlan.js";
 import {
   createQuickPlanUser,
   getQuickPlanUsers,
@@ -46,9 +40,7 @@ userRouter.delete("/quick-plan/:id/delete", deleteQuickPlanUserHandler);
 
 // user
 userRouter.get("/all", getAllUsers);
-userRouter.put("/:id/update/username", updateUsename);
-userRouter.put("/:id/update/goal", updateGoal);
-userRouter.put("/:id/update/level", updateLevel);
+userRouter.put("/:id/update", updateUser);
 
 // calendar entry
 userRouter.post("/:id/calendar-entry", getCalendarEntry);
