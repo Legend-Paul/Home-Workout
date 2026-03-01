@@ -151,46 +151,75 @@ export const getWeeklyPlans = async (
   }
 };
 
-// Update weekly plan handler
+// Update WeeklyPlan
 const updateWeeklyPlanHandler = async (
   req: WeeklyPlanRequest,
   res: Response,
-): Promise<void> => {
+) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(400).json({ errors: errors.array() });
     return;
   }
 
-  const weeklyPlanId = req.params.id;
-  const { name, dayOfWeek, dayName, muscleGroup, isRestDay, isActive } =
-    req.body;
+  const { id, userPlanId } = req.params;
+  const userId = req.user!.id;
+  const { name, dayOfWeek, muscleGroup, isRestDay, isActive } = req.body;
 
   try {
-    const weeklyPlanExist = await prisma.weeklyPlan.findUnique({
-      where: { id: weeklyPlanId },
+    const weeklyPlan = await prisma.weeklyPlan.findUnique({
+      where: { id },
+      include: { userPlan: true },
     });
 
-    if (!weeklyPlanExist) {
+    if (!weeklyPlan) {
       res.status(404).json({ error: "Weekly plan not found" });
       return;
     }
 
-    const updatedWeeklyPlan = await prisma.weeklyPlan.update({
-      where: { id: weeklyPlanId },
+    if (weeklyPlan.userPlan.id !== userPlanId) {
+      res.status(404).json({ error: "Invalid user plan" });
+      return;
+    }
+
+    if (weeklyPlan.userPlan.userId !== userId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
+    if (dayOfWeek !== undefined && dayOfWeek !== weeklyPlan.dayOfWeek) {
+      const dayExists = await prisma.weeklyPlan.findUnique({
+        where: {
+          userPlanId_dayOfWeek: {
+            userPlanId: weeklyPlan.userPlanId,
+            dayOfWeek,
+          },
+        },
+      });
+
+      if (dayExists) {
+        res.status(400).json({ error: "A plan for this day already exists" });
+        return;
+      }
+    }
+
+    const updatedPlan = await prisma.weeklyPlan.update({
+      where: { id },
       data: {
-        name,
-        dayOfWeek,
-        dayName,
-        muscleGroup,
-        isRestDay,
-        isActive,
+        ...(name && { name }),
+        ...(dayOfWeek !== undefined && { dayOfWeek }),
+        ...(muscleGroup && { muscleGroup }),
+        ...(isRestDay !== undefined && { isRestDay }),
+        ...(isActive !== undefined && { isActive }),
       },
     });
-    res.status(200).json({
-      message: "Weekly plan updated successfully",
-      plan: updatedWeeklyPlan,
-    });
+
+    res
+      .status(200)
+      .json({
+        message: "Weekly plan updated successfully",
+        weeklyPlan: updatedPlan,
+      });
   } catch (error) {
     console.error("Error updating weekly plan:", error);
     res.status(500).json({ error: "Failed to update weekly plan" });
