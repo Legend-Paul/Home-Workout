@@ -118,34 +118,48 @@ export const createWeeklyPlanExercise = [
   createWeeklyPlanExerciseHandler,
 ];
 
-export const getWeekDayExercises = async (
-  req: WeekDayExerciseRequest,
+// Get all WeeklyPlanExercises for a weekly plan
+interface GetWeeklyPlanExercisesRequest extends Request {
+  params: {
+    weeklyPlanId: string;
+  };
+}
+
+export const getWeeklyPlanExercises = async (
+  req: GetWeeklyPlanExercisesRequest,
   res: Response,
-): Promise<void> => {
-  const { planId } = req.params;
+) => {
+  const { weeklyPlanId } = req.params;
+  const userId = req.user!.id;
 
   try {
     const weeklyPlan = await prisma.weeklyPlan.findUnique({
-      where: { id: planId },
+      where: { id: weeklyPlanId },
+      include: { userPlan: true },
     });
 
     if (!weeklyPlan) {
       res.status(404).json({ error: "Weekly plan not found" });
       return;
     }
+
+    if (weeklyPlan.userPlan.userId !== userId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
     const exercises = await prisma.weeklyPlanExercise.findMany({
-      where: {
-        weeklyPlanId: planId,
-      },
+      where: { weeklyPlanId },
       include: {
         exercise: true,
       },
+      orderBy: { order: "asc" },
     });
 
-    res.status(200).json(exercises);
+    res.status(200).json({ exercises });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Failed to get week exercises" });
+    console.error("Error fetching weekly plan exercises:", error);
+    res.status(500).json({ error: "Failed to fetch weekly plan exercises" });
   }
 };
 

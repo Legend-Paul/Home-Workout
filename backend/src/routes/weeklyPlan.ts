@@ -8,7 +8,7 @@ import {
 
 import {
   createWeeklyPlanExercise,
-  getWeekDayExercises,
+  getWeeklyPlanExercises,
   updateWeekDayExercises,
   deleteWeekDayExercises,
 } from "../controllers/weekDayExerciseController.js";
@@ -21,7 +21,7 @@ weeklyPlanRouter.put("/:id/update", updateWeeklyPlan);
 weeklyPlanRouter.delete("/:id/delete", deleteWeeklyPlan);
 
 // exercise
-weeklyPlanRouter.get("/:weeklyPlanId/exercise", getWeekDayExercises);
+weeklyPlanRouter.get("/:weeklyPlanId/exercise", getWeeklyPlanExercises);
 weeklyPlanRouter.post("/:weeklyPlanId/exercise/new", createWeeklyPlanExercise);
 weeklyPlanRouter.put(
   "/:weeklyPlanId/exercise/:id/update",
