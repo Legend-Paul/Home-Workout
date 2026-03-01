@@ -4,18 +4,29 @@ import { body, validationResult } from "express-validator";
 
 // Validation middleware
 const validate = [
-  body("exerciseId").isUUID().withMessage("Exercise ID must be a valid UUID"),
-  body("order").isNumeric().withMessage("Order must be a number"),
-  body("reps").optional().isNumeric().withMessage("Reps must be a number"),
-  body("sets").optional().isNumeric().withMessage("Sets must be a number"),
+  body("weeklyPlanId")
+    .isString()
+    .withMessage("Weekly plan ID must be a string"),
+  body("exerciseId").isString().withMessage("Exercise ID must be a string"),
+  body("order")
+    .isInt({ min: 1, max: 10 })
+    .withMessage("Order must be between 1 and 10"),
+  body("reps")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Reps must be a positive integer"),
+  body("sets")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Sets must be a positive integer"),
   body("duration")
     .optional()
-    .isNumeric()
-    .withMessage("Duration must be a number"),
+    .isInt({ min: 1 })
+    .withMessage("Duration must be a positive integer"),
 ];
 
-// Create createWeekDayExercises handler
-interface WeekDayExerciseRequest extends Request {
+// Create createWeeklyPlanExercises handler
+interface WeeklyPlanExerciseRequest extends Request {
   body: {
     exerciseId: string;
     order: number;
@@ -24,65 +35,92 @@ interface WeekDayExerciseRequest extends Request {
     duration?: number;
   };
   params: {
-    planId: string;
+    weeklyPlanId: string;
     id: string;
   };
 }
 
-export const createWeekDayExercises = [
-  ...validate,
-  async (req: WeekDayExerciseRequest, res: Response): Promise<void> => {
-    // Validate request
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
+// Create WeeklyPlanExercise
+const createWeeklyPlanExerciseHandler = async (
+  req: WeeklyPlanExerciseRequest,
+  res: Response,
+) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  const userId = req.user!.id;
+  const { weeklyPlanId } = req.params;
+  const { exerciseId, order, reps, sets, duration } = req.body;
+
+  try {
+    const [weeklyPlan, exercise] = await Promise.all([
+      prisma.weeklyPlan.findUnique({
+        where: { id: weeklyPlanId },
+        include: { userPlan: true },
+      }),
+      prisma.exercise.findUnique({
+        where: { id: exerciseId },
+      }),
+    ]);
+
+    const exerciseExists = await prisma.weeklyPlanExercise.findUnique({
+      where: { weeklyPlanId_exerciseId: { weeklyPlanId, exerciseId } },
+    });
+
+    if (!weeklyPlan) {
+      res.status(404).json({ error: "Weekly plan not found" });
       return;
     }
 
-    const { exerciseId, order, reps, sets, duration } = req.body;
-    const { planId } = req.params;
-
-    try {
-      const [exercise, weeklyPlan] = await Promise.all([
-        prisma.exercise.findUnique({ where: { id: exerciseId } }),
-        prisma.weeklyPlan.findUnique({ where: { id: planId } }),
-      ]);
-
-      if (!exercise) {
-        res.status(404).json({ error: "Exercise not found" });
-        return;
-      }
-
-      if (!weeklyPlan) {
-        res.status(404).json({ error: "Weekly plan not found" });
-        return;
-      }
-
-      // Create new week day exercise
-      const newWeekDayExercise = await prisma.weeklyPlanExercise.create({
-        data: {
-          exerciseId,
-          weeklyPlanId: planId,
-          order,
-          reps: reps || null,
-          sets: sets || null,
-          duration: duration || null,
-        },
-      });
-      res.status(201).json({
-        message: "Week day exercise created successfully",
-        exercise: newWeekDayExercise,
-      });
-    } catch (error) {
-      console.error("Error creating week day exercise:", error);
-      res.status(500).json({ error: "Failed to create week day exercise" });
+    if (weeklyPlan.userPlan.userId !== userId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
     }
-  },
+
+    if (!exercise) {
+      res.status(404).json({ error: "Exercise not found" });
+      return;
+    }
+
+    if (exerciseExists) {
+      res
+        .status(400)
+        .json({ error: "Exercise already exists in this weekly plan" });
+      return;
+    }
+
+    const weeklyPlanExercise = await prisma.weeklyPlanExercise.create({
+      data: {
+        weeklyPlanId,
+        exerciseId,
+        order,
+        reps: reps || null,
+        sets: sets || null,
+        duration: duration || null,
+      },
+    });
+
+    res.status(201).json({
+      message: "Exercise added to weekly plan successfully",
+      weeklyPlanExercise,
+    });
+  } catch (error) {
+    console.error("Error creating weekly plan exercise:", error);
+    res.status(500).json({ error: "Failed to create weekly plan exercise" });
+  }
+};
+
+export const createWeeklyPlanExercise = [
+  ...validate,
+  createWeeklyPlanExerciseHandler,
 ];
 
 export const getWeekDayExercises = async (
   req: WeekDayExerciseRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const { planId } = req.params;
 
@@ -113,7 +151,7 @@ export const getWeekDayExercises = async (
 
 export const updateWeekDayExercises = async (
   req: WeekDayExerciseRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const { planId, id } = req.params;
   const { exerciseId, order, reps, sets, duration } = req.body;
@@ -172,7 +210,7 @@ export const updateWeekDayExercises = async (
 // Delete week day exercise handler
 export const deleteWeekDayExercises = async (
   req: WeekDayExerciseRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const { planId, id } = req.params;
 
