@@ -11,7 +11,7 @@ import {
   getWeeklyPlanExercises,
   updateWeeklyPlanExercise,
   deleteWeeklyPlanExercise,
-} from "../controllers/weekDayExerciseController.js";
+} from "../controllers/weekPlanExerciseController.js";
 
 const weeklyPlanRouter = Router();
 
