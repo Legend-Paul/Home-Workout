@@ -15,8 +15,8 @@ import {
 
 const weeklyPlanRouter = Router();
 
-weeklyPlanRouter.get("/", getAllWeeklyPlan);
-weeklyPlanRouter.post("/new", createWeeklyPlan);
+weeklyPlanRouter.get("/:userPlanId/", getAllWeeklyPlan);
+weeklyPlanRouter.post("/:userPlanId/new", createWeeklyPlan);
 weeklyPlanRouter.put("/:id/update", updateWeeklyPlan);
 weeklyPlanRouter.delete("/:id/delete", deleteWeeklyPlan);
 

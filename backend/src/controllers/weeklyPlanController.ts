@@ -4,100 +4,95 @@ import { body, validationResult } from "express-validator";
 
 // Validation middleware
 const validate = [
-  body("name").isString().withMessage("Name must be a string"),
-  body("userId").isUUID().withMessage("User ID must be a valid UUID"),
+  body("userPlanId").isString().withMessage("userPlanId must be a string"),
+  body("name").isString().trim().withMessage("Name must be a string"),
   body("dayOfWeek")
-    .isNumeric()
-    .withMessage("Day of week must be a number")
-    .custom((value) => value >= 0 && value <= 6)
-    .withMessage("Day of week must be between 0 and 6"),
-  body("dayName")
-    .isIn([
-      "MONDAY",
-      "TUESDAY",
-      "WEDNESDAY",
-      "THURSDAY",
-      "FRIDAY",
-      "SATURDAY",
-      "SUNDAY",
-    ])
-    .withMessage("DayName must be a valid day of the week"),
+    .isInt({ min: 0, max: 6 })
+    .withMessage("dayOfWeek must be between 0 and 6"),
   body("muscleGroup")
-    .isArray({ min: 0 })
-    .withMessage("Muscle group must be an array"),
-  body("isRestDay").isBoolean().withMessage("isRestDay must be a boolean"),
-  body("isActive").isBoolean().withMessage("isActive must be a boolean"),
+    .customSanitizer((value) => (Array.isArray(value) ? value : [value]))
+    .isArray({ min: 1 })
+    .withMessage("muscleGroup must be an array with at least one item"),
+  body("isRestDay")
+    .optional()
+    .toBoolean()
+    .isBoolean()
+    .withMessage("isRestDay must be a boolean"),
 ];
 
 // Create createWeeklyPlan handler
 interface WeeklyPlanRequest extends Request {
   body: {
     name: string;
-    userId: string;
     dayOfWeek: number;
-    dayName:
-      | "MONDAY"
-      | "TUESDAY"
-      | "WEDNESDAY"
-      | "THURSDAY"
-      | "FRIDAY"
-      | "SATURDAY"
-      | "SUNDAY";
     muscleGroup: string[];
     isRestDay: boolean;
     isActive: boolean;
   };
   params: {
     id: string;
+    userPlanId: string;
   };
 }
 
+// Create WeeklyPlan
 const createWeeklyPlanHandler = async (
   req: WeeklyPlanRequest,
-  res: Response
-): Promise<void> => {
-  // Validate request
+  res: Response,
+) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     res.status(400).json({ errors: errors.array() });
     return;
   }
 
-  const { name, userId, dayOfWeek, dayName, muscleGroup, isRestDay, isActive } =
-    req.body;
+  const userId = req.user!.id;
+  const { userPlanId } = req.params;
+  const { name, dayOfWeek, muscleGroup, isRestDay } = req.body;
 
   try {
-    const userIdExists = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+    const [userPlan, dayExists] = await Promise.all([
+      prisma.userPlan.findUnique({
+        where: { id: userPlanId },
+      }),
+      prisma.weeklyPlan.findUnique({
+        where: { userPlanId_dayOfWeek: { userPlanId, dayOfWeek } },
+      }),
+    ]);
 
-    if (!userIdExists) {
-      res.status(404).json({ error: "User ID does not exist" });
+    if (!userPlan) {
+      res.status(404).json({ error: "User plan not found" });
       return;
     }
 
-    // Create new weekly plan
-    const newWeeklyPlan = await prisma.weeklyPlan.create({
+    if (userPlan.userId !== userId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
+    if (dayExists) {
+      res.status(400).json({ error: "A plan for this day already exists" });
+      return;
+    }
+
+    const weeklyPlan = await prisma.weeklyPlan.create({
       data: {
+        userPlanId,
         name,
-        userId,
         dayOfWeek,
-        dayName,
         muscleGroup,
-        isRestDay,
-        isActive,
+        isRestDay: isRestDay ?? false,
       },
     });
-    res.status(201).json({
-      message: "Weekly plan created successfully",
-      plan: newWeeklyPlan,
-    });
+
+    res
+      .status(201)
+      .json({ message: "Weekly plan created successfully", weeklyPlan });
   } catch (error) {
     console.error("Error creating weekly plan:", error);
     res.status(500).json({ error: "Failed to create weekly plan" });
   }
 };
-
 export const createWeeklyPlan = [...validate, createWeeklyPlanHandler];
 
 // Get weekly plan handler
@@ -113,7 +108,7 @@ interface GetAllWeeklyPlanRequest extends Request {
 
 const getAllWeeklyPlanHandler = async (
   req: GetAllWeeklyPlanRequest,
-  res: Response
+  res: Response,
 ) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -165,7 +160,7 @@ export const getAllWeeklyPlan = [
 // Update weekly plan handler
 const updateWeeklyPlanHandler = async (
   req: WeeklyPlanRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -212,7 +207,7 @@ export const updateWeeklyPlan = [...validate, updateWeeklyPlanHandler];
 // delete weekly plan handler
 export const deleteWeeklyPlan = async (
   req: WeeklyPlanRequest,
-  res: Response
+  res: Response,
 ): Promise<void> => {
   const weeklyPlanId = req.params.id;
 
