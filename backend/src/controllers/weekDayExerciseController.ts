@@ -245,12 +245,10 @@ export const updateWeeklyPlanExerciseHandler = async (
       },
     });
 
-    res
-      .status(200)
-      .json({
-        message: "Weekly plan exercise updated successfully",
-        exercise: updatedExercise,
-      });
+    res.status(200).json({
+      message: "Weekly plan exercise updated successfully",
+      exercise: updatedExercise,
+    });
   } catch (error) {
     console.error("Error updating weekly plan exercise:", error);
     res.status(500).json({ error: "Failed to update weekly plan exercise" });
@@ -261,40 +259,53 @@ export const updateWeeklyPlanExercise = [
   updateWeeklyPlanExerciseHandler,
 ];
 
-// Delete week day exercise handler
-export const deleteWeekDayExercises = async (
-  req: WeekDayExerciseRequest,
+// Delete WeeklyPlanExercise
+interface DeleteWeeklyPlanExercisesRequest extends Request {
+  params: {
+    weeklyPlanId: string;
+    id: string;
+  };
+}
+
+export const deleteWeeklyPlanExercise = async (
+  req: DeleteWeeklyPlanExercisesRequest,
   res: Response,
-): Promise<void> => {
-  const { planId, id } = req.params;
+) => {
+  const { id, weeklyPlanId } = req.params;
+  const userId = req.user!.id;
 
   try {
-    const [weeklyPlan, weekDayExercise] = await Promise.all([
-      prisma.weeklyPlan.findUnique({
-        where: { id: planId },
-      }),
-      prisma.weeklyPlanExercise.findUnique({
-        where: { id: id },
-      }),
-    ]);
-
-    if (!weekDayExercise) {
-      res.status(404).json({ error: "Week day exercise not found" });
-      return;
-    }
-
-    if (!weeklyPlan) {
-      res.status(404).json({ error: "Weekly plan not found" });
-      return;
-    }
-
-    await prisma.weeklyPlanExercise.delete({
-      where: { id: id },
+    const weeklyPlanExercise = await prisma.weeklyPlanExercise.findUnique({
+      where: { id },
+      include: {
+        weeklyPlan: {
+          include: { userPlan: true },
+        },
+      },
     });
 
-    res.status(200).json({ message: "Week day exercise deleted successfully" });
+    if (!weeklyPlanExercise) {
+      res.status(404).json({ error: "Weekly plan exercise not found" });
+      return;
+    }
+
+    if (weeklyPlanExercise.weeklyPlan.id !== weeklyPlanId) {
+      res.status(404).json({ error: "Invalid weekly plan" });
+      return;
+    }
+
+    if (weeklyPlanExercise.weeklyPlan.userPlan.userId !== userId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+
+    await prisma.weeklyPlanExercise.delete({ where: { id } });
+
+    res
+      .status(200)
+      .json({ message: "Exercise deleted from weekly plan successfully" });
   } catch (error) {
-    console.error("Error deleting week day exercise:", error);
-    res.status(500).json({ error: "Failed to delete week day exercise" });
+    console.error("Error deleting weekly plan exercise:", error);
+    res.status(500).json({ error: "Failed to delete weekly plan exercise" });
   }
 };
