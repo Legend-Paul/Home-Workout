@@ -25,6 +25,25 @@ const validate = [
     .withMessage("Duration must be a positive integer"),
 ];
 
+const updateValidate = [
+  body("order")
+    .optional()
+    .isInt({ min: 1, max: 10 })
+    .withMessage("Order must be between 1 and 10"),
+  body("reps")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Reps must be a positive integer"),
+  body("sets")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Sets must be a positive integer"),
+  body("duration")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Duration must be a positive integer"),
+];
+
 // Create createWeeklyPlanExercises handler
 interface WeeklyPlanExerciseRequest extends Request {
   body: {
@@ -163,63 +182,84 @@ export const getWeeklyPlanExercises = async (
   }
 };
 
-export const updateWeekDayExercises = async (
-  req: WeekDayExerciseRequest,
+// Update WeeklyPlanExercise
+interface UpdateWeeklyPlanExerciseRequest extends Request {
+  body: {
+    order: number;
+    reps?: number;
+    sets?: number;
+    duration?: number;
+  };
+  params: {
+    weeklyPlanId: string;
+    id: string;
+  };
+}
+
+export const updateWeeklyPlanExerciseHandler = async (
+  req: UpdateWeeklyPlanExerciseRequest,
   res: Response,
-): Promise<void> => {
-  const { planId, id } = req.params;
-  const { exerciseId, order, reps, sets, duration } = req.body;
+) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  const { id, weeklyPlanId } = req.params;
+  const userId = req.user!.id;
+  const { order, reps, sets, duration } = req.body;
 
   try {
-    const [weeklyPlan, exercise, weekDayExercise] = await Promise.all([
-      prisma.weeklyPlan.findUnique({
-        where: { id: planId },
-      }),
-      prisma.exercise.findUnique({
-        where: { id: exerciseId },
-      }),
-      prisma.weeklyPlanExercise.findUnique({
-        where: { id: id },
-      }),
-    ]);
+    const weeklyPlanExercise = await prisma.weeklyPlanExercise.findUnique({
+      where: { id },
+      include: {
+        weeklyPlan: {
+          include: { userPlan: true },
+        },
+      },
+    });
 
-    if (!weekDayExercise) {
-      res.status(404).json({ error: "Week day exercise not found" });
+    if (!weeklyPlanExercise) {
+      res.status(404).json({ error: "Weekly plan exercise not found" });
       return;
     }
 
-    if (!weeklyPlan) {
-      res.status(404).json({ error: "Weekly plan not found" });
+    if (weeklyPlanExercise.weeklyPlan.id !== weeklyPlanId) {
+      res.status(404).json({ error: "Invalid weekly plan" });
       return;
     }
 
-    if (!exercise) {
-      res.status(404).json({ error: "Exercise not found" });
+    if (weeklyPlanExercise.weeklyPlan.userPlan.userId !== userId) {
+      res.status(403).json({ error: "Forbidden" });
       return;
     }
 
     const updatedExercise = await prisma.weeklyPlanExercise.update({
-      where: {
-        id: id,
-      },
+      where: { id },
       data: {
-        exerciseId,
-        order,
-        reps: reps || null,
-        sets: sets || null,
-        duration: duration || null,
+        ...(order !== undefined && { order }),
+        ...(reps !== undefined && { reps }),
+        ...(sets !== undefined && { sets }),
+        ...(duration !== undefined && { duration }),
       },
     });
 
-    res.status(200).json({
-      message: "Week day exercise(s) updated successfully",
-      exercise: updatedExercise,
-    });
+    res
+      .status(200)
+      .json({
+        message: "Weekly plan exercise updated successfully",
+        exercise: updatedExercise,
+      });
   } catch (error) {
-    console.error("Error updating week day exercise:", error);
-    res.status(500).json({ error: "Failed to update week day exercise" });
+    console.error("Error updating weekly plan exercise:", error);
+    res.status(500).json({ error: "Failed to update weekly plan exercise" });
   }
 };
+export const updateWeeklyPlanExercise = [
+  ...updateValidate,
+  updateWeeklyPlanExerciseHandler,
+];
 
 // Delete week day exercise handler
 export const deleteWeekDayExercises = async (
