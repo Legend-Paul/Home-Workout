@@ -44,3 +44,13 @@
 .create-exercise {
   background-color: var(--primary-light);
 }
+
+.back-btn {
+  color: var(--info) !important;
+  padding: 0;
+  background-color: var(--bg);
+  &:hover {
+    color: var(--info-dark) !important;
+    background-color: var(--bg);
+  }
+}

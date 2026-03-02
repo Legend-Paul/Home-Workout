@@ -6,10 +6,12 @@ import Textarea from "../../components/Textarea/Textarea";
 import Spinner from "../../components/Spinner/Spinner";
 import { type Level } from "../../utils/types";
 import Notification from "../../components/Notification/Notification";
-import { navigate } from "../../router";
+import { back, navigate } from "../../router";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
+
+const token = localStorage.getItem("Authorization") || "";
 
 export default function NewExercise() {
   const mainApp = document.getElementById("main-app");
@@ -18,7 +20,13 @@ export default function NewExercise() {
     <div class="${styles["new-exercise-container"]}">
       <div class="${formStyles["auth-form-container"]}">
           <h2>🏋️ Create New Exercise!</h2>
-          <p>Back to<a href="/api/exercises"> Exercises</a></p>
+          ${Button({
+            label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                          </svg> <span>Back</span>`,
+            type: "button",
+            btnClass: styles["back-btn"],
+          })}
       </div>
       <div class="${formStyles["res-error-message"]}"></div>
       <form id="${formStyles["auth-form"]}" enctype="multipart/form-data" method="POST">
@@ -60,7 +68,7 @@ export default function NewExercise() {
           label: "Muscle groups",
           id: "muscle-group",
           type: "input",
-          placeholder: "Chest Biceps Shoulder",
+          placeholder: "Chest, Biceps ,Shoulder",
           name: "muscleGroup",
           required: true,
           minLength: 3,
@@ -71,7 +79,7 @@ export default function NewExercise() {
           label: "Equipments",
           id: "equipment",
           type: "input",
-          placeholder: "Bodyweight Dumbells",
+          placeholder: "Bodyweight, Dumbells",
           name: "equipment",
           minLength: 3,
           errorMessage:
@@ -204,6 +212,9 @@ export default function NewExercise() {
   const submitButton = newExerciseContainer!.querySelector(
     `.${styles["create-exercise"]}`,
   ) as HTMLButtonElement;
+  const backBtn = document.querySelector(
+    `.${styles["back-btn"]}`,
+  ) as HTMLButtonElement;
 
   nameInput.addEventListener("input", validateForm);
   imageInput.addEventListener("input", validateForm);
@@ -216,6 +227,8 @@ export default function NewExercise() {
   newExerciseContainer!
     .querySelectorAll("input[name=status]")
     .forEach((el) => el.addEventListener("change", validateForm));
+
+  backBtn.addEventListener("click", back);
 
   const getCheckedLevel = () =>
     (
@@ -267,8 +280,8 @@ export default function NewExercise() {
     const name = nameInput.value.trim();
     const image = imageInput.files?.[0];
     const video = videoInput.files?.[0];
-    const muscleGroup = muscleGroupInput.value.trim().split(" ");
-    const equipment = equipmentInput.value.trim().split(" ");
+    const muscleGroup = muscleGroupInput.value.trim().split(",");
+    const equipment = equipmentInput.value.trim().split(",");
     const description = descriptionInput.value.trim();
     const level = getCheckedLevel() as Level;
     const status = getCheckedStatus() === "Active";
@@ -285,9 +298,6 @@ export default function NewExercise() {
     submitButton.disabled = true;
     submitButton.style.backgroundColor = "var(--primary-light) !important";
     submitButton.innerHTML = `${Spinner({})}  Creating...`;
-
-    console.log(formdata.get("muscleGroup"));
-    console.log(formdata.get("equipment"));
 
     try {
       await createNewExercise(formdata);
@@ -309,6 +319,7 @@ export default function NewExercise() {
 async function createNewExercise(formdata: FormData) {
   try {
     const response = await fetch(`${backendUrl}/api/exercises/new`, {
+      headers: { Authorization: token },
       body: formdata,
       method: "POST",
     });
