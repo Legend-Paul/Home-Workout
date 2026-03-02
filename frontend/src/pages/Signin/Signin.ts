@@ -3,6 +3,7 @@ import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import isAuthenticated from "../../utils/auth";
 import Spinner from "../../components/Spinner/Spinner";
+import { navigate } from "../../router";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -16,7 +17,7 @@ export default async function Signin() {
   const mainApp = document.getElementById("main-app");
   const isAuth = await isAuthenticated();
   if (isAuth) {
-    window.location.href = "/dashboard?alreadySignedIn=true";
+    navigate("/dashboard?alreadySignedIn=true");
     return;
   }
 
@@ -138,7 +139,7 @@ async function signinUser(
     if (response.ok) {
       const data = await response.json();
       localStorage.setItem("Authorization", data.token);
-      window.location.href = "/dashboard";
+      navigate("/dashboard");
     } else {
       const errorData = await response.json();
       errorMessage.innerHTML = `${errorSvg} <span>${errorData.message || "An error occurred. Please try again"}</span>`;

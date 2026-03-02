@@ -1,5 +1,8 @@
 import styles from "./SignupVerification.module.css";
 import Button from "../../components/Button/Button";
+import { navigate } from "../../router";
+import Notification from "../../components/Notification/Notification";
+import Spinner from "../../components/Spinner/Spinner";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -16,7 +19,7 @@ export default async function VerifyEmail() {
     });
 
     if (response.ok) {
-      window.location.href = "/auth/signin";
+      navigate("/auth/signin");
     } else {
       const data = await response.json();
       mainApp!.innerHTML = `
@@ -26,7 +29,7 @@ export default async function VerifyEmail() {
         </svg>
           <p>⚠️ ${data.message || "Invalid or expired token. Please try again."}</p>
           ${Button({
-            label: "Request New Token",
+            label: "Request Token",
           })}
         </div>
       `;
@@ -41,7 +44,7 @@ export default async function VerifyEmail() {
         <h3>🤗 Email Verification Failed!</h3>
         <p>An error occurred while verifying your email. Please try again.</p>
         ${Button({
-          label: "Request New Token",
+          label: "Request Token",
         })}
       </div>
     `;
@@ -50,11 +53,16 @@ export default async function VerifyEmail() {
     `.${styles["verification-container"]}`,
   );
   const button = verificationContainer?.querySelector("button");
-  if (button) button.addEventListener("click", resendVerificationEmail);
+  if (button)
+    button.addEventListener(
+      "click",
+      async () => await resendVerificationEmail(button),
+    );
 }
 
-async function resendVerificationEmail() {
-  console.log("Resending verification email...");
+async function resendVerificationEmail(button: HTMLButtonElement) {
+  button.innerHTML = `${Spinner({})} Requesting...`;
+  button.disabled = true;
   try {
     const response = await fetch(
       `${backendUrl}/auth/signup/verify-email/resend${token}`,
@@ -64,17 +72,35 @@ async function resendVerificationEmail() {
     );
 
     if (response.ok) {
-      alert("A new verification email has been sent to your email address.");
+      Notification({
+        message:
+          "A new verification email has been sent to your email address.",
+        type: "success",
+        duration: 5000,
+      });
+      button.disabled = false;
+      button.innerHTML = `Request Token`;
     } else {
       const data = await response.json();
-      alert(
-        data.error || "Failed to resend verification email. Please try again.",
-      );
+      button.disabled = false;
+      button.innerHTML = `Request Token`;
+
+      Notification({
+        message:
+          data.error ||
+          "Failed to resend verification email. Please try again.",
+        type: "error",
+        duration: 5000,
+      });
     }
   } catch (error) {
-    console.error("Error resending verification email:", error);
-    alert(
-      "An error occurred while resending the verification email. Please try again.",
-    );
+    button.disabled = false;
+    button.innerHTML = `Request Token`;
+    Notification({
+      message:
+        "An error occurred while resending the verification email. Please try again.",
+      type: "error",
+      duration: 5000,
+    });
   }
 }

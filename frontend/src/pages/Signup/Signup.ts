@@ -3,6 +3,7 @@ import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import isAuthenticated from "../../utils/auth";
 import Spinner from "../../components/Spinner/Spinner";
+import { navigate } from "../../router";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -16,7 +17,7 @@ export default async function Signup() {
   const mainApp = document.getElementById("main-app");
   const isAuth = await isAuthenticated();
   if (isAuth) {
-    window.location.href = "/dashboard";
+    navigate("/dashboard");
     return;
   }
 
@@ -195,7 +196,7 @@ async function signupUser(
     });
 
     if (response.ok) {
-      window.location.href = "/auth/email/confirmation?status=success";
+      navigate("/auth/email/confirmation?status=success");
     } else {
       const data = await response.json();
       errorMessage.innerHTML = `${errorSvg}<span>${data.error || "Signup failed. Please try again."}</span>`;
