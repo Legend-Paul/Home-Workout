@@ -52,3 +52,7 @@ export function startRouter() {
   window.addEventListener("popstate", () => handleRoute());
   handleRoute();
 }
+
+export function back() {
+  window.history.back();
+}

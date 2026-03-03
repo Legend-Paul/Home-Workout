@@ -3,18 +3,26 @@ import Notification from "../../components/Notification/Notification";
 import Button from "../../components/Button/Button";
 import { navigate } from "../../router";
 import styles from "./Exercise.module.css";
+import { back } from "../../router";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 
-export default async function RenderExercise(
-  id: string,
-  exerciseContainer: HTMLDivElement,
-) {
-  exerciseContainer.innerHTML = Spinner({});
+const token = localStorage.getItem("Authorization") || "";
+
+export default async function Exercise(params?: Record<string, string>) {
+  const mainApp = document.getElementById("main-app");
+
+  const id = params ? params.id : "";
+
+  mainApp!.innerHTML = Spinner({
+    type: "large",
+    message: "Loading...",
+  });
+
   const exercise = await fetchExercise(id);
 
-  exerciseContainer.innerHTML = `
+  mainApp!.innerHTML = `
     <div class="${styles["exercise"]}">
       <div class="${styles["exercise-item"]} ${exercise.isActive ? styles["active-exercise"] : styles["inactive-exercise"]}">
         <h3 class="${styles["exercise-title"]}">${exercise.name}</h3>
@@ -96,7 +104,7 @@ export default async function RenderExercise(
   </div>
   `;
   changeExercisePreview();
-  backToExercises(exerciseContainer);
+  backToPrevoiusPage();
   updateExerciseHandler();
   deleteFunctionHandler();
 }
@@ -108,6 +116,7 @@ async function fetchExercise(id: string) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token,
       },
     });
     if (!response.ok) {
@@ -130,11 +139,11 @@ async function fetchExercise(id: string) {
 
 // change preview
 function changeExercisePreview() {
-  const mainApp = document.getElementById("main-app");
-  const imagePreviewBtn = mainApp!.querySelector(
+  const exercise = document.querySelector(`..${styles["exercise"]}`);
+  const imagePreviewBtn = exercise!.querySelector(
     `.${styles["image-preview"]}`,
   ) as HTMLSpanElement;
-  const videoPreviewBtn = mainApp!.querySelector(
+  const videoPreviewBtn = exercise!.querySelector(
     `.${styles["video-preview"]}`,
   ) as HTMLSpanElement;
 
@@ -176,13 +185,14 @@ function changeExercisePreview() {
 }
 
 // go back to exercises
-function backToExercises(exerciseContainer: HTMLDivElement) {
-  const exerciseBtn = exerciseContainer.querySelector(
+function backToPrevoiusPage() {
+  const exercise = document.querySelector(`.${styles["exercise"]}`);
+  const exerciseBtn = exercise!.querySelector(
     `.${styles["back-to-exercises"]}`,
   ) as HTMLDivElement;
   exerciseBtn.addEventListener("click", (e: Event) => {
     e.stopPropagation();
-    navigate("/api/exercises");
+    back();
   });
 }
 
@@ -220,6 +230,7 @@ async function deleteExercise(id: string) {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token,
       },
     });
 

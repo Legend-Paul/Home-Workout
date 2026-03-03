@@ -108,7 +108,7 @@ export default async function Header() {
             <ul>
                 <li class="${styles["nav-link"]} ${styles["active-nav-link"]}"><a href="/dashboard">Dashboard</a></li>
                 <li class="${styles["nav-link"]}"><a href="/api/exercises">Exercises</a></li>
-                <li class="${styles["nav-link"]}"><a href="/api/plans">Plans</a></li>
+                <li class="${styles["nav-link"]}"><a href="/api/quick-plans">Qick Plans</a></li>
             </ul>
         </nav>
       </div>`
@@ -161,8 +161,8 @@ function changeActiveLink(currentPath: string) {
   }
 
   // activate plans nav link
-  if (currentPath.includes("/api/plans")) {
-    const plansLink = headerApp!.querySelector(`a[href="/api/plans"]`);
+  if (currentPath.includes("/api/quick-plans")) {
+    const plansLink = headerApp!.querySelector(`a[href="/api/quick-plans"]`);
     if (plansLink)
       plansLink.parentElement!.classList.add(styles["active-nav-link"]);
     return;

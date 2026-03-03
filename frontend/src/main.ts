@@ -13,6 +13,11 @@ import EmailConfirmation from "./pages/EmailConfirmatio/EmailConfirmation";
 import Exercises from "./pages/Exercises/Exercises";
 import NewExercise from "./pages/NewExercise/NewExercise";
 import UpdateExercise from "./pages/UpdateExercise/UpdateExercise";
+import Exercise from "./pages/Exercise/Exercise";
+import QuickPlan from "./pages/QuickPlan/QuickPlan";
+import NewQuickPlan from "./pages/NewQuickPlan/NewQuickPlan";
+import NewQuickWeeklyPlan from "./pages/NewQuickWeeklyPlan/NewQuickWeeklyPlan";
+import NewQuickWeeklyPlanExerises from "./pages/NewQuickWeeklyPlanExerises/NewQuickWeeklyPlanExerises";
 
 initTheme();
 await Header();
@@ -32,8 +37,15 @@ register("/auth/email/confirmation", EmailConfirmation);
 // api links
 register("/api/exercises", Exercises);
 register("/api/exercises/new", NewExercise);
-register("/api/exercises/:id", Exercises);
+register("/api/exercises/:id", Exercise);
 register("/api/exercises/:id/update", UpdateExercise);
+register("/api/quick-plans", QuickPlan);
+register("/api/quick-plans/new", NewQuickPlan);
+register("/api/quick-plans/:planId/weekly-plans/new", NewQuickWeeklyPlan);
+register(
+  "/api/quick-plans/:planId/weekly-plans/:id/exercises/new",
+  NewQuickWeeklyPlanExerises,
+);
 
 notFound(ErrorRoute);
 
