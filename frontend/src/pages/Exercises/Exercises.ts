@@ -4,15 +4,14 @@ import Button from "../../components/Button/Button";
 import { type Exercise } from "../../utils/types";
 import Spinner from "../../components/Spinner/Spinner";
 import Notification from "../../components/Notification/Notification";
-import RenderExercise from "../Exercise/Exercise";
 import { navigate } from "../../router";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
+const token = localStorage.getItem("Authorization") || "";
 
-export default async function Exercises(params?: Record<string, string>) {
+export default async function Exercises() {
   const mainApp = document.getElementById("main-app");
-  const id = params ? params.id : "";
 
   mainApp!.innerHTML = Spinner({
     type: "large",
@@ -44,14 +43,9 @@ export default async function Exercises(params?: Record<string, string>) {
          })}
     </div>
   `;
-  const exerciseContainer = document.querySelector(
-    `.${styles["exercise-container"]}`,
-  ) as HTMLDivElement;
 
   renderExerciseFilter();
   renderExerciseList(exercises);
-
-  if (id) await RenderExercise(id, exerciseContainer);
 
   const addExerciseBtn = mainApp!.querySelector(
     `.${styles["add-exercise-btn"]}`,
@@ -426,6 +420,7 @@ async function fetchExercises(params?: string) {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: token,
         },
       },
     );
@@ -451,6 +446,7 @@ async function deleteExercise(id: string, exercise: Element | null) {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token,
       },
     });
 

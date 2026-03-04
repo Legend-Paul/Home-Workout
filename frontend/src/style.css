@@ -26,6 +26,11 @@
   --color-strength: #2c3e50;
   --color-yoga: #88b7a3;
   --color-hiit: #e74c3c;
+  --color-focus: #0a5364;
+  --color-vibrant: #3b322b;
+  --color-exercise: #29303e;
+  --color-running: #4f244b;
+  --color-energetic: #e72744;
 
   /* ===== BACKGROUNDS ===== */
   --bg: #ffffff;
@@ -42,6 +47,7 @@
   --text-lighter: #999999;
   --text-disabled: #cccccc;
   --text-inverse: #ffffff;
+  --text-white: #ffffff;
 
   /* ===== BORDERS ===== */
   --border: #e5e5e5;

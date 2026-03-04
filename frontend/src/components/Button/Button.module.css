@@ -9,7 +9,6 @@
   font-size: var(--text-base);
   padding: var(--space-3) var(--space-2);
   color: #fff;
-  transition: var(--transition-base);
   display: flex;
   justify-content: center;
   align-items: center;
