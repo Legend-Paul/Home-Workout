@@ -4,9 +4,9 @@ import { body, validationResult } from "express-validator";
 import type { Prisma } from "@prisma/client";
 
 const validate = [
-  body("name").trim()
+  body("name")
+    .trim()
     .isLength({ min: 3 })
-    
     .isString()
     .withMessage("Name must be a string"),
   body("description")
@@ -31,7 +31,6 @@ const validate = [
 ];
 
 interface ExerciseRequest extends Request {
-  
   body: {
     name: string;
     description: string;
@@ -40,7 +39,6 @@ interface ExerciseRequest extends Request {
     equipment: string[];
     status: boolean;
   };
-  
 }
 
 // Create exercise handler
@@ -96,7 +94,7 @@ const createExerciseHandler = async (
         muscleGroup: Array.isArray(muscleGroup) ? muscleGroup : [muscleGroup],
         equipment: equipment || [],
         isActive: status,
-        createdBy: req.user!.id
+        createdBy: req.user!.id,
       },
     });
 
@@ -121,8 +119,8 @@ export const createExercise = [...validate, createExerciseHandler];
 interface GetAllExerciseRequest extends Request {
   query: {
     search?: string;
-    muscleGroup?: string;
-    equipment?: string;
+    muscleGroup?: string | string[];
+    equipment?: string | string[];
     level?: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL";
     status?: string;
   };
@@ -132,25 +130,34 @@ export const getAllExercises = async (
   req: GetAllExerciseRequest,
   res: Response,
 ): Promise<void> => {
-  const { search, muscleGroup, equipment, level, status } = req.query;
+  const {
+    search,
+    muscleGroup: muscleGroupRaw,
+    equipment: equipmentRaw,
+    level,
+    status,
+  } = req.query;
+
+  // normalize to always be string[]
+  const muscleGroup = muscleGroupRaw
+    ? Array.isArray(muscleGroupRaw)
+      ? muscleGroupRaw.map((mg) => mg.toLowerCase())
+      : [muscleGroupRaw.toLowerCase()]
+    : null;
+
+  const equipment = equipmentRaw
+    ? Array.isArray(equipmentRaw)
+      ? equipmentRaw.map((eq) => eq.toLowerCase())
+      : [equipmentRaw.toLowerCase()]
+    : null;
 
   try {
     const where: Prisma.ExerciseWhereInput = {
-      ...(search && {
-        name: { contains: search, mode: "insensitive" },
-      }),
-      ...(muscleGroup && {
-        muscleGroup: { hasSome: [muscleGroup.toLowerCase()] },
-      }),
-      ...(equipment && {
-        equipment: { hasSome: [equipment.toLowerCase()] },
-      }),
-      ...(level && {
-        level: level,
-      }),
-      ...(status && {
-        isActive: status === "active",
-      }),
+      ...(search && { name: { contains: search, mode: "insensitive" } }),
+      ...(muscleGroup && { muscleGroup: { hasSome: muscleGroup } }),
+      ...(equipment && { equipment: { hasSome: equipment } }),
+      ...(level && { level }),
+      ...(status && { isActive: status === "active" }),
     };
 
     const exercises = await prisma.exercise.findMany({
@@ -164,6 +171,53 @@ export const getAllExercises = async (
     res.status(500).json({ error: "Failed to fetch exercises" });
   }
 };
+
+// Get exercise by muscleGroup
+const validateMuscleGroup = [
+  body("muscleGroup")
+    .customSanitizer((value) => (Array.isArray(value) ? value : [value]))
+    .isArray({ min: 1 })
+    .withMessage("Muscle groups must be an array with at least one item"),
+];
+
+interface GetExerciseByMuscleGroupRequest extends Request {
+  body: {
+    muscleGroup: string[];
+  };
+}
+
+const getExerciseByMuscleGroupHandle = async (
+  req: GetExerciseByMuscleGroupRequest,
+  res: Response,
+) => {
+  console.log("Muscle group");
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    console.log(errors.array());
+    res.status(400).json({ errors: errors.array() });
+    return;
+  }
+
+  const muscleGroup = req.body.muscleGroup;
+  try {
+    const exercises = await prisma.exercise.findMany({
+      where: {
+        OR: [{ muscleGroup: { hasSome: muscleGroup } }],
+      },
+    });
+    console.log(exercises);
+
+    res.status(200).json({ exercises });
+  } catch (error) {
+    console.error("Error fetching exercises:", error);
+    res.status(500).json({ error: "Failed to fetch exercises" });
+  }
+};
+
+export const getExerciseByMuscleGroup = [
+  ...validateMuscleGroup,
+  getExerciseByMuscleGroupHandle,
+];
 
 // Get exercise by ID
 interface GetExerciseByIdRequest extends Request {
@@ -183,7 +237,7 @@ export const getExerciseById = async (
       where: { id },
     });
 
-    if (!exercise || !exercise.isActive) {
+    if (!exercise) {
       res.status(404).json({ error: "Exercise not found" });
       return;
     }
@@ -224,7 +278,7 @@ const updateExerciseHandler = async (
       where: { id },
     });
 
-    if (!exercise || !exercise.isActive) {
+    if (!exercise) {
       res.status(404).json({ error: "Exercise not found" });
       return;
     }
@@ -288,7 +342,7 @@ export const deactivateExercise = async (
       where: { id },
     });
 
-    if (!exercise || !exercise.isActive) {
+    if (!exercise) {
       res.status(404).json({ error: "Exercise not found" });
       return;
     }

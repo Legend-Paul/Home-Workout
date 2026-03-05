@@ -6,10 +6,12 @@ import Textarea from "../../components/Textarea/Textarea";
 import Spinner from "../../components/Spinner/Spinner";
 import { type Level, type Exercise } from "../../utils/types";
 import Notification from "../../components/Notification/Notification";
-import { navigate } from "../../router";
+import { back, navigate } from "../../router";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
+
+const token = localStorage.getItem("Authorization") || "";
 
 export default async function UpdateExercise(params?: Record<string, string>) {
   const mainApp = document.getElementById("main-app");
@@ -26,7 +28,13 @@ export default async function UpdateExercise(params?: Record<string, string>) {
     <div class="${styles["new-exercise-container"]}">
       <div class="${formStyles["auth-form-container"]}">
           <h2>🏋️ Create New Exercise!</h2>
-          <p>Back to<a href="/api/exercises"> Exercises</a></p>
+           ${Button({
+             label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                          </svg> <span>Back</span>`,
+             type: "button",
+             btnClass: styles["back-btn"],
+           })}
       </div>
       <div class="${formStyles["res-error-message"]}"></div>
       <form id="${formStyles["auth-form"]}" enctype="multipart/form-data" method="POST">
@@ -71,7 +79,7 @@ export default async function UpdateExercise(params?: Record<string, string>) {
           label: "Muscle groups",
           id: "muscle-group",
           type: "input",
-          placeholder: "Chest Biceps Shoulder",
+          placeholder: "Chest, Biceps, Shoulder",
           name: "muscleGroup",
           required: true,
           minLength: 3,
@@ -83,7 +91,7 @@ export default async function UpdateExercise(params?: Record<string, string>) {
           label: "Equipments",
           id: "equipment",
           type: "input",
-          placeholder: "Bodyweight Dumbells",
+          placeholder: "Bodyweight, Dumbells",
           name: "equipment",
           minLength: 3,
           errorMessage:
@@ -218,6 +226,9 @@ export default async function UpdateExercise(params?: Record<string, string>) {
   const submitButton = newExerciseContainer!.querySelector(
     `.${styles["create-exercise"]}`,
   ) as HTMLButtonElement;
+  const backBtn = document.querySelector(
+    `.${styles["back-btn"]}`,
+  ) as HTMLButtonElement;
 
   nameInput.addEventListener("input", validateForm);
   imageInput.addEventListener("input", validateForm);
@@ -230,6 +241,8 @@ export default async function UpdateExercise(params?: Record<string, string>) {
   newExerciseContainer!
     .querySelectorAll("input[name=status]")
     .forEach((el) => el.addEventListener("change", validateForm));
+
+  backBtn.addEventListener("click", back);
 
   const getCheckedLevel = () =>
     (
@@ -279,8 +292,8 @@ export default async function UpdateExercise(params?: Record<string, string>) {
     const name = nameInput.value.trim();
     const image = imageInput.files?.[0];
     const video = videoInput.files?.[0];
-    const muscleGroup = muscleGroupInput.value.trim().split(" ");
-    const equipment = equipmentInput.value.trim().split(" ");
+    const muscleGroup = muscleGroupInput.value.trim().split(",");
+    const equipment = equipmentInput.value.trim().split(",");
     const description = descriptionInput.value.trim();
     const level = getCheckedLevel() as Level;
     const status = getCheckedStatus() === "Active";
@@ -320,6 +333,9 @@ async function createNewExercise(formdata: FormData, id: string) {
     const response = await fetch(`${backendUrl}/api/exercises/${id}`, {
       body: formdata,
       method: "PUT",
+      headers: {
+        Authorization: token,
+      },
     });
     if (response.ok) {
       Notification({
@@ -352,6 +368,7 @@ async function fetchExercise(id: string) {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token,
       },
     });
     const data = await response.json();
