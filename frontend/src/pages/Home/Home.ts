@@ -6,6 +6,8 @@ import { type User, type Exercise, type QuickPlan } from "../../utils/types";
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 
+const token = localStorage.getItem("Authorization") || "";
+
 export default async function AdminHome() {
   const mainApp = document.getElementById("main-app");
   mainApp!.innerHTML = Spinner({
@@ -114,6 +116,7 @@ async function fetchUsers() {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token,
       },
     });
     if (!response.ok) {
@@ -129,10 +132,11 @@ async function fetchUsers() {
 
 async function fetchExercises() {
   try {
-    const response = await fetch(`${backendUrl}/api/exercise`, {
+    const response = await fetch(`${backendUrl}/api/exercises`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token,
       },
     });
     if (!response.ok) {
@@ -152,6 +156,7 @@ async function fetchQuickPlans() {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        Authorization: token,
       },
     });
     if (!response.ok) {

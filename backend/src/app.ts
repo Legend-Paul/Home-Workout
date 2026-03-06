@@ -37,14 +37,14 @@ app.use("/auth/login", loginRouter);
 app.use("/auth/forgot-password", forgotPaswordRouter);
 
 //exercise routes
-app.use("/api/user", userRouter);
+app.use("/api/user", authMiddleware, userRouter);
 app.use("/api/exercises", authMiddleware, exerciseRouter);
 
 // quick plan routes
-app.use("/api/quick-plan", quickPlanRouter);
+app.use("/api/quick-plans", authMiddleware, quickPlanRouter);
 
 // weekly plan routes
-app.use("/api/weekly-plan", weeklyPlanRouter);
+app.use("/api/weekly-plans", authMiddleware, weeklyPlanRouter);
 
 // Authentication middleware
 app.get("/auth", authMiddleware, (req, res) => {

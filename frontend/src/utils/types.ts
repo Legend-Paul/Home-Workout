@@ -46,3 +46,14 @@ export type QuickPlan = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type WeeklyPlan = {
+  id: string;
+  quickStartPlanId: string;
+  name: string;
+  dayOfWeek: number;
+  muscleGroup: string[];
+  isRestDay: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
