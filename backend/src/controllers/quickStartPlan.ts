@@ -34,6 +34,7 @@ const createNewQuickPlanHandler = async (
 ) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log(errors.array());
     res.status(400).json({ errors: errors.array() });
     return;
   }
@@ -164,12 +165,10 @@ const updateQuickPlanHandler = async (
       },
     });
 
-    res
-      .status(200)
-      .json({
-        message: "Quick start plan updated successfully",
-        plan: updatedPlan,
-      });
+    res.status(200).json({
+      message: "Quick start plan updated successfully",
+      plan: updatedPlan,
+    });
   } catch (error) {
     console.error("Error updating quick start plan:", error);
     res.status(500).json({ error: "Failed to update quick start plan" });
