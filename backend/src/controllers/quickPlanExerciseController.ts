@@ -25,7 +25,8 @@ interface QuickPlanExerciseRequest extends Request {
   };
   params: {
     id: string;
-    quickStartWeeklyPlanId: string;
+    weeklyPlanId: string;
+    planId: string;
   };
 }
 
@@ -40,7 +41,7 @@ const createQuickPlanExerciseHandler = async (
   }
 
   const { reps, sets, order, duration, exerciseId } = req.body;
-  const { quickStartWeeklyPlanId } = req.params;
+  const { weeklyPlanId } = req.params;
   try {
     const [exerciseExists, weeklyPlanExists, quickPlanExerciseExist] =
       await Promise.all([
@@ -48,12 +49,12 @@ const createQuickPlanExerciseHandler = async (
           where: { id: exerciseId },
         }),
         prisma.quickStartWeeklyPlan.findUnique({
-          where: { id: quickStartWeeklyPlanId },
+          where: { id: weeklyPlanId },
         }),
         prisma.quickStartExercise.findUnique({
           where: {
             quickStartWeeklyPlanId_exerciseId: {
-              quickStartWeeklyPlanId,
+              quickStartWeeklyPlanId: weeklyPlanId,
               exerciseId,
             },
           },
@@ -82,7 +83,7 @@ const createQuickPlanExerciseHandler = async (
         order,
         duration: duration || null,
         exerciseId,
-        quickStartWeeklyPlanId,
+        quickStartWeeklyPlanId: weeklyPlanId,
       },
     });
     res.status(201).json({
@@ -105,7 +106,7 @@ export const getQuickPlanExercise = async (
   req: QuickPlanExerciseRequest,
   res: Response,
 ): Promise<void> => {
-  const quickStartPlanId = req.params.id;
+  const quickStartPlanId = req.params.planId;
 
   try {
     const quickPlanExist = await prisma.quickStartPlan.findUnique({
@@ -122,11 +123,7 @@ export const getQuickPlanExercise = async (
         quickStartPlanId,
       },
       include: {
-        _count: {
-          select: {
-            quickStartExercises: true,
-          },
-        },
+        quickStartExercises: true,
       },
     });
 
@@ -148,7 +145,7 @@ const updateQuickPlanExerciseHandler = async (
     return;
   }
 
-  const { id, quickStartWeeklyPlanId } = req.params;
+  const { id, weeklyPlanId } = req.params;
 
   const { reps, sets, order, duration, exerciseId } = req.body;
 
@@ -159,7 +156,7 @@ const updateQuickPlanExerciseHandler = async (
           where: { id: exerciseId },
         }),
         prisma.quickStartWeeklyPlan.findUnique({
-          where: { id: quickStartWeeklyPlanId },
+          where: { id: weeklyPlanId },
         }),
         prisma.quickStartExercise.findUnique({
           where: { id },

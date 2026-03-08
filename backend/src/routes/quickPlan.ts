@@ -11,6 +11,7 @@ import {
   createQuickWeeklyPlan,
   deleteQuickWeeklyPlan,
   getQuickWeeklyPlan,
+  quickWeeklyPlanById,
 } from "../controllers/quickWeeklyPlanController.js";
 import {
   createQuickPlanExercise,
@@ -28,25 +29,41 @@ quickPlanRouter.put("/:id/update", requireAdmin, updateQuickPlan);
 quickPlanRouter.delete("/:id/delete", requireAdmin, deleteQuickPlanHandler);
 
 // quick weekly plan
-quickPlanRouter.get(":planId/", updateQuickWeeklyPlan);
-quickPlanRouter.post("/:planId/new", requireAdmin, createQuickWeeklyPlan);
-quickPlanRouter.put("/:planId/:id/update", requireAdmin, deleteQuickWeeklyPlan);
-quickPlanRouter.delete("/:planId/:id/delete", requireAdmin, getQuickWeeklyPlan);
+quickPlanRouter.get(":planId/weekly-plans", getQuickWeeklyPlan);
+quickPlanRouter.post(
+  "/:planId/weekly-plans/new",
+  requireAdmin,
+  createQuickWeeklyPlan,
+);
+quickPlanRouter.get("/:planId/weekly-plans/:id", quickWeeklyPlanById);
+quickPlanRouter.put(
+  "/:planId/weekly-plans/:id/update",
+  requireAdmin,
+  updateQuickWeeklyPlan,
+);
+quickPlanRouter.delete(
+  "/:planId/:id/delete",
+  requireAdmin,
+  deleteQuickWeeklyPlan,
+);
 
 // quick weekly plan exercises
-quickPlanRouter.get("/:quickStartWeeklyPlanId/exercise", getQuickPlanExercise);
+quickPlanRouter.get(
+  "/:planId/weekly-plans/:weeklyPlanId/exercises",
+  getQuickPlanExercise,
+);
 quickPlanRouter.post(
-  "/:quickStartWeeklyPlanId/exercise/new",
+  "/:quickStartWeeklyPlanId/exercises/new",
   requireAdmin,
   createQuickPlanExercise,
 );
 quickPlanRouter.put(
-  "/:quickStartWeeklyPlanId/exercise/:id/update",
+  "/:planId/weekly-plans/:weeklyPlanId/exercises/:id/update",
   requireAdmin,
   updateQuickPlanExercise,
 );
 quickPlanRouter.delete(
-  "/:quickStartWeeklyPlanId/exercise/:id/delete",
+  "/:planId/weekly-plans/:weeklyPlanId/exercises/:id/delete",
   requireAdmin,
   deleteQuickPlanExercise,
 );
