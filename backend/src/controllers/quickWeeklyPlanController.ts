@@ -38,6 +38,7 @@ const createQuickWeeklyPlanHandler = async (
 ): Promise<void> => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log(errors.array());
     res.status(400).json({ errors: errors.array() });
     return;
   }
@@ -46,11 +47,29 @@ const createQuickWeeklyPlanHandler = async (
   const { planId } = req.params;
 
   try {
-    const quickPlanExists = await prisma.quickStartPlan.findUnique({
-      where: { id: planId },
-    });
+    const [quickPlanExists, dayOfWeekExist] = await Promise.all([
+      prisma.quickStartPlan.findUnique({
+        where: { id: planId },
+      }),
+
+      prisma.quickStartWeeklyPlan.findUnique({
+        where: {
+          quickStartPlanId_dayOfWeek: {
+            quickStartPlanId: planId,
+            dayOfWeek,
+          },
+        },
+      }),
+    ]);
+
     if (!quickPlanExists) {
       res.status(400).json({ error: "Quick start plan not found!" });
+      return;
+    }
+    console.log(dayOfWeekExist);
+    console.log(dayOfWeek);
+    if (dayOfWeekExist) {
+      res.status(400).json({ error: "Day of the week already exist!" });
       return;
     }
 
@@ -90,31 +109,71 @@ export const getQuickWeeklyPlan = async (
   const { planId } = req.params;
 
   try {
-    const quickPlanExists = await prisma.quickStartPlan.findUnique({
+    const plan = await prisma.quickStartPlan.findUnique({
       where: { id: planId },
     });
 
-    if (!quickPlanExists) {
-      res.status(400).json({ error: "Quick start plan not found!" });
+    if (!plan) {
+      res.status(404).json({ error: "Quick start plan not found" });
       return;
     }
-    const allPlans = await prisma.quickStartWeeklyPlan.findMany({
-      where: {
-        quickStartPlanId: planId,
-      },
 
+    const weeklyPlans = await prisma.quickStartWeeklyPlan.findMany({
+      where: { quickStartPlanId: planId },
+      orderBy: { dayOfWeek: "asc" },
       include: {
-        _count: {
-          select: {
-            quickStartExercises: true,
+        quickStartExercises: {
+          orderBy: { order: "asc" },
+          include: {
+            exercise: true,
           },
         },
       },
     });
-    res.status(200).json({ plans: allPlans });
+
+    res.status(200).json({ weeklyPlans });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ error: "Failed to fetch quick weekly plans" });
+    console.error("Error fetching quick start weekly plans:", error);
+    res.status(500).json({ error: "Failed to fetch weekly plans" });
+  }
+};
+
+// Get wekly plan by id
+interface QuickWeeklyPlanById extends Request {
+  params: {
+    id: string;
+    planId: string;
+  };
+}
+
+export const quickWeeklyPlanById = async (
+  req: QuickWeeklyPlanById,
+  res: Response,
+) => {
+  const { id, planId } = req.params;
+  try {
+    const [planExists, weeklyPlanExists] = await Promise.all([
+      prisma.quickStartPlan.findUnique({
+        where: { id: planId },
+      }),
+      prisma.quickStartWeeklyPlan.findUnique({
+        where: { id },
+      }),
+    ]);
+    if (!planExists) {
+      res.status(404).json({ error: "Quick start plan not found" });
+      return;
+    }
+
+    if (!weeklyPlanExists) {
+      res.status(404).json({ error: "Weekly plan not found" });
+      return;
+    }
+
+    res.status(200).json({ weeklyPlan: weeklyPlanExists });
+  } catch (error) {
+    console.error("Error fetching quick start weekly plan:", error);
+    res.status(500).json({ error: "Failed to fetch weekly plan" });
   }
 };
 
