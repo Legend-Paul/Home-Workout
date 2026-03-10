@@ -1,0 +1,177 @@
+.plans-container {
+  position: relative;
+  svg {
+    height: var(--space-4);
+    width: var(--space-4);
+  }
+}
+.quick-plans-container {
+  display: grid;
+  gap: var(--space-4);
+  max-width: calc(var(--container-sm) / 2);
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  background-color: var(--bg-surface);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  transition: var(--transition-all-base);
+}
+
+.hide {
+  transform: translateX(-150%);
+}
+
+.show {
+  transform: translateX(0);
+}
+
+.toggle-aside-btn {
+  cursor: pointer;
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background-color: var(--bg-button);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: var(--transition-all-base);
+  p {
+    white-space: nowrap;
+  }
+  &:hover {
+    background-color: var(--bg-button-dark);
+  }
+}
+
+.hide-aside-btn {
+  cursor: pointer;
+}
+.show-aside-btn {
+  cursor: pointer;
+}
+
+.plans-quick-action-btn {
+  display: flex;
+  justify-content: space-between;
+}
+.add-quick-plan-btn,
+.add-weekly-plan-btn {
+  font-size: var(--text-sm);
+  background-color: var(--success) !important;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  gap: var(--space-1);
+  white-space: nowrap;
+  &:hover {
+    background-color: var(--success-dark);
+  }
+}
+
+.quick-plans-heading {
+  margin-bottom: 0;
+}
+
+.quick-plans {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-left: var(--space-4);
+}
+
+.quick-plan {
+  background-color: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  position: relative;
+  border: 1px solid var(--border);
+  padding: var(--space-2);
+  border-radius: var(--space-1);
+  cursor: pointer;
+  transition: var(--transition-all-base);
+  min-width: 12.5rem;
+  p {
+    font-size: var(--text-sm);
+  }
+  &:hover {
+    box-shadow: var(--shadow);
+  }
+}
+.active-quick-plan {
+  border-color: var(--primary);
+}
+
+.quick-plans-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-sm);
+}
+
+.quick-plan-summary {
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-plan-level {
+  position: absolute;
+  right: var(--space-2);
+  top: var(--space-2);
+  color: var(--success-light);
+}
+
+.add-quick-plan-btn {
+  background-color: var(--primary);
+}
+
+/* quick-weekly-plans */
+.quick-weekly-plans-container {
+  display: grid;
+  gap: var(--space-4);
+  max-width: var(--container-sm);
+  margin: var(--space-4) auto;
+}
+
+.weekly-plan-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.weekly-plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background: var(--color-cardio);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  cursor: pointer;
+  &:nth-child(2) {
+    background: var(--color-running);
+  }
+  &:nth-child(3) {
+    background: var(--color-hiit);
+  }
+  &:nth-child(4) {
+    background: var(--color-focus);
+  }
+  &:nth-child(5) {
+    background: var(--color-vibrant);
+  }
+  &:nth-child(6) {
+    background: var(--color-exercise);
+  }
+  &:nth-child(8) {
+    background: var(--color-energetic);
+  }
+}
+.rest-day {
+  background: var(--color-strength) !important;
+}
+
+.muscle-group {
+  font-size: var(--text-sm);
+}

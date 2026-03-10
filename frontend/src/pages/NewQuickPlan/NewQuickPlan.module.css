@@ -1,0 +1,56 @@
+.new-quick-plan-container {
+  max-width: var(--container-sm);
+  margin: 0 auto;
+}
+.quick-plan-media {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  justify-content: space-between;
+  input {
+    width: 100%;
+  }
+}
+
+.quick-plan-radio-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.quick-plan-radio {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  margin-bottom: var(--space-4);
+  div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  label {
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  input {
+    border: none !important;
+    width: var(--space-6);
+    height: var(--space-6);
+    box-shadow: none !important;
+    cursor: pointer;
+  }
+}
+.create-quick-plan {
+  background-color: var(--primary-light);
+}
+
+.back-btn {
+  color: var(--info) !important;
+  padding: 0;
+  background-color: var(--bg);
+  &:hover {
+    color: var(--info-dark) !important;
+    background-color: var(--bg);
+  }
+}
