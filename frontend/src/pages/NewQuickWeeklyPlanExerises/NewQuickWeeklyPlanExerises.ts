@@ -27,15 +27,26 @@ export default async function NewQuickWeeklyPlanExerises(
   );
   const exercises = await fetchExercisesByMuscleGroup(searchParams.toString());
 
-  mainApp!.innerHTML = `<div class="${styles["exercises-container"]}>
+  mainApp!.innerHTML = `<div class="${styles["exercises-container"]}">
     <div class="${styles["exercises"]}">
       ${exercises
         ?.map((exercise) => {
           return `<div class="${styles["exercise-container"]}">
               <div class="${styles["exercise"]}">
                 <h3>${exercise.name}</h3>
-                <p>${exercise.muscleGroup.join(" ")}</p>
-                <p>${exercise.equipment.join(" ")}</h3>
+                <p>${exercise.muscleGroup
+                  .map(
+                    (muscleGroup: string) =>
+                      muscleGroup.charAt(0).toUpperCase() +
+                      muscleGroup.slice(1),
+                  )
+                  .join(", ")}</p>
+                <p>${exercise.equipment
+                  .map(
+                    (equiment) =>
+                      equiment.charAt(0).toUpperCase() + equiment.slice(1),
+                  )
+                  .join(", ")}</h3>
               </div>
           </div>`;
         })

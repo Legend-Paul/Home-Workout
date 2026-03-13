@@ -1,0 +1,25 @@
+.exercises {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  cursor: pointer;
+  gap: var(--space-4);
+}
+
+.exercise-container {
+  background-color: var(--bg-surface);
+  border-radius: var(--space-2);
+  padding: var(--space-4);
+  transition: var(--transition-all-base);
+  &:hover {
+    box-shadow: var(--shadow);
+  }
+  .exercise {
+    background-color: var(--bg-card);
+    padding: var(--space-2);
+    display: grid;
+    gap: var(--space-2);
+    p {
+      font-size: var(--text-sm);
+    }
+  }
+}
