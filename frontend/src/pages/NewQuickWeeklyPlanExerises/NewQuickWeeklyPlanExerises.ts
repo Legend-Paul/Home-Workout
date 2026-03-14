@@ -4,6 +4,8 @@ import Spinner from "../../components/Spinner/Spinner";
 import type { WeeklyPlan, Exercise } from "../../utils/types";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
+import formStyles from "../../assets/FormStyles.module.css";
+
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 
@@ -30,6 +32,7 @@ export default async function NewQuickWeeklyPlanExercises(
 
   mainApp!.innerHTML = `
     <div class="${styles["exercises-container"]}">
+      <div>
       <div class="${styles["exercises"]}">
         ${exercises
           ?.map(
@@ -63,65 +66,73 @@ export default async function NewQuickWeeklyPlanExercises(
       </div>
 
       <div class="${styles["exercise-dialog-container"]}">
-        <dialog>
-          <form>
-            ${Input({
-              label: "Sets",
-              id: "sets",
-              type: "number",
-              placeholder: "1",
-              name: "sets",
-              required: true,
-              min: 1,
-              step: 1,
-              errorMessage: "Sets must be an integer",
-            })}
+        <div class=${styles["exercise-dialog"]}>
+          <div class="${formStyles["auth-form-container"]}">
+            
+            <form id="${formStyles["auth-form"]}">
+              ${Input({
+                label: "Sets",
+                id: "sets",
+                type: "number",
+                placeholder: "eg 1",
+                name: "sets",
+                required: true,
+                min: 1,
+                step: 1,
+                errorMessage: "Sets must be an integer",
+              })}
 
-            <div class="${styles["exercise-type"]}">
-              <h3>Select exercise reps or duration or both</h3>
-              <div class="${styles["exercise-radio"]}">
-                ${Input({
-                  label: "Reps",
-                  id: "reps",
-                  type: "number",
-                  placeholder: "1",
-                  name: "reps",
-                  required: false,
-                  min: 1,
-                  step: 1,
-                  errorMessage: "Reps must be an integer",
+              <div class="${styles["exercise-type"]}">
+                <h3>Select exercise reps or duration or both</h3>
+                <div class="${styles["exercise-type-input"]}">
+                  ${Input({
+                    label: "Reps",
+                    id: "reps",
+                    type: "number",
+                    placeholder: "e.g 1",
+                    name: "reps",
+                    required: false,
+                    min: 1,
+                    step: 1,
+                    errorMessage: "Reps must be an integer",
+                  })}
+                  ${Input({
+                    label: "Duration",
+                    id: "duration",
+                    type: "number",
+                    placeholder: "e.g 1",
+                    name: "duration",
+                    required: false,
+                    min: 1,
+                    step: 1,
+                    errorMessage: "Duration must be an integer",
+                  })}
+                </div>
+              </div>
+
+              <div class="${styles["dialog-action-button-container"]}">
+                ${Button({
+                  label: "Cancel",
+                  type: "button",
+                  btnClass: styles["hide-dialog"],
                 })}
-                ${Input({
-                  label: "Duration",
-                  id: "duration",
-                  type: "number",
-                  placeholder: "1",
-                  name: "duration",
-                  required: false,
-                  min: 1,
-                  step: 1,
-                  errorMessage: "Duration must be an integer",
+                ${Button({
+                  label: "Save exercise",
+                  type: "submit",
+                  btnClass: styles["save-exercise"],
                 })}
               </div>
-            </div>
-
-            <div class="${styles["dialog-action-button"]}">
-              ${Button({
-                label: "Cancel",
-                type: "button",
-                btnClass: styles["hide-dialog"],
-              })}
-              ${Button({
-                label: "Save exercise",
-                type: "submit",
-                btnClass: styles["save-exercise"],
-              })}
-            </div>
-          </form>
-        </dialog>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   `;
+
+  const dialog = document.querySelector(
+    `.${styles["exercise-dialog"]}`,
+  ) as HTMLDialogElement;
+  dialog.showModal();
 }
 
 async function fetchWeeklyPlan(
