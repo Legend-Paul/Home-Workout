@@ -68,7 +68,15 @@ export default async function NewQuickWeeklyPlanExercises(
       <div class="${styles["exercise-dialog-container"]}">
         <div class=${styles["exercise-dialog"]}>
           <div class="${formStyles["auth-form-container"]}">
-            
+            <h2>🏋️ Exercise Volume!</h2>
+            ${Button({
+              label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            </svg> <span>Back</span>`,
+              type: "button",
+              btnClass: styles["back-btn"],
+            })}
+            </div>
             <form id="${formStyles["auth-form"]}">
               ${Input({
                 label: "Sets",
