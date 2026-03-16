@@ -85,12 +85,28 @@
   }
 }
 
-.back-btn {
-  color: var(--info) !important;
-  padding: 0;
-  background-color: var(--transparent-bg);
-  &:hover {
-    color: var(--info-dark) !important;
-    background-color: var(--transparent-bg);
+.heading-buttons {
+  display: flex;
+  gap: var(--space-4);
+  svg {
+    width: var(--space-4);
   }
+  button {
+    font-size: var(--text-sm);
+    padding: 0;
+    background-color: var(--transparent-bg);
+    &:hover {
+      background-color: var(--transparent-bg);
+    }
+  }
+}
+.back-btn {
+  color: var(--info);
+  &:hover {
+    color: var(--info-dark);
+  }
+}
+
+.view-exercise-btn {
+  color: var(--success);
 }
