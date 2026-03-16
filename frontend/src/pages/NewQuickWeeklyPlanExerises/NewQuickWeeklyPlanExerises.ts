@@ -69,13 +69,23 @@ export default async function NewQuickWeeklyPlanExercises(
         <div class=${styles["exercise-dialog"]}>
           <div class="${formStyles["auth-form-container"]}">
             <h2>🏋️ Exercise Volume!</h2>
-            ${Button({
-              label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                            </svg> <span>Back</span>`,
-              type: "button",
-              btnClass: styles["back-btn"],
-            })}
+            <div class="${styles["heading-buttons"]}">
+              ${Button({
+                label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                              </svg> <span>Back</span>`,
+                type: "button",
+                btnClass: styles["back-btn"],
+              })}
+              ${Button({
+                label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9l-6 6m0-6h6v6" />
+                        </svg><span>View exercise</span>`,
+                type: "button",
+                btnClass: styles["view-exercise-btn"],
+              })}
+            </div>
             </div>
             <form id="${formStyles["auth-form"]}">
               ${Input({
@@ -119,16 +129,17 @@ export default async function NewQuickWeeklyPlanExercises(
               </div>
 
               <div class="${styles["dialog-action-button-container"]}">
+              ${Button({
+                label: "Save exercise",
+                type: "submit",
+                btnClass: styles["save-exercise"],
+              })}
                 ${Button({
                   label: "Cancel",
                   type: "button",
                   btnClass: styles["hide-dialog"],
                 })}
-                ${Button({
-                  label: "Save exercise",
-                  type: "submit",
-                  btnClass: styles["save-exercise"],
-                })}
+                
               </div>
             </form>
           </div>
