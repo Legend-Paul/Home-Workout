@@ -1,3 +1,6 @@
+.exercises-container {
+  position: relative;
+}
 .exercises {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -23,4 +26,37 @@
       font-size: var(--text-sm);
     }
   }
+}
+
+.exercise-dialog-container {
+  background-color: var(--transparent-bg);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 75vh;
+  padding: var(--space-4);
+}
+
+.exercise-dialog {
+  display: grid;
+  place-items: center;
+  place-items: center;
+  max-width: var(--container-sm);
+  margin: 0 auto;
+}
+
+.exercise-type {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  h3 {
+    font-size: var(--text-sm);
+  }
+}
+
+.exercise-type-input {
+  margin-top: var(--space-2);
+  display: flex;
+  gap: var(--space-10);
 }
