@@ -13,6 +13,9 @@ type InputProps = {
   className?: string;
   value?: string;
   accept?: string;
+  min?: number;
+  max?: number;
+  step?: number;
 };
 
 export default function Input({
@@ -29,6 +32,9 @@ export default function Input({
   className = "",
   value = "",
   accept = "",
+  min,
+  max,
+  step,
 }: InputProps) {
   return `
     <div class="${styles["input-container"]} ${className ? styles[className] : ""}">
@@ -37,7 +43,9 @@ export default function Input({
       placeholder="${placeholder}" ${required ? "required" : ""} 
       ${minLength ? `minLength="${minLength}"` : ""} 
       ${maxLength ? `maxLength="${maxLength}"` : ""} 
-      ${checked ? "checked" : ""} ${accept ? `accept="${accept}"` : ""}/>
+      ${checked ? "checked" : ""} ${accept ? `accept="${accept}"` : ""}
+      ${min ? `min = "${min}"` : ""} ${max ? `max = "${max}"` : ""}
+      ${step ? `step = "${step}"` : ""}/>
       <span class="${styles["error-message"]}">${errorMessage}</span>
     </div>
   `;
