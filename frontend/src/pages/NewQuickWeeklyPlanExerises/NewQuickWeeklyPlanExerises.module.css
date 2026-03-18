@@ -60,3 +60,37 @@
   display: flex;
   gap: var(--space-10);
 }
+
+.dialog-action-button-container {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  button {
+    padding: var(--space-2) 0;
+    width: 8rem;
+  }
+}
+
+.hide-dialog {
+  background-color: var(--error);
+  &:hover {
+    background-color: var(--error-dark);
+  }
+}
+
+.save-exercise {
+  background-color: var(--success);
+  &:hover {
+    background-color: var(--success-dark);
+  }
+}
+
+.back-btn {
+  color: var(--info) !important;
+  padding: 0;
+  background-color: var(--transparent-bg);
+  &:hover {
+    color: var(--info-dark) !important;
+    background-color: var(--transparent-bg);
+  }
+}
