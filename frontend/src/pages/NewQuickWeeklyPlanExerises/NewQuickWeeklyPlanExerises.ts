@@ -65,7 +65,7 @@ export default async function NewQuickWeeklyPlanExercises(
           .join("")}
       </div>
 
-      <div class="${styles["exercise-dialog-container"]}">
+      <div class="${styles["exercise-dialog-container"]} ${styles["hide-dialog"]}" >
         <div class=${styles["exercise-dialog"]}>
           <div class="${formStyles["auth-form-container"]}">
             <h2>🏋️ Exercise Volume!</h2>
@@ -132,12 +132,12 @@ export default async function NewQuickWeeklyPlanExercises(
               ${Button({
                 label: "Save exercise",
                 type: "submit",
-                btnClass: styles["save-exercise"],
+                btnClass: styles["save-exercise-btn"],
               })}
                 ${Button({
                   label: "Cancel",
                   type: "button",
-                  btnClass: styles["hide-dialog"],
+                  btnClass: styles["close-dialog-btn"],
                 })}
                 
               </div>

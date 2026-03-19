@@ -36,6 +36,7 @@
   width: 100%;
   min-height: 75vh;
   padding: var(--space-4);
+  transition: var(--transition-all-base);
 }
 
 .exercise-dialog {
@@ -44,6 +45,14 @@
   place-items: center;
   max-width: var(--container-sm);
   margin: 0 auto;
+}
+
+.hide-dialog {
+  transform: scale(0);
+}
+
+.view-dialog {
+  transform: scale(1);
 }
 
 .exercise-type {
@@ -71,14 +80,14 @@
   }
 }
 
-.hide-dialog {
+.close-dialog-btn {
   background-color: var(--error);
   &:hover {
     background-color: var(--error-dark);
   }
 }
 
-.save-exercise {
+.save-exercise-btn {
   background-color: var(--success);
   &:hover {
     background-color: var(--success-dark);
