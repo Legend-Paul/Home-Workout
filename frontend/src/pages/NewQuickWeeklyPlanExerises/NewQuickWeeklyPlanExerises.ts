@@ -59,7 +59,8 @@ export default async function NewQuickWeeklyPlanExercises(
                       .join(", ")}
                   </p>
                 </div>
-                <div class="${styles["exercise-dialog-container"]} ${styles["view-dialog"]}" >
+                
+                <div class="${styles["exercise-dialog-container"]} ${styles["hide-dialog"]}" >
                   <div class=${styles["exercise-dialog"]}>
                     <div class="${formStyles["auth-form-container"]}">
                       <h2>🏋️ ${exercise.name} volume</h2>
@@ -150,10 +151,22 @@ export default async function NewQuickWeeklyPlanExercises(
     </div>
   `;
 
-  const dialog = document.querySelector(
-    `.${styles["exercise-dialog"]}`,
-  ) as HTMLDialogElement;
-  dialog.showModal();
+  const exercisesDiv = document.querySelectorAll<HTMLDivElement>(
+    `.${styles["exercise"]}`,
+  );
+
+  exercisesDiv.forEach((exercise) => {
+    exercise.addEventListener("click", () => {
+      const container = exercise.closest(`.${styles["exercise-container"]}`);
+      const dialog = container!.querySelector(
+        `.${styles["exercise-dialog-container"]}`,
+      ) as HTMLDivElement;
+      dialog.classList.replace(
+        `${styles["hide-dialog"]}`,
+        `${styles["view-dialog"]}`,
+      );
+    });
+  });
 }
 
 async function fetchWeeklyPlan(
