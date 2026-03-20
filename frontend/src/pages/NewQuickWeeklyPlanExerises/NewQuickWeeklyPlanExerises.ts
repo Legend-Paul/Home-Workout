@@ -140,9 +140,15 @@ export default async function NewQuickWeeklyPlanExercises(
 
     </div>
   `;
+  handelExerciseDialog();
+}
 
+function handelExerciseDialog() {
   const exercisesDiv = document.querySelectorAll<HTMLDivElement>(
     `.${styles["exercise"]}`,
+  );
+  const closeDialogBtn = document.querySelectorAll<HTMLDivElement>(
+    `.${styles["close-dialog-btn"]}`,
   );
 
   exercisesDiv.forEach((exercise) => {
@@ -154,6 +160,19 @@ export default async function NewQuickWeeklyPlanExercises(
       dialog.classList.replace(
         `${styles["hide-dialog"]}`,
         `${styles["view-dialog"]}`,
+      );
+    });
+  });
+
+  closeDialogBtn.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const container = btn.closest(`.${styles["exercise-container"]}`);
+      const dialog = container!.querySelector(
+        `.${styles["exercise-dialog-container"]}`,
+      ) as HTMLDivElement;
+      dialog.classList.replace(
+        `${styles["view-dialog"]}`,
+        `${styles["hide-dialog"]}`,
       );
     });
   });
