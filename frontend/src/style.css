@@ -145,7 +145,7 @@
     --bg-disabled: #404040;
     --bg-button: #404040;
     --bg-button-dark: #333333;
-    --transparent-bg: rgba(0, 0, 0, 0.95);
+    --transparent-bg: rgba(18, 18, 18, 0.95);
     --text: #ffffff;
     --text-light: #b0b0b0;
     --text-lighter: #808080;
@@ -291,7 +291,7 @@
     --bg-disabled: #404040;
     --bg-button: #404040;
     --bg-button-dark: #333333;
-    --transparent-bg: rgba(0, 0, 0, 0.95);
+    --transparent-bg: rgba(18, 18, 18, 0.95);
     --text: #ffffff;
     --text-light: #b0b0b0;
     --text-lighter: #808080;

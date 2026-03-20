@@ -31,8 +31,6 @@ export default async function NewQuickWeeklyPlanExercises(
     fetchWeeklyPlan(planId, id),
     fetchWeeklyPlanExercises(planId, id),
   ]);
-  console.log(weeklyPlan);
-  console.log(weeklyPlanExercises);
 
   const searchParams = new URLSearchParams();
   weeklyPlan?.muscleGroup.forEach((mg) =>
@@ -40,8 +38,10 @@ export default async function NewQuickWeeklyPlanExercises(
   );
   const exercises = await fetchExercisesByMuscleGroup(searchParams.toString());
 
-  const savedExercises = weeklyPlanExercises.map((exercise) => exercise.id);
-
+  const savedExercises = weeklyPlanExercises.map(
+    (exercise) => exercise.exerciseId,
+  );
+  console.log(savedExercises);
   mainApp!.innerHTML = `
     <div class="${styles["exercises-container"]}">
       <div>
@@ -49,9 +49,9 @@ export default async function NewQuickWeeklyPlanExercises(
         ${exercises
           ?.map(
             (exercise) => `
-              <div class="${styles["exercise-container"]}">
-                <div class="${styles["exercise"]} 
-                ${savedExercises.includes(exercise.id) ? styles["saved-exercise"] : ""}">
+              <div class="${styles["exercise-container"]} 
+              ${savedExercises.includes(exercise.id) ? styles["saved-exercise"] : ""}">
+                <div class="${styles["exercise"]}">
                   <h3>${exercise.name}</h3>
                   <p>
                     ${exercise.muscleGroup
@@ -387,7 +387,6 @@ async function fetchWeeklyPlanExercises(
       },
     );
     const data = await response.json();
-    console.log(data);
 
     if (!response.ok) {
       Notification({
