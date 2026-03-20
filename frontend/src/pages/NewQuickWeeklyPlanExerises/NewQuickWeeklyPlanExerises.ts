@@ -59,80 +59,8 @@ export default async function NewQuickWeeklyPlanExercises(
                       )
                       .join(", ")}
                   </p>
-                </div>
-                
-                <div class="${styles["exercise-dialog-container"]} ${styles["hide-dialog"]}" >
-                  <div class="${formStyles["auth-container"]} ${styles["exercise-dialog"]}">
-                    <h2>🏋️ ${exercise.name} volume</h2>
-                      <div class="${styles["heading-buttons"]}">                      
-                        ${Button({
-                          label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" />
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9l-6 6m0-6h6v6" />
-                                  </svg><span>View exercise</span>`,
-                          type: "button",
-                          btnClass: styles["view-exercise-btn"],
-                          data: `data-exercise-id=${exercise.id}`,
-                        })}
-                      </div>
-                      <div class="${styles["close-dialog-btn"]}">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </div>
-                                         
-                  <form id="${formStyles["auth-form"]}">
-                    ${Input({
-                      label: "Sets",
-                      id: "sets",
-                      type: "number",
-                      placeholder: "eg 1",
-                      name: "sets",
-                      required: true,
-                      min: 1,
-                      step: 1,
-                      errorMessage: "Sets must be an integer",
-                    })}
-
-                    <div class="${styles["exercise-type"]}">
-                      <h3>Select exercise reps or duration or both</h3>
-                      <div class="${styles["exercise-type-input"]}">
-                        ${Input({
-                          label: "Reps",
-                          id: "reps",
-                          type: "number",
-                          placeholder: "e.g 1",
-                          name: "reps",
-                          required: false,
-                          min: 1,
-                          step: 1,
-                          errorMessage: "Reps must be an integer",
-                        })}
-                        ${Input({
-                          label: "Duration",
-                          id: "duration",
-                          type: "number",
-                          placeholder: "e.g 1",
-                          name: "duration",
-                          required: false,
-                          min: 1,
-                          step: 1,
-                          errorMessage: "Duration must be an integer",
-                        })}
-                      </div>
-                    </div>
-
-                    <div class="${styles["dialog-action-button-container"]}">
-                    ${Button({
-                      label: "Save exercise",
-                      type: "submit",
-                      btnClass: styles["save-exercise-btn"],
-                      data: `exercise-id=${exercise.id}`,
-                    })}
-                      
-                    </div>
-                  </form>                    
-                </div>
+                </div>                
+                ${renderExerciseDialog(exercise).outerHTML}
                 </div> 
               </div>
             `,
@@ -144,6 +72,68 @@ export default async function NewQuickWeeklyPlanExercises(
   `;
   handelExerciseDialog();
   handelViewExercise();
+}
+
+function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
+  const dialogContainer = document.createElement("div");
+  dialogContainer.className = `${styles["exercise-dialog-container"]} ${styles["hide-dialog"]}`;
+
+  dialogContainer.innerHTML = `
+    <div class="${formStyles["auth-container"]} ${styles["exercise-dialog"]}">
+      <h2>🏋️ ${exercise.name} volume</h2>
+      <div class="${styles["heading-buttons"]}">                      
+        ${Button({
+          label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9l-6 6m0-6h6v6" />
+                  </svg><span>View exercise</span>`,
+          type: "button",
+          btnClass: styles["view-exercise-btn"],
+          data: `data-exercise-id=${exercise.id}`,
+        })}
+      </div>
+      <div class="${styles["close-dialog-btn"]}">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </div>
+      <form id="${formStyles["auth-form"]}">
+        ${Input({ label: "Sets", id: "sets", type: "number", placeholder: "eg 1", name: "sets", required: true, min: 1, step: 1, errorMessage: "Sets must be an integer" })}
+        <div class="${styles["exercise-type"]}">
+          <h3>Select exercise reps or duration or both</h3>
+          <div class="${styles["exercise-type-input"]}">
+            ${Input({
+              label: "Reps",
+              id: "reps",
+              type: "number",
+              placeholder: "e.g 1",
+              name: "reps",
+              required: false,
+              min: 1,
+              step: 1,
+              errorMessage: "Reps must be an integer",
+            })}
+            ${Input({
+              label: "Duration",
+              id: "duration",
+              type: "number",
+              placeholder: "e.g 1",
+              name: "duration",
+              required: false,
+              min: 1,
+              step: 1,
+              errorMessage: "Duration must be an integer",
+            })}
+          </div>
+        </div>
+        <div class="${styles["dialog-action-button-container"]}">
+          ${Button({ label: "Save exercise", type: "submit", btnClass: styles["save-exercise-btn"], data: `exercise-id=${exercise.id}` })}
+        </div>
+      </form>                    
+    </div>
+  `;
+
+  return dialogContainer;
 }
 
 function handelViewExercise() {
