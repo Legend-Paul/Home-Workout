@@ -106,28 +106,34 @@ export const getQuickPlanExercise = async (
   req: QuickPlanExerciseRequest,
   res: Response,
 ): Promise<void> => {
-  const quickStartPlanId = req.params.planId;
+  const { planId, weeklyPlanId } = req.params;
 
   try {
-    const quickPlanExist = await prisma.quickStartPlan.findUnique({
-      where: { id: quickStartPlanId },
-    });
+    const [quickPlanExist, weeklyPlanExists] = await Promise.all([
+      prisma.quickStartPlan.findUnique({
+        where: { id: planId },
+      }),
+      prisma.quickStartWeeklyPlan.findUnique({
+        where: { id: weeklyPlanId },
+      }),
+    ]);
 
     if (!quickPlanExist) {
       res.status(404).json({ error: "Quick start plan not found" });
       return;
     }
+    if (!weeklyPlanExists) {
+      res.status(404).json({ error: "Quick start weekly plan not found" });
+      return;
+    }
 
-    const exercises = await prisma.quickStartWeeklyPlan.findMany({
+    const exercises = await prisma.quickStartExercise.findMany({
       where: {
-        quickStartPlanId,
-      },
-      include: {
-        quickStartExercises: true,
+        quickStartWeeklyPlanId: weeklyPlanId,
       },
     });
 
-    res.status(200).json(exercises);
+    res.status(200).json({ exercises });
   } catch (error) {
     console.error("Error fetching quick plan exercises:", error);
     res.status(500).json({ error: "Failed to fetch exercises" });
