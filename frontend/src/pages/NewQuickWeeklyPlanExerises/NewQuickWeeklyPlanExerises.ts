@@ -72,6 +72,7 @@ export default async function NewQuickWeeklyPlanExercises(
   `;
   handelExerciseDialog();
   handelViewExercise();
+  addExerciseToWeeklyPlan();
 }
 
 function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
@@ -127,7 +128,12 @@ function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
           </div>
         </div>
         <div class="${styles["dialog-action-button-container"]}">
-          ${Button({ label: "Save exercise", type: "submit", btnClass: styles["save-exercise-btn"], data: `exercise-id=${exercise.id}` })}
+          ${Button({
+            label: "Save exercise",
+            type: "submit",
+            btnClass: styles["save-exercise-btn"],
+            data: `exercise-id=${exercise.id}`,
+          })}
         </div>
       </form>                    
     </div>
@@ -141,7 +147,7 @@ function handelViewExercise() {
     `.${styles["view-exercise-btn"]}`,
   );
 
-  viewExerciseBtn.forEach((btn) => {
+  viewExerciseBtn.forEach((btn: HTMLButtonElement) => {
     btn.addEventListener("click", () => {
       const exerciseId = btn.dataset.exerciseId;
       navigate(`/api/exercises/${exerciseId}`);
@@ -181,6 +187,52 @@ function handelExerciseDialog() {
         `${styles["hide-dialog"]}`,
       );
     });
+  });
+}
+
+function addExerciseToWeeklyPlan() {
+  const exerciseContainer = document.querySelector(
+    `.${styles["exercises-container"]}`,
+  );
+  const forms = exerciseContainer!.querySelectorAll<HTMLFormElement>(
+    `#${formStyles["auth-form"]}`,
+  );
+  console.log(forms);
+  // Form validation
+  forms.forEach((form) => {
+    const setsInput = form.querySelector<HTMLInputElement>("#sets");
+    const repsInput = form.querySelector<HTMLInputElement>("#reps");
+    const durationInput = form.querySelector<HTMLInputElement>("#duration");
+    const saveBtn = form.querySelector<HTMLButtonElement>(
+      `.${styles["save-exercise-btn"]}`,
+    );
+
+    setsInput?.addEventListener("input", validate);
+    repsInput?.addEventListener("input", validate);
+    durationInput?.addEventListener("input", validate);
+
+    function validate() {
+      const sets = setsInput?.value;
+      const reps = repsInput?.value;
+      const duration = durationInput?.value;
+
+      form
+        .querySelectorAll("input")
+        .forEach((input) => input.setCustomValidity(""));
+
+      //sets and at least reps or duration required
+      if (sets && (reps || duration)) {
+        saveBtn!.disabled = true;
+        saveBtn!.style.backgroundColor = "var(--success-dark)";
+        return;
+      } else {
+        repsInput?.setCustomValidity("Please provide reps or duration");
+        (form as HTMLFormElement).reportValidity();
+
+        saveBtn!.disabled = false;
+        saveBtn!.style.backgroundColor = "var(--success-light)";
+      }
+    }
   });
 }
 
