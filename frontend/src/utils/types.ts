@@ -57,3 +57,15 @@ export type WeeklyPlan = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type WeeklyPlanExecise = {
+  id: string;
+  quickStartWeeklyPlanId: string;
+  exerciseId: string;
+  order: number;
+  reps: number | null;
+  sets: number | null;
+  duration: number | null;
+  createdAt: string;
+  updatedAt: string;
+};

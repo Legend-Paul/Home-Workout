@@ -1,7 +1,11 @@
 import styles from "./NewQuickWeeklyPlanExerises.module.css";
 import Notification from "../../components/Notification/Notification";
 import Spinner from "../../components/Spinner/Spinner";
-import type { WeeklyPlan, Exercise } from "../../utils/types";
+import type {
+  WeeklyPlan,
+  Exercise,
+  WeeklyPlanExecise,
+} from "../../utils/types";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import formStyles from "../../assets/FormStyles.module.css";
@@ -23,13 +27,20 @@ export default async function NewQuickWeeklyPlanExercises(
 
   const planId = params?.planId as string;
   const id = params?.id as string;
-  const weeklyPlan = await fetchWeeklyPlan(planId, id);
+  const [weeklyPlan, weeklyPlanExercises] = await Promise.all([
+    fetchWeeklyPlan(planId, id),
+    fetchWeeklyPlanExercises(planId, id),
+  ]);
+  console.log(weeklyPlan);
+  console.log(weeklyPlanExercises);
 
   const searchParams = new URLSearchParams();
   weeklyPlan?.muscleGroup.forEach((mg) =>
     searchParams.append("muscleGroup", mg),
   );
   const exercises = await fetchExercisesByMuscleGroup(searchParams.toString());
+
+  const savedExercises = weeklyPlanExercises.map((exercise) => exercise.id);
 
   mainApp!.innerHTML = `
     <div class="${styles["exercises-container"]}">
@@ -39,7 +50,8 @@ export default async function NewQuickWeeklyPlanExercises(
           ?.map(
             (exercise) => `
               <div class="${styles["exercise-container"]}">
-                <div class="${styles["exercise"]}">
+                <div class="${styles["exercise"]} 
+                ${savedExercises.includes(exercise.id) ? styles["saved-exercise"] : ""}">
                   <h3>${exercise.name}</h3>
                   <p>
                     ${exercise.muscleGroup
@@ -349,6 +361,37 @@ async function fetchExercisesByMuscleGroup(
     if (!response.ok) {
       Notification({
         message: data.error || "Failed to fetch exercises",
+        type: "error",
+        duration: 5000,
+      });
+    }
+    return data.exercises;
+  } catch (error) {
+    return [];
+  }
+}
+
+async function fetchWeeklyPlanExercises(
+  planId: string,
+  id: string,
+): Promise<WeeklyPlanExecise[]> {
+  try {
+    const response = await fetch(
+      `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${id}/exercises`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+      },
+    );
+    const data = await response.json();
+    console.log(data);
+
+    if (!response.ok) {
+      Notification({
+        message: data.error || "Failed to fetch Weekly plan exercises",
         type: "error",
         duration: 5000,
       });
