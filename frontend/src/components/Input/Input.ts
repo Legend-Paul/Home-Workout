@@ -11,7 +11,7 @@ type InputProps = {
   errorMessage?: string;
   checked?: boolean;
   className?: string;
-  value?: string;
+  value?: string | number;
   accept?: string;
   min?: number;
   max?: number;

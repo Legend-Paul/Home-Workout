@@ -58,7 +58,7 @@ export type WeeklyPlan = {
   updatedAt: Date;
 };
 
-export type WeeklyPlanExecise = {
+export type WeeklyPlanExercise = {
   id: string;
   quickStartWeeklyPlanId: string;
   exerciseId: string;
