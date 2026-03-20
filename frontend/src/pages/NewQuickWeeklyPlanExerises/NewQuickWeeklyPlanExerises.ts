@@ -5,6 +5,7 @@ import type { WeeklyPlan, Exercise } from "../../utils/types";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import formStyles from "../../assets/FormStyles.module.css";
+import { navigate } from "../../router";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -71,6 +72,7 @@ export default async function NewQuickWeeklyPlanExercises(
                                   </svg><span>View exercise</span>`,
                           type: "button",
                           btnClass: styles["view-exercise-btn"],
+                          data: `data-exercise-id=${exercise.id}`,
                         })}
                       </div>
                       <div class="${styles["close-dialog-btn"]}">
@@ -141,6 +143,20 @@ export default async function NewQuickWeeklyPlanExercises(
     </div>
   `;
   handelExerciseDialog();
+  handelViewExercise();
+}
+
+function handelViewExercise() {
+  const viewExerciseBtn = document.querySelectorAll<HTMLButtonElement>(
+    `.${styles["view-exercise-btn"]}`,
+  );
+
+  viewExerciseBtn.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const exerciseId = btn.dataset.exerciseId;
+      navigate(`/api/exercises/${exerciseId}`);
+    });
+  });
 }
 
 function handelExerciseDialog() {
