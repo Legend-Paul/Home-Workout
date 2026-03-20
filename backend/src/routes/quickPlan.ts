@@ -53,7 +53,7 @@ quickPlanRouter.get(
   getQuickPlanExercise,
 );
 quickPlanRouter.post(
-  "/:quickStartWeeklyPlanId/exercises/new",
+  "/:planId/weekly-plans/:weeklyPlanId/exercises/new",
   requireAdmin,
   createQuickPlanExercise,
 );

@@ -71,8 +71,8 @@ const createQuickPlanExerciseHandler = async (
       return;
     }
 
-    if (!quickPlanExerciseExist) {
-      res.status(404).json({ error: "Quick start exercise not found" });
+    if (quickPlanExerciseExist) {
+      res.status(404).json({ error: "Exercise exist in this weekly plan" });
       return;
     }
 

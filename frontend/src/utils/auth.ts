@@ -13,7 +13,8 @@ export default async function isAuthenticated(): Promise<boolean> {
         Authorization: `${token}`,
       },
     });
-
+    const res = await response.json();
+    console.log(res);
     if (response.ok) {
       return true;
     } else {

@@ -72,7 +72,7 @@ export default async function NewQuickWeeklyPlanExercises(
   `;
   handelExerciseDialog();
   handelViewExercise();
-  addExerciseToWeeklyPlan();
+  addExerciseToWeeklyPlan(planId, id);
 }
 
 function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
@@ -98,7 +98,7 @@ function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </div>
-      <form id="${formStyles["auth-form"]}">
+      <form id="${formStyles["auth-form"]}" method="POST" data= "data-exercise-id=${exercise.id}">
         ${Input({ label: "Sets", id: "sets", type: "number", placeholder: "eg 1", name: "sets", required: true, min: 1, step: 1, errorMessage: "Sets must be an integer" })}
         <div class="${styles["exercise-type"]}">
           <h3>Select exercise reps or duration or both</h3>
@@ -132,7 +132,7 @@ function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
             label: "Save exercise",
             type: "submit",
             btnClass: styles["save-exercise-btn"],
-            data: `exercise-id=${exercise.id}`,
+            data: `data-exercise-id=${exercise.id}`,
           })}
         </div>
       </form>                    
@@ -190,14 +190,13 @@ function handelExerciseDialog() {
   });
 }
 
-function addExerciseToWeeklyPlan() {
+function addExerciseToWeeklyPlan(planId: string, id: string) {
   const exerciseContainer = document.querySelector(
     `.${styles["exercises-container"]}`,
   );
   const forms = exerciseContainer!.querySelectorAll<HTMLFormElement>(
     `#${formStyles["auth-form"]}`,
   );
-  console.log(forms);
   // Form validation
   forms.forEach((form) => {
     const setsInput = form.querySelector<HTMLInputElement>("#sets");
@@ -220,20 +219,88 @@ function addExerciseToWeeklyPlan() {
         .querySelectorAll("input")
         .forEach((input) => input.setCustomValidity(""));
 
-      //sets and at least reps or duration required
+      // Valid: sets and at least reps or duration required
       if (sets && (reps || duration)) {
-        saveBtn!.disabled = true;
-        saveBtn!.style.backgroundColor = "var(--success-dark)";
-        return;
-      } else {
-        repsInput?.setCustomValidity("Please provide reps or duration");
-        (form as HTMLFormElement).reportValidity();
-
         saveBtn!.disabled = false;
+        saveBtn!.style.backgroundColor = "var(--success-dark)";
+      } else {
+        saveBtn!.disabled = true;
         saveBtn!.style.backgroundColor = "var(--success-light)";
       }
     }
+
+    async function handleAddExerciseToWeeklyPlan(e: Event) {
+      e.preventDefault();
+      const exerciseId = saveBtn?.dataset.exerciseId;
+      const sets = setsInput?.value;
+      const reps = repsInput?.value;
+      const duration = durationInput?.value;
+      const order = 1;
+
+      saveBtn!.innerHTML = `${Spinner({})} Saving...`;
+      saveBtn!.disabled = true;
+      saveBtn!.style.backgroundColor = "var(--success-light)";
+
+      const data: Record<string, string | number> = {
+        exerciseId: exerciseId!,
+        sets: parseInt(sets!),
+        order,
+      };
+
+      if (reps) data.reps = parseInt(reps);
+      if (duration) data.duration = parseInt(duration);
+
+      try {
+        await createWeeklyPlanExercise(planId, id, data);
+      } catch (error) {
+        console.error("Error Creating weekly plan exercise:", error);
+        Notification({
+          message: "An error occurred. Please try again",
+          type: "error",
+          duration: 5000,
+        });
+      } finally {
+        saveBtn!.innerHTML = "Save exercise";
+        // Re-run validate to restore correct button state
+        validate();
+      }
+    }
+    form.addEventListener("submit", handleAddExerciseToWeeklyPlan);
   });
+}
+
+async function createWeeklyPlanExercise(
+  planId: string,
+  id: string,
+  data: Record<string, string | number>,
+) {
+  const response = await fetch(
+    `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${id}/exercises/new`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      body: JSON.stringify(data),
+    },
+  );
+
+  if (response.ok) {
+    const data = await response.json();
+    Notification({
+      message: data.message || "Weekly pan exercise created successfullly.",
+      type: "success",
+      duration: 5000,
+    });
+  } else {
+    const data = await response.json();
+    Notification({
+      message: data.error || "Failed to fetch Weekly plan.",
+      type: "error",
+      duration: 5000,
+    });
+  }
 }
 
 async function fetchWeeklyPlan(
