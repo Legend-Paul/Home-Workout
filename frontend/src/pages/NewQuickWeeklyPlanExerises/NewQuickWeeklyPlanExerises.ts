@@ -122,7 +122,7 @@ function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </div>
-      <form id="${formStyles["auth-form"]}" method="POST" data= "data-exercise-id=${exercise.id}">
+      <form id="${formStyles["auth-form"]}" class="${styles["save-form"]}" method="POST" data= "data-exercise-id=${exercise.id}">
         ${Input({ label: "Sets", id: "sets", type: "number", placeholder: "eg 1", name: "sets", required: true, min: 1, step: 1, errorMessage: "Sets must be an integer" })}
         <div class="${styles["exercise-type"]}">
           <h3>Select exercise reps or duration or both</h3>
@@ -191,7 +191,7 @@ function renderUpdateExerciseDialog(
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </div>
-      <form id="${formStyles["auth-form"]}" method="POST" data= "data-exercise-id=${exercise.id}">
+      <form id="${formStyles["auth-form"]}" class="${styles["update-form"]}" method="POST" data= "data-exercise-id=${exercise.id}">
         ${Input({
           label: "Sets",
           id: "sets",
@@ -252,8 +252,43 @@ function renderUpdateExerciseDialog(
       </form>                    
     </div>
   `;
+  updateExerciseToWeeklyPlan();
 
   return dialogContainer;
+}
+
+function updateExerciseToWeeklyPlan() {
+  const forms = document!.querySelectorAll<HTMLFormElement>(
+    `.${styles["save-form"]}`,
+  );
+  // Form validation
+  forms.forEach((form) => {
+    const setsInput = form.querySelector<HTMLInputElement>("#sets");
+    const repsInput = form.querySelector<HTMLInputElement>("#reps");
+    const durationInput = form.querySelector<HTMLInputElement>("#duration");
+    const saveBtn = form.querySelector<HTMLButtonElement>(
+      `.${styles["save-exercise-btn"]}`,
+    );
+
+    setsInput?.addEventListener("input", validate);
+    repsInput?.addEventListener("input", validate);
+    durationInput?.addEventListener("input", validate);
+
+    function validate() {
+      const sets = setsInput?.value;
+      const reps = repsInput?.value;
+      const duration = durationInput?.value;
+
+      // Valid: sets and at least reps or duration required
+      if (sets && (reps || duration)) {
+        saveBtn!.disabled = false;
+        saveBtn!.style.backgroundColor = "var(--success-dark)";
+      } else {
+        saveBtn!.disabled = true;
+        saveBtn!.style.backgroundColor = "var(--success-light)";
+      }
+    }
+  });
 }
 
 function handelViewExercise() {
@@ -305,11 +340,8 @@ function handelExerciseDialog() {
 }
 
 function addExerciseToWeeklyPlan(planId: string, id: string) {
-  const exerciseContainer = document.querySelector(
-    `.${styles["exercises-container"]}`,
-  );
-  const forms = exerciseContainer!.querySelectorAll<HTMLFormElement>(
-    `#${formStyles["auth-form"]}`,
+  const forms = document!.querySelectorAll<HTMLFormElement>(
+    `.${styles["save-form"]}`,
   );
   // Form validation
   forms.forEach((form) => {
@@ -328,10 +360,6 @@ function addExerciseToWeeklyPlan(planId: string, id: string) {
       const sets = setsInput?.value;
       const reps = repsInput?.value;
       const duration = durationInput?.value;
-
-      form
-        .querySelectorAll("input")
-        .forEach((input) => input.setCustomValidity(""));
 
       // Valid: sets and at least reps or duration required
       if (sets && (reps || duration)) {
