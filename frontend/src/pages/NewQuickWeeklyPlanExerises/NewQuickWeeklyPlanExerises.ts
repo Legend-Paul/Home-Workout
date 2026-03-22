@@ -15,6 +15,7 @@ const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 
 const token = localStorage.getItem("Authorization") || "";
+
 export default async function NewQuickWeeklyPlanExercises(
   params?: Record<string, string>,
 ) {
@@ -26,10 +27,11 @@ export default async function NewQuickWeeklyPlanExercises(
   });
 
   const planId = params?.planId as string;
-  const id = params?.id as string;
+  const weeklyId = params?.id as string; // Fix: was using undefined `id`
+
   const [weeklyPlan, weeklyPlanExercises] = await Promise.all([
-    fetchWeeklyPlan(planId, id),
-    fetchWeeklyPlanExercises(planId, id),
+    fetchWeeklyPlan(planId, weeklyId), // Fix: was using undefined `id`
+    fetchWeeklyPlanExercises(planId, weeklyId), // Fix: was using undefined `id`
   ]);
 
   const searchParams = new URLSearchParams();
@@ -49,54 +51,54 @@ export default async function NewQuickWeeklyPlanExercises(
   mainApp!.innerHTML = `
     <div class="${styles["exercises-container"]}">
       <div>
-      <div class="${styles["exercises"]}">
-        ${exercises
-          ?.map(
-            (exercise) => `
-              <div class="${styles["exercise-container"]} 
-              ${savedExercises.includes(exercise.id) ? styles["saved-exercise"] : ""}">
-                <div class="${styles["exercise"]}">
-                  <h3>${exercise.name}</h3>
-                  <p>
-                    ${exercise.muscleGroup
-                      .map(
-                        (muscleGroup: string) =>
-                          muscleGroup.charAt(0).toUpperCase() +
-                          muscleGroup.slice(1),
-                      )
-                      .join(", ")}
-                  </p>
-                  <p>
-                    ${exercise.equipment
-                      .map(
-                        (equipment) =>
-                          equipment.charAt(0).toUpperCase() +
-                          equipment.slice(1),
-                      )
-                      .join(", ")}
-                  </p>
-                </div>                
-                ${
-                  savedExercises.includes(exercise.id)
-                    ? renderUpdateExerciseDialog(
-                        exercise,
-                        getSavedExercise(exercise.id),
-                      ).outerHTML
-                    : renderExerciseDialog(exercise).outerHTML
-                }
+        <div class="${styles["exercises"]}">
+          ${exercises
+            ?.map(
+              (exercise) => `
+                <div class="${styles["exercise-container"]} 
+                ${savedExercises.includes(exercise.id) ? styles["saved-exercise"] : ""}">
+                  <div class="${styles["exercise"]}">
+                    <h3>${exercise.name}</h3>
+                    <p>
+                      ${exercise.muscleGroup
+                        .map(
+                          (muscleGroup: string) =>
+                            muscleGroup.charAt(0).toUpperCase() +
+                            muscleGroup.slice(1),
+                        )
+                        .join(", ")}
+                    </p>
+                    <p>
+                      ${exercise.equipment
+                        .map(
+                          (equipment) =>
+                            equipment.charAt(0).toUpperCase() +
+                            equipment.slice(1),
+                        )
+                        .join(", ")}
+                    </p>
+                  </div>                
+                  ${
+                    savedExercises.includes(exercise.id)
+                      ? renderUpdateExerciseDialog(
+                          exercise,
+                          getSavedExercise(exercise.id),
+                        ).outerHTML
+                      : renderExerciseDialog(exercise).outerHTML
+                  }
                 </div> 
-              </div>
-            `,
-          )
-          .join("")}
+              `,
+            )
+            .join("")}
+        </div>
       </div>
-
     </div>
   `;
+
   handelExerciseDialog();
   handelViewExercise();
-  addExerciseToWeeklyPlan(planId, id);
-  updateExerciseToWeeklyPlan();
+  addExerciseToWeeklyPlan(planId, weeklyId);
+  updateExerciseToWeeklyPlan(planId, weeklyId);
 }
 
 function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
@@ -122,52 +124,17 @@ function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </div>
-      <form id="${formStyles["auth-form"]}" class="${styles["save-form"]}" method="POST" data= "data-exercise-id=${exercise.id}">
-        ${Input({
-          label: "Sets",
-          id: `sets-${exercise.id}`,
-          type: "number",
-          placeholder: "eg 1",
-          name: "sets",
-          required: true,
-          min: 1,
-          step: 1,
-          errorMessage: "Sets must be an positive integer",
-        })}
+      <form class="${formStyles["auth-form"]} ${styles["save-form"]}" method="POST" data-exercise-id="${exercise.id}">
+        ${Input({ label: "Sets", id: `sets-${exercise.id}`, type: "number", placeholder: "eg 1", name: "sets", required: true, min: 1, step: 1, errorMessage: "Sets must be a positive integer" })}
         <div class="${styles["exercise-type"]}">
           <h3>Select exercise reps or duration or both</h3>
           <div class="${styles["exercise-type-input"]}">
-            ${Input({
-              label: "Reps",
-              id: `reps-${exercise.id}`,
-              type: "number",
-              placeholder: "e.g 1",
-              name: "reps",
-              required: false,
-              min: 1,
-              step: 1,
-              errorMessage: "Reps must be an positive integer",
-            })}
-            ${Input({
-              label: "Duration",
-              id: `duration-${exercise.id}`,
-              type: "number",
-              placeholder: "e.g 1",
-              name: "duration",
-              required: false,
-              min: 1,
-              step: 1,
-              errorMessage: "Duration must be an positive integer",
-            })}
+            ${Input({ label: "Reps", id: `reps-${exercise.id}`, type: "number", placeholder: "e.g 1", name: "reps", required: false, min: 1, step: 1, errorMessage: "Reps must be a positive integer" })}
+            ${Input({ label: "Duration", id: `duration-${exercise.id}`, type: "number", placeholder: "e.g 1", name: "duration", required: false, min: 1, step: 1, errorMessage: "Duration must be a positive integer" })}
           </div>
         </div>
         <div class="${styles["dialog-action-button-container"]}">
-         ${Button({
-           label: "Save exercise",
-           type: "submit",
-           btnClass: styles["save-exercise-btn"],
-           data: `data-exercise-id=${exercise.id}`,
-         })}          
+          ${Button({ label: "Save exercise", type: "submit", btnClass: styles["save-exercise-btn"], data: `data-exercise-id=${exercise.id}` })}
         </div>
       </form>                    
     </div>
@@ -175,6 +142,7 @@ function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
 
   return dialogContainer;
 }
+
 function renderUpdateExerciseDialog(
   exercise: Exercise,
   savedExercise: WeeklyPlanExercise | undefined,
@@ -201,63 +169,20 @@ function renderUpdateExerciseDialog(
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </div>
-      <form id="${formStyles["auth-form"]}" class="${styles["update-form"]}" method="POST" data= "data-exercise-id=${exercise.id}">
-        ${Input({
-          label: "Sets",
-          id: `sets-${exercise.id}`,
-          value: savedExercise?.sets ? savedExercise?.sets : undefined,
-          type: "number",
-          placeholder: "eg 1",
-          name: "sets",
-          required: true,
-          min: 1,
-          step: 1,
-          errorMessage: "Sets must be an positive integer",
-        })}
+      <form class="${formStyles["auth-form"]} ${styles["update-form"]}" method="POST" 
+        data-exercise-id="${exercise.id}"
+        data-weekly-plan-exercise='${JSON.stringify(savedExercise)}'>
+        ${Input({ label: "Sets", id: `sets-${exercise.id}`, value: savedExercise?.sets ?? undefined, type: "number", placeholder: "eg 1", name: "sets", required: true, min: 1, step: 1, errorMessage: "Sets must be a positive integer" })}
         <div class="${styles["exercise-type"]}">
           <h3>Select exercise reps or duration or both</h3>
           <div class="${styles["exercise-type-input"]}">
-            ${Input({
-              label: "Reps",
-              id: `reps-${exercise.id}`,
-              value: savedExercise?.reps ? savedExercise?.reps : undefined,
-              type: "number",
-              placeholder: "e.g 1",
-              name: "reps",
-              required: false,
-              min: 1,
-              step: 1,
-              errorMessage: "Reps must be an positive integer",
-            })}
-            ${Input({
-              label: "Duration",
-              id: `duration-${exercise.id}`,
-              value: savedExercise?.duration
-                ? savedExercise?.duration
-                : undefined,
-              type: "number",
-              placeholder: "e.g 1",
-              name: "duration",
-              required: false,
-              min: 1,
-              step: 1,
-              errorMessage: "Duration must be an positive integer",
-            })}
+            ${Input({ label: "Reps", id: `reps-${exercise.id}`, value: savedExercise?.reps ?? undefined, type: "number", placeholder: "e.g 1", name: "reps", required: false, min: 1, step: 1, errorMessage: "Reps must be a positive integer" })}
+            ${Input({ label: "Duration", id: `duration-${exercise.id}`, value: savedExercise?.duration ?? undefined, type: "number", placeholder: "e.g 1", name: "duration", required: false, min: 1, step: 1, errorMessage: "Duration must be a positive integer" })}
           </div>
         </div>
         <div class="${styles["dialog-action-button-container"]}">
-         ${Button({
-           label: "Update exercise",
-           type: "submit",
-           btnClass: styles["update-exercise-btn"],
-           data: `data-exercise-id=${exercise.id}`,
-         })}        
-         ${Button({
-           label: "Remove exercise",
-           type: "submit",
-           btnClass: styles["remove-exercise-btn"],
-           data: `data-exercise-id=${exercise.id}`,
-         })}          
+          ${Button({ label: "Update exercise", type: "submit", btnClass: styles["update-exercise-btn"], data: `data-exercise-id=${exercise.id}` })}
+          ${Button({ label: "Remove exercise", type: "button", btnClass: styles["remove-exercise-btn"], data: `data-exercise-id=${exercise.id}` })} <!-- Fix: type should be "button" not "submit" -->
         </div>
       </form>                    
     </div>
@@ -266,14 +191,14 @@ function renderUpdateExerciseDialog(
   return dialogContainer;
 }
 
-function updateExerciseToWeeklyPlan() {
+function updateExerciseToWeeklyPlan(planId: string, weeklyId: string) {
   const container = document.querySelector<HTMLDivElement>(
     `.${styles["exercises-container"]}`,
   );
   const forms = container?.querySelectorAll<HTMLFormElement>(
     `.${styles["update-form"]}`,
   );
-  // Form validation
+
   forms?.forEach((form) => {
     const setsInput =
       form.querySelector<HTMLInputElement>('input[name="sets"]');
@@ -286,6 +211,8 @@ function updateExerciseToWeeklyPlan() {
       `.${styles["update-exercise-btn"]}`,
     );
 
+    validate();
+
     setsInput?.addEventListener("input", validate);
     repsInput?.addEventListener("input", validate);
     durationInput?.addEventListener("input", validate);
@@ -295,7 +222,6 @@ function updateExerciseToWeeklyPlan() {
       const reps = repsInput?.value;
       const duration = durationInput?.value;
 
-      // Valid: sets and at least reps or duration required
       if (sets && (reps || duration)) {
         updateBtn!.disabled = false;
         updateBtn!.style.backgroundColor = "var(--success-dark)";
@@ -304,6 +230,55 @@ function updateExerciseToWeeklyPlan() {
         updateBtn!.style.backgroundColor = "var(--success-light)";
       }
     }
+
+    async function handleUpdateExercise(e: Event) {
+      e.preventDefault();
+
+      const exerciseId = form.dataset.exerciseId;
+      const weeklyPlanExercise: WeeklyPlanExercise | null = form.dataset
+        .weeklyPlanExercise
+        ? JSON.parse(form.dataset.weeklyPlanExercise)
+        : null;
+
+      const sets = setsInput?.value;
+      const reps = repsInput?.value;
+      const duration = durationInput?.value;
+      const order = weeklyPlanExercise?.order ?? 1;
+
+      updateBtn!.innerHTML = `${Spinner({})} Updating...`;
+      updateBtn!.disabled = true;
+      updateBtn!.style.backgroundColor = "var(--success-light)";
+
+      const data: Record<string, string | number> = {
+        exerciseId: exerciseId!,
+        sets: parseInt(sets!),
+        order,
+      };
+
+      if (reps) data.reps = parseInt(reps);
+      if (duration) data.duration = parseInt(duration);
+
+      try {
+        await updateWeeklyPlanExercise(
+          planId,
+          weeklyId,
+          weeklyPlanExercise?.id ?? "",
+          data,
+        );
+      } catch (error) {
+        console.error("Error updating weekly plan exercise:", error);
+        Notification({
+          message: "An error occurred. Please try again",
+          type: "error",
+          duration: 5000,
+        });
+      } finally {
+        updateBtn!.innerHTML = "Update exercise";
+        validate();
+      }
+    }
+
+    form.addEventListener("submit", handleUpdateExercise);
   });
 }
 
@@ -312,7 +287,7 @@ function handelViewExercise() {
     `.${styles["view-exercise-btn"]}`,
   );
 
-  viewExerciseBtn.forEach((btn: HTMLButtonElement) => {
+  viewExerciseBtn.forEach((btn) => {
     btn.addEventListener("click", () => {
       const exerciseId = btn.dataset.exerciseId;
       navigate(`/api/exercises/${exerciseId}`);
@@ -334,10 +309,7 @@ function handelExerciseDialog() {
       const dialog = container!.querySelector(
         `.${styles["exercise-dialog-container"]}`,
       ) as HTMLDivElement;
-      dialog.classList.replace(
-        `${styles["hide-dialog"]}`,
-        `${styles["view-dialog"]}`,
-      );
+      dialog.classList.replace(styles["hide-dialog"], styles["view-dialog"]);
     });
   });
 
@@ -347,26 +319,27 @@ function handelExerciseDialog() {
       const dialog = container!.querySelector(
         `.${styles["exercise-dialog-container"]}`,
       ) as HTMLDivElement;
-      dialog.classList.replace(
-        `${styles["view-dialog"]}`,
-        `${styles["hide-dialog"]}`,
-      );
+      dialog.classList.replace(styles["view-dialog"], styles["hide-dialog"]);
     });
   });
 }
 
-function addExerciseToWeeklyPlan(planId: string, id: string) {
+function addExerciseToWeeklyPlan(planId: string, weeklyId: string) {
   const container = document.querySelector<HTMLDivElement>(
     `.${styles["exercises-container"]}`,
   );
   const forms = container!.querySelectorAll<HTMLFormElement>(
     `.${styles["save-form"]}`,
   );
-  // Form validation
+
   forms.forEach((form) => {
-    const setsInput = form.querySelector<HTMLInputElement>("#sets");
-    const repsInput = form.querySelector<HTMLInputElement>("#reps");
-    const durationInput = form.querySelector<HTMLInputElement>("#duration");
+    const setsInput =
+      form.querySelector<HTMLInputElement>('input[name="sets"]');
+    const repsInput =
+      form.querySelector<HTMLInputElement>('input[name="reps"]');
+    const durationInput = form.querySelector<HTMLInputElement>(
+      'input[name="duration"]',
+    );
     const saveBtn = form.querySelector<HTMLButtonElement>(
       `.${styles["save-exercise-btn"]}`,
     );
@@ -380,7 +353,6 @@ function addExerciseToWeeklyPlan(planId: string, id: string) {
       const reps = repsInput?.value;
       const duration = durationInput?.value;
 
-      // Valid: sets and at least reps or duration required
       if (sets && (reps || duration)) {
         saveBtn!.disabled = false;
         saveBtn!.style.backgroundColor = "var(--success-dark)";
@@ -390,8 +362,9 @@ function addExerciseToWeeklyPlan(planId: string, id: string) {
       }
     }
 
-    async function handleAddExerciseToWeeklyPlan(e: Event) {
+    async function handleAddExercise(e: Event) {
       e.preventDefault();
+
       const exerciseId = saveBtn?.dataset.exerciseId;
       const sets = setsInput?.value;
       const reps = repsInput?.value;
@@ -412,9 +385,9 @@ function addExerciseToWeeklyPlan(planId: string, id: string) {
       if (duration) data.duration = parseInt(duration);
 
       try {
-        await createWeeklyPlanExercise(planId, id, data);
+        await createWeeklyPlanExercise(planId, weeklyId, data);
       } catch (error) {
-        console.error("Error Creating weekly plan exercise:", error);
+        console.error("Error creating weekly plan exercise:", error);
         Notification({
           message: "An error occurred. Please try again",
           type: "error",
@@ -422,21 +395,21 @@ function addExerciseToWeeklyPlan(planId: string, id: string) {
         });
       } finally {
         saveBtn!.innerHTML = "Save exercise";
-        // Re-run validate to restore correct button state
         validate();
       }
     }
-    form.addEventListener("submit", handleAddExerciseToWeeklyPlan);
+
+    form.addEventListener("submit", handleAddExercise);
   });
 }
 
 async function createWeeklyPlanExercise(
   planId: string,
-  id: string,
+  weeklyId: string,
   data: Record<string, string | number>,
 ) {
   const response = await fetch(
-    `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${id}/exercises/new`,
+    `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}/exercises/new`,
     {
       method: "POST",
       headers: {
@@ -447,17 +420,50 @@ async function createWeeklyPlanExercise(
     },
   );
 
+  const resData = await response.json(); // Fix: avoid shadowing `data` param
   if (response.ok) {
-    const data = await response.json();
     Notification({
-      message: data.message || "Weekly pan exercise created successfullly.",
+      message: resData.message || "Weekly plan exercise created successfully.",
       type: "success",
       duration: 5000,
     });
   } else {
-    const data = await response.json();
     Notification({
-      message: data.error || "Failed to fetch Weekly plan.",
+      message: resData.error || "Failed to create weekly plan exercise.",
+      type: "error",
+      duration: 5000,
+    });
+  }
+}
+
+async function updateWeeklyPlanExercise(
+  planId: string,
+  weeklyId: string,
+  id: string,
+  data: Record<string, string | number>,
+) {
+  const response = await fetch(
+    `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}/exercises/${id}/update`, // Fix: was "/new"
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
+      body: JSON.stringify(data),
+    },
+  );
+
+  const resData = await response.json();
+  if (response.ok) {
+    Notification({
+      message: resData.message || "Weekly plan exercise updated successfully.",
+      type: "success",
+      duration: 5000,
+    });
+  } else {
+    Notification({
+      message: resData.error || "Failed to update weekly plan exercise.",
       type: "error",
       duration: 5000,
     });
@@ -466,11 +472,11 @@ async function createWeeklyPlanExercise(
 
 async function fetchWeeklyPlan(
   planId: string,
-  id: string,
+  weeklyId: string,
 ): Promise<WeeklyPlan | null> {
   try {
     const response = await fetch(
-      `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${id}`,
+      `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}`,
       {
         method: "GET",
         headers: {
