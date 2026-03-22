@@ -51,46 +51,7 @@ export default async function NewQuickWeeklyPlanExercises(
   mainApp!.innerHTML = `
     <div class="${styles["exercises-container"]}">
       <div>
-        <div class="${styles["exercises"]}">
-          ${exercises
-            ?.map(
-              (exercise) => `
-                <div class="${styles["exercise-container"]} 
-                ${savedExercises.includes(exercise.id) ? styles["saved-exercise"] : ""}">
-                  <div class="${styles["exercise"]}">
-                    <h3>${exercise.name}</h3>
-                    <p>
-                      ${exercise.muscleGroup
-                        .map(
-                          (muscleGroup: string) =>
-                            muscleGroup.charAt(0).toUpperCase() +
-                            muscleGroup.slice(1),
-                        )
-                        .join(", ")}
-                    </p>
-                    <p>
-                      ${exercise.equipment
-                        .map(
-                          (equipment) =>
-                            equipment.charAt(0).toUpperCase() +
-                            equipment.slice(1),
-                        )
-                        .join(", ")}
-                    </p>
-                  </div>                
-                  ${
-                    savedExercises.includes(exercise.id)
-                      ? renderUpdateExerciseDialog(
-                          exercise,
-                          getSavedExercise(exercise.id),
-                        ).outerHTML
-                      : renderExerciseDialog(exercise).outerHTML
-                  }
-                </div> 
-              `,
-            )
-            .join("")}
-        </div>
+        ${renderExercise(exercises, savedExercises, getSavedExercise).outerHTML}
       </div>
     </div>
   `;
@@ -99,6 +60,57 @@ export default async function NewQuickWeeklyPlanExercises(
   handelViewExercise();
   addExerciseToWeeklyPlan(planId, weeklyId);
   updateExerciseToWeeklyPlan(planId, weeklyId);
+}
+
+function renderExercise(
+  exercises: Exercise[] | null,
+  savedExercises: string[],
+  getSavedExercise: (exerciseId: string) => WeeklyPlanExercise | undefined,
+): HTMLDivElement {
+  const container = document.createElement("div");
+  container.className = styles["exercises"];
+
+  container.innerHTML = `
+    ${exercises
+      ?.map(
+        (exercise) => `
+          <div class="${styles["exercise-container"]} 
+          ${savedExercises.includes(exercise.id) ? styles["saved-exercise"] : ""}">
+            <div class="${styles["exercise"]}">
+              <h3>${exercise.name}</h3>
+              <p>
+                ${exercise.muscleGroup
+                  .map(
+                    (muscleGroup: string) =>
+                      muscleGroup.charAt(0).toUpperCase() +
+                      muscleGroup.slice(1),
+                  )
+                  .join(", ")}
+              </p>
+              <p>
+                ${exercise.equipment
+                  .map(
+                    (equipment) =>
+                      equipment.charAt(0).toUpperCase() + equipment.slice(1),
+                  )
+                  .join(", ")}
+              </p>
+            </div>                
+            ${
+              savedExercises.includes(exercise.id)
+                ? renderUpdateExerciseDialog(
+                    exercise,
+                    getSavedExercise(exercise.id),
+                  ).outerHTML
+                : renderExerciseDialog(exercise).outerHTML
+            }
+          </div> 
+        `,
+      )
+      .join("")}
+  `;
+
+  return container;
 }
 
 function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
