@@ -48,7 +48,8 @@
   h2 {
     text-align: center;
   }
-  form {
+  .update-form,
+  .save-form {
     gap: 0 !important;
   }
 }
@@ -102,6 +103,10 @@
   &:hover {
     background-color: var(--success-dark);
   }
+}
+
+.update-exercise-btn {
+  background-color: var(--success-dark);
 }
 
 .remove-exercise-btn {

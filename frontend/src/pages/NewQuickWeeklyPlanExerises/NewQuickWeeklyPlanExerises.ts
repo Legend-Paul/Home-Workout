@@ -46,7 +46,6 @@ export default async function NewQuickWeeklyPlanExercises(
       (exercise: WeeklyPlanExercise) => exercise.exerciseId === exerciseId,
     );
 
-  console.log(savedExercises);
   mainApp!.innerHTML = `
     <div class="${styles["exercises-container"]}">
       <div>
@@ -97,6 +96,7 @@ export default async function NewQuickWeeklyPlanExercises(
   handelExerciseDialog();
   handelViewExercise();
   addExerciseToWeeklyPlan(planId, id);
+  updateExerciseToWeeklyPlan();
 }
 
 function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
@@ -123,31 +123,41 @@ function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
         </svg>
       </div>
       <form id="${formStyles["auth-form"]}" class="${styles["save-form"]}" method="POST" data= "data-exercise-id=${exercise.id}">
-        ${Input({ label: "Sets", id: "sets", type: "number", placeholder: "eg 1", name: "sets", required: true, min: 1, step: 1, errorMessage: "Sets must be an integer" })}
+        ${Input({
+          label: "Sets",
+          id: `sets-${exercise.id}`,
+          type: "number",
+          placeholder: "eg 1",
+          name: "sets",
+          required: true,
+          min: 1,
+          step: 1,
+          errorMessage: "Sets must be an positive integer",
+        })}
         <div class="${styles["exercise-type"]}">
           <h3>Select exercise reps or duration or both</h3>
           <div class="${styles["exercise-type-input"]}">
             ${Input({
               label: "Reps",
-              id: "reps",
+              id: `reps-${exercise.id}`,
               type: "number",
               placeholder: "e.g 1",
               name: "reps",
               required: false,
               min: 1,
               step: 1,
-              errorMessage: "Reps must be an integer",
+              errorMessage: "Reps must be an positive integer",
             })}
             ${Input({
               label: "Duration",
-              id: "duration",
+              id: `duration-${exercise.id}`,
               type: "number",
               placeholder: "e.g 1",
               name: "duration",
               required: false,
               min: 1,
               step: 1,
-              errorMessage: "Duration must be an integer",
+              errorMessage: "Duration must be an positive integer",
             })}
           </div>
         </div>
@@ -194,7 +204,7 @@ function renderUpdateExerciseDialog(
       <form id="${formStyles["auth-form"]}" class="${styles["update-form"]}" method="POST" data= "data-exercise-id=${exercise.id}">
         ${Input({
           label: "Sets",
-          id: "sets",
+          id: `sets-${exercise.id}`,
           value: savedExercise?.sets ? savedExercise?.sets : undefined,
           type: "number",
           placeholder: "eg 1",
@@ -202,14 +212,14 @@ function renderUpdateExerciseDialog(
           required: true,
           min: 1,
           step: 1,
-          errorMessage: "Sets must be an integer",
+          errorMessage: "Sets must be an positive integer",
         })}
         <div class="${styles["exercise-type"]}">
           <h3>Select exercise reps or duration or both</h3>
           <div class="${styles["exercise-type-input"]}">
             ${Input({
               label: "Reps",
-              id: "reps",
+              id: `reps-${exercise.id}`,
               value: savedExercise?.reps ? savedExercise?.reps : undefined,
               type: "number",
               placeholder: "e.g 1",
@@ -217,11 +227,11 @@ function renderUpdateExerciseDialog(
               required: false,
               min: 1,
               step: 1,
-              errorMessage: "Reps must be an integer",
+              errorMessage: "Reps must be an positive integer",
             })}
             ${Input({
               label: "Duration",
-              id: "duration",
+              id: `duration-${exercise.id}`,
               value: savedExercise?.duration
                 ? savedExercise?.duration
                 : undefined,
@@ -231,7 +241,7 @@ function renderUpdateExerciseDialog(
               required: false,
               min: 1,
               step: 1,
-              errorMessage: "Duration must be an integer",
+              errorMessage: "Duration must be an positive integer",
             })}
           </div>
         </div>
@@ -252,22 +262,28 @@ function renderUpdateExerciseDialog(
       </form>                    
     </div>
   `;
-  updateExerciseToWeeklyPlan();
 
   return dialogContainer;
 }
 
 function updateExerciseToWeeklyPlan() {
-  const forms = document!.querySelectorAll<HTMLFormElement>(
-    `.${styles["save-form"]}`,
+  const container = document.querySelector<HTMLDivElement>(
+    `.${styles["exercises-container"]}`,
+  );
+  const forms = container?.querySelectorAll<HTMLFormElement>(
+    `.${styles["update-form"]}`,
   );
   // Form validation
-  forms.forEach((form) => {
-    const setsInput = form.querySelector<HTMLInputElement>("#sets");
-    const repsInput = form.querySelector<HTMLInputElement>("#reps");
-    const durationInput = form.querySelector<HTMLInputElement>("#duration");
-    const saveBtn = form.querySelector<HTMLButtonElement>(
-      `.${styles["save-exercise-btn"]}`,
+  forms?.forEach((form) => {
+    const setsInput =
+      form.querySelector<HTMLInputElement>('input[name="sets"]');
+    const repsInput =
+      form.querySelector<HTMLInputElement>('input[name="reps"]');
+    const durationInput = form.querySelector<HTMLInputElement>(
+      'input[name="duration"]',
+    );
+    const updateBtn = form.querySelector<HTMLButtonElement>(
+      `.${styles["update-exercise-btn"]}`,
     );
 
     setsInput?.addEventListener("input", validate);
@@ -281,11 +297,11 @@ function updateExerciseToWeeklyPlan() {
 
       // Valid: sets and at least reps or duration required
       if (sets && (reps || duration)) {
-        saveBtn!.disabled = false;
-        saveBtn!.style.backgroundColor = "var(--success-dark)";
+        updateBtn!.disabled = false;
+        updateBtn!.style.backgroundColor = "var(--success-dark)";
       } else {
-        saveBtn!.disabled = true;
-        saveBtn!.style.backgroundColor = "var(--success-light)";
+        updateBtn!.disabled = true;
+        updateBtn!.style.backgroundColor = "var(--success-light)";
       }
     }
   });
@@ -340,7 +356,10 @@ function handelExerciseDialog() {
 }
 
 function addExerciseToWeeklyPlan(planId: string, id: string) {
-  const forms = document!.querySelectorAll<HTMLFormElement>(
+  const container = document.querySelector<HTMLDivElement>(
+    `.${styles["exercises-container"]}`,
+  );
+  const forms = container!.querySelectorAll<HTMLFormElement>(
     `.${styles["save-form"]}`,
   );
   // Form validation
