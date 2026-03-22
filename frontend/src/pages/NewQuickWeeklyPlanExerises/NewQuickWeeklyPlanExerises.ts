@@ -27,11 +27,11 @@ export default async function NewQuickWeeklyPlanExercises(
   });
 
   const planId = params?.planId as string;
-  const weeklyId = params?.id as string; // Fix: was using undefined `id`
+  const weeklyId = params?.id as string;
 
   const [weeklyPlan, weeklyPlanExercises] = await Promise.all([
-    fetchWeeklyPlan(planId, weeklyId), // Fix: was using undefined `id`
-    fetchWeeklyPlanExercises(planId, weeklyId), // Fix: was using undefined `id`
+    fetchWeeklyPlan(planId, weeklyId),
+    fetchWeeklyPlanExercises(planId, weeklyId),
   ]);
 
   const searchParams = new URLSearchParams();
@@ -49,28 +49,31 @@ export default async function NewQuickWeeklyPlanExercises(
     );
 
   mainApp!.innerHTML = `
-    <div class="${styles["exercises-container"]}">
-      <div>
-        ${renderExercise(exercises, savedExercises, getSavedExercise).outerHTML}
-      </div>
+    <div class="${styles["exercises-container"]}">     
+        ${renderExercises(exercises, savedExercises, getSavedExercise)}  
     </div>
   `;
 
   handelExerciseDialog();
   handelViewExercise();
-  addExerciseToWeeklyPlan(planId, weeklyId);
+  addExerciseToWeeklyPlan(
+    planId,
+    weeklyId,
+    exercises,
+    savedExercises,
+    getSavedExercise,
+  );
   updateExerciseToWeeklyPlan(planId, weeklyId);
 }
-
-function renderExercise(
+function renderExercises(
   exercises: Exercise[] | null,
   savedExercises: string[],
   getSavedExercise: (exerciseId: string) => WeeklyPlanExercise | undefined,
-): HTMLDivElement {
+): string {
   const container = document.createElement("div");
-  container.className = styles["exercises"];
 
   container.innerHTML = `
+   <div class="${styles["exercises"]}">
     ${exercises
       ?.map(
         (exercise) => `
@@ -108,9 +111,10 @@ function renderExercise(
         `,
       )
       .join("")}
+    </div>
   `;
 
-  return container;
+  return container.innerHTML; // Fix: return innerHTML string
 }
 
 function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
@@ -141,12 +145,37 @@ function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
         <div class="${styles["exercise-type"]}">
           <h3>Select exercise reps or duration or both</h3>
           <div class="${styles["exercise-type-input"]}">
-            ${Input({ label: "Reps", id: `reps-${exercise.id}`, type: "number", placeholder: "e.g 1", name: "reps", required: false, min: 1, step: 1, errorMessage: "Reps must be a positive integer" })}
-            ${Input({ label: "Duration", id: `duration-${exercise.id}`, type: "number", placeholder: "e.g 1", name: "duration", required: false, min: 1, step: 1, errorMessage: "Duration must be a positive integer" })}
+            ${Input({
+              label: "Reps",
+              id: `reps-${exercise.id}`,
+              type: "number",
+              placeholder: "e.g 1",
+              name: "reps",
+              required: false,
+              min: 1,
+              step: 1,
+              errorMessage: "Reps must be a positive integer",
+            })}
+            ${Input({
+              label: "Duration",
+              id: `duration-${exercise.id}`,
+              type: "number",
+              placeholder: "e.g 1",
+              name: "duration",
+              required: false,
+              min: 1,
+              step: 1,
+              errorMessage: "Duration must be a positive integer",
+            })}
           </div>
         </div>
         <div class="${styles["dialog-action-button-container"]}">
-          ${Button({ label: "Save exercise", type: "submit", btnClass: styles["save-exercise-btn"], data: `data-exercise-id=${exercise.id}` })}
+          ${Button({
+            label: "Save exercise",
+            type: "submit",
+            btnClass: styles["save-exercise-btn"],
+            data: `data-exercise-id="${exercise.id}"`,
+          })}
         </div>
       </form>                    
     </div>
@@ -247,6 +276,7 @@ function updateExerciseToWeeklyPlan(planId: string, weeklyId: string) {
       e.preventDefault();
 
       const exerciseId = form.dataset.exerciseId;
+
       const weeklyPlanExercise: WeeklyPlanExercise | null = form.dataset
         .weeklyPlanExercise
         ? JSON.parse(form.dataset.weeklyPlanExercise)
@@ -336,7 +366,13 @@ function handelExerciseDialog() {
   });
 }
 
-function addExerciseToWeeklyPlan(planId: string, weeklyId: string) {
+function addExerciseToWeeklyPlan(
+  planId: string,
+  weeklyId: string,
+  exercises: Exercise[] | null,
+  savedExercises: string[],
+  getSavedExercise: (exerciseId: string) => WeeklyPlanExercise | undefined,
+) {
   const container = document.querySelector<HTMLDivElement>(
     `.${styles["exercises-container"]}`,
   );
@@ -397,7 +433,34 @@ function addExerciseToWeeklyPlan(planId: string, weeklyId: string) {
       if (duration) data.duration = parseInt(duration);
 
       try {
-        await createWeeklyPlanExercise(planId, weeklyId, data);
+        const weeklyExercise = await createWeeklyPlanExercise(
+          planId,
+          weeklyId,
+          data,
+        );
+
+        if (weeklyExercise) {
+          const index = savedExercises.indexOf(exerciseId!);
+          if (index === -1) savedExercises.push(exerciseId!);
+
+          container!.innerHTML = renderExercises(
+            exercises,
+            savedExercises,
+            getSavedExercise,
+          );
+
+          //re-attach all handlers after re-render since DOM was replaced
+          handelExerciseDialog();
+          handelViewExercise();
+          addExerciseToWeeklyPlan(
+            planId,
+            weeklyId,
+            exercises,
+            savedExercises,
+            getSavedExercise,
+          );
+          updateExerciseToWeeklyPlan(planId, weeklyId);
+        }
       } catch (error) {
         console.error("Error creating weekly plan exercise:", error);
         Notification({
@@ -419,7 +482,7 @@ async function createWeeklyPlanExercise(
   planId: string,
   weeklyId: string,
   data: Record<string, string | number>,
-) {
+): Promise<WeeklyPlan | null> {
   const response = await fetch(
     `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}/exercises/new`,
     {
@@ -439,12 +502,14 @@ async function createWeeklyPlanExercise(
       type: "success",
       duration: 5000,
     });
+    return resData.exercise;
   } else {
     Notification({
       message: resData.error || "Failed to create weekly plan exercise.",
       type: "error",
       duration: 5000,
     });
+    return null;
   }
 }
 
@@ -453,7 +518,7 @@ async function updateWeeklyPlanExercise(
   weeklyId: string,
   id: string,
   data: Record<string, string | number>,
-) {
+): Promise<WeeklyPlan | null> {
   const response = await fetch(
     `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}/exercises/${id}/update`, // Fix: was "/new"
     {
@@ -473,6 +538,7 @@ async function updateWeeklyPlanExercise(
       type: "success",
       duration: 5000,
     });
+    return resData.exercise;
   } else {
     Notification({
       message: resData.error || "Failed to update weekly plan exercise.",
@@ -480,6 +546,7 @@ async function updateWeeklyPlanExercise(
       duration: 5000,
     });
   }
+  return null;
 }
 
 async function fetchWeeklyPlan(
