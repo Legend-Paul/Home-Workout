@@ -40,7 +40,7 @@ export default async function NewQuickWeeklyPlanExercises(
   );
   const exercises = await fetchExercisesByMuscleGroup(searchParams.toString());
 
-  const savedExercises = weeklyPlanExercises.map(
+  const savedExercisesId = weeklyPlanExercises.map(
     (exercise) => exercise.exerciseId,
   );
   const getSavedExercise = (exerciseId: string) =>
@@ -50,20 +50,27 @@ export default async function NewQuickWeeklyPlanExercises(
 
   mainApp!.innerHTML = `
     <div class="${styles["exercises-container"]}">     
-        ${renderExercises(exercises, savedExercises, getSavedExercise)}  
+        ${renderExercises(exercises, savedExercisesId, getSavedExercise)}  
     </div>
   `;
 
   handelExerciseDialog();
   handelViewExercise();
-  addExerciseToWeeklyPlan(
+  addExerciseInWeeklyPlan(
     planId,
     weeklyId,
     exercises,
-    savedExercises,
+    savedExercisesId,
     getSavedExercise,
   );
-  updateExerciseToWeeklyPlan(planId, weeklyId);
+  updateExerciseInWeeklyPlan(planId, weeklyId);
+  removeExerciseInWeeklyPlan(
+    planId,
+    weeklyId,
+    exercises,
+    savedExercisesId,
+    getSavedExercise,
+  );
 }
 function renderExercises(
   exercises: Exercise[] | null,
@@ -222,8 +229,18 @@ function renderUpdateExerciseDialog(
           </div>
         </div>
         <div class="${styles["dialog-action-button-container"]}">
-          ${Button({ label: "Update exercise", type: "submit", btnClass: styles["update-exercise-btn"], data: `data-exercise-id=${exercise.id}` })}
-          ${Button({ label: "Remove exercise", type: "button", btnClass: styles["remove-exercise-btn"], data: `data-exercise-id=${exercise.id}` })} <!-- Fix: type should be "button" not "submit" -->
+          ${Button({
+            label: "Update exercise",
+            type: "submit",
+            btnClass: styles["update-exercise-btn"],
+            data: `data-exercise-id=${exercise.id}`,
+          })}
+          ${Button({
+            label: "Remove exercise",
+            type: "button",
+            btnClass: styles["remove-exercise-btn"],
+            data: `data-weekly-plan-exercise='${JSON.stringify(savedExercise)}'`,
+          })} 
         </div>
       </form>                    
     </div>
@@ -232,7 +249,126 @@ function renderUpdateExerciseDialog(
   return dialogContainer;
 }
 
-function updateExerciseToWeeklyPlan(planId: string, weeklyId: string) {
+function addExerciseInWeeklyPlan(
+  planId: string,
+  weeklyId: string,
+  exercises: Exercise[] | null,
+  savedExercisesId: string[],
+  getSavedExercise: (exerciseId: string) => WeeklyPlanExercise | undefined,
+) {
+  const container = document.querySelector<HTMLDivElement>(
+    `.${styles["exercises-container"]}`,
+  );
+  const forms = container!.querySelectorAll<HTMLFormElement>(
+    `.${styles["save-form"]}`,
+  );
+
+  forms.forEach((form) => {
+    const setsInput =
+      form.querySelector<HTMLInputElement>('input[name="sets"]');
+    const repsInput =
+      form.querySelector<HTMLInputElement>('input[name="reps"]');
+    const durationInput = form.querySelector<HTMLInputElement>(
+      'input[name="duration"]',
+    );
+    const saveBtn = form.querySelector<HTMLButtonElement>(
+      `.${styles["save-exercise-btn"]}`,
+    );
+
+    setsInput?.addEventListener("input", validate);
+    repsInput?.addEventListener("input", validate);
+    durationInput?.addEventListener("input", validate);
+
+    function validate() {
+      const sets = setsInput?.value;
+      const reps = repsInput?.value;
+      const duration = durationInput?.value;
+
+      if (sets && (reps || duration)) {
+        saveBtn!.disabled = false;
+        saveBtn!.style.backgroundColor = "var(--success-dark)";
+      } else {
+        saveBtn!.disabled = true;
+        saveBtn!.style.backgroundColor = "var(--success-light)";
+      }
+    }
+
+    async function handleAddExercise(e: Event) {
+      e.preventDefault();
+
+      const exerciseId = saveBtn?.dataset.exerciseId;
+      const sets = setsInput?.value;
+      const reps = repsInput?.value;
+      const duration = durationInput?.value;
+      const order = 1;
+
+      saveBtn!.innerHTML = `${Spinner({})} Saving...`;
+      saveBtn!.disabled = true;
+      saveBtn!.style.backgroundColor = "var(--success-light)";
+
+      const data: Record<string, string | number> = {
+        exerciseId: exerciseId!,
+        sets: parseInt(sets!),
+        order,
+      };
+
+      if (reps) data.reps = parseInt(reps);
+      if (duration) data.duration = parseInt(duration);
+
+      try {
+        const weeklyExercise = await createWeeklyPlanExercise(
+          planId,
+          weeklyId,
+          data,
+        );
+
+        if (weeklyExercise) {
+          const index = savedExercisesId.indexOf(exerciseId!);
+          if (index === -1) savedExercisesId.push(exerciseId!);
+
+          container!.innerHTML = renderExercises(
+            exercises,
+            savedExercisesId,
+            getSavedExercise,
+          );
+
+          //re-attach all handlers after re-render since DOM was replaced
+          handelExerciseDialog();
+          handelViewExercise();
+          addExerciseInWeeklyPlan(
+            planId,
+            weeklyId,
+            exercises,
+            savedExercisesId,
+            getSavedExercise,
+          );
+          updateExerciseInWeeklyPlan(planId, weeklyId);
+          removeExerciseInWeeklyPlan(
+            planId,
+            weeklyId,
+            exercises,
+            savedExercisesId,
+            getSavedExercise,
+          );
+        }
+      } catch (error) {
+        console.error("Error creating weekly plan exercise:", error);
+        Notification({
+          message: "An error occurred. Please try again",
+          type: "error",
+          duration: 5000,
+        });
+      } finally {
+        saveBtn!.innerHTML = "Save exercise";
+        validate();
+      }
+    }
+
+    form.addEventListener("submit", handleAddExercise);
+  });
+}
+
+function updateExerciseInWeeklyPlan(planId: string, weeklyId: string) {
   const container = document.querySelector<HTMLDivElement>(
     `.${styles["exercises-container"]}`,
   );
@@ -324,6 +460,85 @@ function updateExerciseToWeeklyPlan(planId: string, weeklyId: string) {
   });
 }
 
+function removeExerciseInWeeklyPlan(
+  planId: string,
+  weeklyId: string,
+  exercises: Exercise[] | null,
+  savedExercisesId: string[],
+  getSavedExercise: (exerciseId: string) => WeeklyPlanExercise | undefined,
+) {
+  const container = document.querySelector<HTMLDivElement>(
+    `.${styles["exercises-container"]}`,
+  );
+  const removeBtns = container!.querySelectorAll<HTMLButtonElement>(
+    `.${styles["remove-exercise-btn"]}`,
+  );
+
+  removeBtns.forEach((btn) => {
+    btn.addEventListener("clik", () => removeExercise(btn));
+  });
+
+  async function removeExercise(btn: HTMLButtonElement) {
+    const weeklyPlanExercise: WeeklyPlanExercise | null = btn.dataset
+      .weeklyPlanExercise
+      ? JSON.parse(btn.dataset.weeklyPlanExercise)
+      : null;
+
+    btn!.innerHTML = `${Spinner({})} Removing...`;
+    btn!.disabled = true;
+    btn!.style.backgroundColor = "var(--success-dark)";
+    try {
+      const weeklyExercise = await removeWeeklyPlanExercise(
+        planId,
+        weeklyId,
+        weeklyPlanExercise?.id ?? "",
+      );
+
+      if (weeklyExercise) {
+        const index = savedExercisesId.findIndex(
+          (id) => id === weeklyExercise.id,
+        );
+        if (index !== -1) savedExercisesId.splice(index, 1);
+
+        container!.innerHTML = renderExercises(
+          exercises,
+          savedExercisesId,
+          getSavedExercise,
+        );
+
+        //re-attach all handlers after re-render since DOM was replaced
+        handelExerciseDialog();
+        handelViewExercise();
+        addExerciseInWeeklyPlan(
+          planId,
+          weeklyId,
+          exercises,
+          savedExercisesId,
+          getSavedExercise,
+        );
+        removeExerciseInWeeklyPlan(
+          planId,
+          weeklyId,
+          exercises,
+          savedExercisesId,
+          getSavedExercise,
+        );
+        updateExerciseInWeeklyPlan(planId, weeklyId);
+      }
+    } catch (error) {
+      console.error("Error updating weekly plan exercise:", error);
+      Notification({
+        message: "An error occurred. Please try again",
+        type: "error",
+        duration: 5000,
+      });
+    } finally {
+      btn!.style.backgroundColor = "var(--success-light)";
+      btn!.innerHTML = "Update exercise";
+    }
+  }
+}
+
 function handelViewExercise() {
   const viewExerciseBtn = document.querySelectorAll<HTMLButtonElement>(
     `.${styles["view-exercise-btn"]}`,
@@ -363,118 +578,6 @@ function handelExerciseDialog() {
       ) as HTMLDivElement;
       dialog.classList.replace(styles["view-dialog"], styles["hide-dialog"]);
     });
-  });
-}
-
-function addExerciseToWeeklyPlan(
-  planId: string,
-  weeklyId: string,
-  exercises: Exercise[] | null,
-  savedExercises: string[],
-  getSavedExercise: (exerciseId: string) => WeeklyPlanExercise | undefined,
-) {
-  const container = document.querySelector<HTMLDivElement>(
-    `.${styles["exercises-container"]}`,
-  );
-  const forms = container!.querySelectorAll<HTMLFormElement>(
-    `.${styles["save-form"]}`,
-  );
-
-  forms.forEach((form) => {
-    const setsInput =
-      form.querySelector<HTMLInputElement>('input[name="sets"]');
-    const repsInput =
-      form.querySelector<HTMLInputElement>('input[name="reps"]');
-    const durationInput = form.querySelector<HTMLInputElement>(
-      'input[name="duration"]',
-    );
-    const saveBtn = form.querySelector<HTMLButtonElement>(
-      `.${styles["save-exercise-btn"]}`,
-    );
-
-    setsInput?.addEventListener("input", validate);
-    repsInput?.addEventListener("input", validate);
-    durationInput?.addEventListener("input", validate);
-
-    function validate() {
-      const sets = setsInput?.value;
-      const reps = repsInput?.value;
-      const duration = durationInput?.value;
-
-      if (sets && (reps || duration)) {
-        saveBtn!.disabled = false;
-        saveBtn!.style.backgroundColor = "var(--success-dark)";
-      } else {
-        saveBtn!.disabled = true;
-        saveBtn!.style.backgroundColor = "var(--success-light)";
-      }
-    }
-
-    async function handleAddExercise(e: Event) {
-      e.preventDefault();
-
-      const exerciseId = saveBtn?.dataset.exerciseId;
-      const sets = setsInput?.value;
-      const reps = repsInput?.value;
-      const duration = durationInput?.value;
-      const order = 1;
-
-      saveBtn!.innerHTML = `${Spinner({})} Saving...`;
-      saveBtn!.disabled = true;
-      saveBtn!.style.backgroundColor = "var(--success-light)";
-
-      const data: Record<string, string | number> = {
-        exerciseId: exerciseId!,
-        sets: parseInt(sets!),
-        order,
-      };
-
-      if (reps) data.reps = parseInt(reps);
-      if (duration) data.duration = parseInt(duration);
-
-      try {
-        const weeklyExercise = await createWeeklyPlanExercise(
-          planId,
-          weeklyId,
-          data,
-        );
-
-        if (weeklyExercise) {
-          const index = savedExercises.indexOf(exerciseId!);
-          if (index === -1) savedExercises.push(exerciseId!);
-
-          container!.innerHTML = renderExercises(
-            exercises,
-            savedExercises,
-            getSavedExercise,
-          );
-
-          //re-attach all handlers after re-render since DOM was replaced
-          handelExerciseDialog();
-          handelViewExercise();
-          addExerciseToWeeklyPlan(
-            planId,
-            weeklyId,
-            exercises,
-            savedExercises,
-            getSavedExercise,
-          );
-          updateExerciseToWeeklyPlan(planId, weeklyId);
-        }
-      } catch (error) {
-        console.error("Error creating weekly plan exercise:", error);
-        Notification({
-          message: "An error occurred. Please try again",
-          type: "error",
-          duration: 5000,
-        });
-      } finally {
-        saveBtn!.innerHTML = "Save exercise";
-        validate();
-      }
-    }
-
-    form.addEventListener("submit", handleAddExercise);
   });
 }
 
@@ -528,6 +631,40 @@ async function updateWeeklyPlanExercise(
         Authorization: token,
       },
       body: JSON.stringify(data),
+    },
+  );
+
+  const resData = await response.json();
+  if (response.ok) {
+    Notification({
+      message: resData.message || "Weekly plan exercise updated successfully.",
+      type: "success",
+      duration: 5000,
+    });
+    return resData.exercise;
+  } else {
+    Notification({
+      message: resData.error || "Failed to update weekly plan exercise.",
+      type: "error",
+      duration: 5000,
+    });
+  }
+  return null;
+}
+
+async function removeWeeklyPlanExercise(
+  planId: string,
+  weeklyId: string,
+  id: string,
+): Promise<WeeklyPlan | null> {
+  const response = await fetch(
+    `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}/exercises/${id}/delete`, // Fix: was "/new"
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: token,
+      },
     },
   );
 

@@ -229,13 +229,13 @@ export const deleteQuickPlanExercise = async (
       return;
     }
 
-    await prisma.quickStartExercise.delete({
+    const exercise = await prisma.quickStartExercise.delete({
       where: { id: id },
     });
 
     res
       .status(200)
-      .json({ message: "Quick start exercise deleted successfully" });
+      .json({ message: "Quick start exercise deleted successfully", exercise });
   } catch (error) {
     console.error("Error deleting quick start exercise:", error);
     res.status(500).json({ error: "Failed to delete quick start exercise" });
