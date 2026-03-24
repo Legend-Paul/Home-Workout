@@ -13,21 +13,34 @@ import { navigate } from "../../router";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
-
 const token = localStorage.getItem("Authorization") || "";
+
+interface PageState {
+  planId: string;
+  weeklyId: string;
+  exercises: Exercise[];
+  weeklyPlanExercises: WeeklyPlanExercise[];
+}
+
+function getSavedIds(state: PageState): string[] {
+  return state.weeklyPlanExercises.map((e) => e.exerciseId);
+}
+
+function getSavedExercise(
+  state: PageState,
+  exerciseId: string,
+): WeeklyPlanExercise | undefined {
+  return state.weeklyPlanExercises.find((e) => e.exerciseId === exerciseId);
+}
 
 export default async function NewQuickWeeklyPlanExercises(
   params?: Record<string, string>,
 ) {
-  const mainApp = document.getElementById("main-app");
+  const mainApp = document.getElementById("main-app")!;
+  mainApp.innerHTML = Spinner({ type: "large", message: "Loading..." });
 
-  mainApp!.innerHTML = Spinner({
-    type: "large",
-    message: "Loading...",
-  });
-
-  const planId = params?.planId as string;
-  const weeklyId = params?.id as string;
+  const planId = params?.planId ?? "";
+  const weeklyId = params?.id ?? "";
 
   const [weeklyPlan, weeklyPlanExercises] = await Promise.all([
     fetchWeeklyPlan(planId, weeklyId),
@@ -38,144 +51,81 @@ export default async function NewQuickWeeklyPlanExercises(
   weeklyPlan?.muscleGroup.forEach((mg) =>
     searchParams.append("muscleGroup", mg),
   );
-  const exercises = await fetchExercisesByMuscleGroup(searchParams.toString());
+  const exercises =
+    (await fetchExercisesByMuscleGroup(searchParams.toString())) ?? [];
 
-  const savedExercisesId = weeklyPlanExercises.map(
-    (exercise) => exercise.exerciseId,
-  );
-  const getSavedExercise = (exerciseId: string) =>
-    weeklyPlanExercises.find(
-      (exercise: WeeklyPlanExercise) => exercise.exerciseId === exerciseId,
-    );
-
-  mainApp!.innerHTML = `
-    <div class="${styles["exercises-container"]}">     
-        ${renderExercises(exercises, savedExercisesId, getSavedExercise)}  
-    </div>
-  `;
-
-  handelExerciseDialog();
-  handelViewExercise();
-  addExerciseInWeeklyPlan(
+  const state: PageState = {
     planId,
     weeklyId,
     exercises,
-    savedExercisesId,
-    getSavedExercise,
-  );
-  updateExerciseInWeeklyPlan(planId, weeklyId);
-  removeExerciseInWeeklyPlan(
-    planId,
-    weeklyId,
-    exercises,
-    savedExercisesId,
-    getSavedExercise,
-  );
+    weeklyPlanExercises,
+  };
+
+  mainApp.innerHTML = `<div class="${styles["exercises-container"]}"></div>`;
+  const container = mainApp.querySelector<HTMLDivElement>(
+    `.${styles["exercises-container"]}`,
+  )!;
+
+  renderPage(container, state);
 }
-function renderExercises(
-  exercises: Exercise[] | null,
-  savedExercises: string[],
-  getSavedExercise: (exerciseId: string) => WeeklyPlanExercise | undefined,
-): string {
-  const container = document.createElement("div");
 
-  container.innerHTML = `
-   <div class="${styles["exercises"]}">
-    ${exercises
-      ?.map(
-        (exercise) => `
-          <div class="${styles["exercise-container"]} 
-          ${savedExercises.includes(exercise.id) ? styles["saved-exercise"] : ""}">
+// ─── Render ───────────────────────────────────────────────────────────────────
+
+function renderPage(container: HTMLDivElement, state: PageState) {
+  const savedIds = getSavedIds(state);
+  container.innerHTML = renderExercises(state.exercises, savedIds, state);
+  attachAllHandlers(container, state);
+}
+
+function renderExercises(
+  exercises: Exercise[],
+  savedIds: string[],
+  state: PageState,
+): string {
+  if (!exercises.length) {
+    return `<p class="${styles["empty"]}">No exercises found for this plan.</p>`;
+  }
+
+  return `
+    <div class="${styles["exercises"]}">
+      ${exercises
+        .map((exercise) => {
+          const isSaved = savedIds.includes(exercise.id);
+          const savedExercise = getSavedExercise(state, exercise.id);
+          return `
+          <div class="${styles["exercise-container"]} ${isSaved ? styles["saved-exercise"] : ""}">
             <div class="${styles["exercise"]}">
               <h3>${exercise.name}</h3>
-              <p>
-                ${exercise.muscleGroup
-                  .map(
-                    (muscleGroup: string) =>
-                      muscleGroup.charAt(0).toUpperCase() +
-                      muscleGroup.slice(1),
-                  )
-                  .join(", ")}
-              </p>
-              <p>
-                ${exercise.equipment
-                  .map(
-                    (equipment) =>
-                      equipment.charAt(0).toUpperCase() + equipment.slice(1),
-                  )
-                  .join(", ")}
-              </p>
-            </div>                
+              <p>${formatList(exercise.muscleGroup)}</p>
+              <p>${formatList(exercise.equipment)}</p>
+            </div>
             ${
-              savedExercises.includes(exercise.id)
-                ? renderUpdateExerciseDialog(
-                    exercise,
-                    getSavedExercise(exercise.id),
-                  ).outerHTML
-                : renderExerciseDialog(exercise).outerHTML
+              isSaved
+                ? renderUpdateDialog(exercise, savedExercise).outerHTML
+                : renderAddDialog(exercise).outerHTML
             }
-          </div> 
-        `,
-      )
-      .join("")}
-    </div>
-  `;
-
-  return container.innerHTML; // Fix: return innerHTML string
+          </div>`;
+        })
+        .join("")}
+    </div>`;
 }
 
-function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
-  const dialogContainer = document.createElement("div");
-  dialogContainer.className = `${styles["exercise-dialog-container"]} ${styles["hide-dialog"]}`;
-
-  dialogContainer.innerHTML = `
+function renderAddDialog(exercise: Exercise): HTMLDivElement {
+  const wrap = document.createElement("div");
+  wrap.className = `${styles["exercise-dialog-container"]} ${styles["hide-dialog"]}`;
+  wrap.innerHTML = `
     <div class="${formStyles["auth-container"]} ${styles["exercise-dialog"]}">
       <h2>🏋️ ${exercise.name} volume</h2>
-      <div class="${styles["heading-buttons"]}">                      
-        ${Button({
-          label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9l-6 6m0-6h6v6" />
-                  </svg><span>View exercise</span>`,
-          type: "button",
-          btnClass: styles["view-exercise-btn"],
-          data: `data-exercise-id=${exercise.id}`,
-        })}
+      <div class="${styles["heading-buttons"]}">
+        ${viewExerciseButton(exercise.id)}
       </div>
-      <div class="${styles["close-dialog-btn"]}">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </div>
-      <form class="${formStyles["auth-form"]} ${styles["save-form"]}" method="POST" data-exercise-id="${exercise.id}">
-        ${Input({ label: "Sets", id: `sets-${exercise.id}`, type: "number", placeholder: "eg 1", name: "sets", required: true, min: 1, step: 1, errorMessage: "Sets must be a positive integer" })}
-        <div class="${styles["exercise-type"]}">
-          <h3>Select exercise reps or duration or both</h3>
-          <div class="${styles["exercise-type-input"]}">
-            ${Input({
-              label: "Reps",
-              id: `reps-${exercise.id}`,
-              type: "number",
-              placeholder: "e.g 1",
-              name: "reps",
-              required: false,
-              min: 1,
-              step: 1,
-              errorMessage: "Reps must be a positive integer",
-            })}
-            ${Input({
-              label: "Duration",
-              id: `duration-${exercise.id}`,
-              type: "number",
-              placeholder: "e.g 1",
-              name: "duration",
-              required: false,
-              min: 1,
-              step: 1,
-              errorMessage: "Duration must be a positive integer",
-            })}
-          </div>
-        </div>
+      ${closeButton()}
+      <form
+        class="${formStyles["auth-form"]} ${styles["save-form"]}"
+        method="POST"
+        data-exercise-id="${exercise.id}">
+        ${setsInput(exercise.id)}
+        ${repsAndDurationInputs(exercise.id)}
         <div class="${styles["dialog-action-button-container"]}">
           ${Button({
             label: "Save exercise",
@@ -184,436 +134,417 @@ function renderExerciseDialog(exercise: Exercise): HTMLDivElement {
             data: `data-exercise-id="${exercise.id}"`,
           })}
         </div>
-      </form>                    
-    </div>
-  `;
-
-  return dialogContainer;
+      </form>
+    </div>`;
+  return wrap;
 }
 
-function renderUpdateExerciseDialog(
+function renderUpdateDialog(
   exercise: Exercise,
-  savedExercise: WeeklyPlanExercise | undefined,
+  saved: WeeklyPlanExercise | undefined,
 ): HTMLDivElement {
-  const dialogContainer = document.createElement("div");
-  dialogContainer.className = `${styles["exercise-dialog-container"]} ${styles["hide-dialog"]}`;
-
-  dialogContainer.innerHTML = `
+  const wrap = document.createElement("div");
+  wrap.className = `${styles["exercise-dialog-container"]} ${styles["hide-dialog"]}`;
+  wrap.innerHTML = `
     <div class="${formStyles["auth-container"]} ${styles["exercise-dialog"]}">
       <h2>🏋️ Update ${exercise.name} volume</h2>
-      <div class="${styles["heading-buttons"]}">                      
-        ${Button({
-          label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9l-6 6m0-6h6v6" />
-                  </svg><span>View exercise</span>`,
-          type: "button",
-          btnClass: styles["view-exercise-btn"],
-          data: `data-exercise-id=${exercise.id}`,
-        })}
+      <div class="${styles["heading-buttons"]}">
+        ${viewExerciseButton(exercise.id)}
       </div>
-      <div class="${styles["close-dialog-btn"]}">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </div>
-      <form class="${formStyles["auth-form"]} ${styles["update-form"]}" method="POST" 
+      ${closeButton()}
+      <form
+        class="${formStyles["auth-form"]} ${styles["update-form"]}"
+        method="POST"
         data-exercise-id="${exercise.id}"
-        data-weekly-plan-exercise='${JSON.stringify(savedExercise)}'>
-        ${Input({ label: "Sets", id: `sets-${exercise.id}`, value: savedExercise?.sets ?? undefined, type: "number", placeholder: "eg 1", name: "sets", required: true, min: 1, step: 1, errorMessage: "Sets must be a positive integer" })}
-        <div class="${styles["exercise-type"]}">
-          <h3>Select exercise reps or duration or both</h3>
-          <div class="${styles["exercise-type-input"]}">
-            ${Input({ label: "Reps", id: `reps-${exercise.id}`, value: savedExercise?.reps ?? undefined, type: "number", placeholder: "e.g 1", name: "reps", required: false, min: 1, step: 1, errorMessage: "Reps must be a positive integer" })}
-            ${Input({ label: "Duration", id: `duration-${exercise.id}`, value: savedExercise?.duration ?? undefined, type: "number", placeholder: "e.g 1", name: "duration", required: false, min: 1, step: 1, errorMessage: "Duration must be a positive integer" })}
-          </div>
-        </div>
+        data-weekly-plan-exercise='${JSON.stringify(saved ?? null)}'>
+        ${setsInput(exercise.id, saved?.sets)}
+        ${repsAndDurationInputs(exercise.id, saved?.reps, saved?.duration)}
         <div class="${styles["dialog-action-button-container"]}">
           ${Button({
             label: "Update exercise",
             type: "submit",
             btnClass: styles["update-exercise-btn"],
-            data: `data-exercise-id=${exercise.id}`,
+            data: `data-exercise-id="${exercise.id}"`,
           })}
           ${Button({
             label: "Remove exercise",
             type: "button",
             btnClass: styles["remove-exercise-btn"],
-            data: `data-weekly-plan-exercise='${JSON.stringify(savedExercise)}'`,
-          })} 
+            data: `data-weekly-plan-exercise='${JSON.stringify(saved ?? null)}'`,
+          })}
         </div>
-      </form>                    
-    </div>
-  `;
-
-  return dialogContainer;
+      </form>
+    </div>`;
+  return wrap;
 }
 
-function addExerciseInWeeklyPlan(
-  planId: string,
-  weeklyId: string,
-  exercises: Exercise[] | null,
-  savedExercisesId: string[],
-  getSavedExercise: (exerciseId: string) => WeeklyPlanExercise | undefined,
-) {
-  const container = document.querySelector<HTMLDivElement>(
-    `.${styles["exercises-container"]}`,
-  );
-  const forms = container!.querySelectorAll<HTMLFormElement>(
-    `.${styles["save-form"]}`,
-  );
-
-  forms.forEach((form) => {
-    const setsInput =
-      form.querySelector<HTMLInputElement>('input[name="sets"]');
-    const repsInput =
-      form.querySelector<HTMLInputElement>('input[name="reps"]');
-    const durationInput = form.querySelector<HTMLInputElement>(
-      'input[name="duration"]',
-    );
-    const saveBtn = form.querySelector<HTMLButtonElement>(
-      `.${styles["save-exercise-btn"]}`,
-    );
-
-    setsInput?.addEventListener("input", validate);
-    repsInput?.addEventListener("input", validate);
-    durationInput?.addEventListener("input", validate);
-
-    function validate() {
-      const sets = setsInput?.value;
-      const reps = repsInput?.value;
-      const duration = durationInput?.value;
-
-      if (sets && (reps || duration)) {
-        saveBtn!.disabled = false;
-        saveBtn!.style.backgroundColor = "var(--success-dark)";
-      } else {
-        saveBtn!.disabled = true;
-        saveBtn!.style.backgroundColor = "var(--success-light)";
-      }
-    }
-
-    async function handleAddExercise(e: Event) {
-      e.preventDefault();
-
-      const exerciseId = saveBtn?.dataset.exerciseId;
-      const sets = setsInput?.value;
-      const reps = repsInput?.value;
-      const duration = durationInput?.value;
-      const order = 1;
-
-      saveBtn!.innerHTML = `${Spinner({})} Saving...`;
-      saveBtn!.disabled = true;
-      saveBtn!.style.backgroundColor = "var(--success-light)";
-
-      const data: Record<string, string | number> = {
-        exerciseId: exerciseId!,
-        sets: parseInt(sets!),
-        order,
-      };
-
-      if (reps) data.reps = parseInt(reps);
-      if (duration) data.duration = parseInt(duration);
-
-      try {
-        const weeklyExercise = await createWeeklyPlanExercise(
-          planId,
-          weeklyId,
-          data,
-        );
-
-        if (weeklyExercise) {
-          const index = savedExercisesId.indexOf(exerciseId!);
-          if (index === -1) savedExercisesId.push(exerciseId!);
-
-          container!.innerHTML = renderExercises(
-            exercises,
-            savedExercisesId,
-            getSavedExercise,
-          );
-
-          //re-attach all handlers after re-render since DOM was replaced
-          handelExerciseDialog();
-          handelViewExercise();
-          addExerciseInWeeklyPlan(
-            planId,
-            weeklyId,
-            exercises,
-            savedExercisesId,
-            getSavedExercise,
-          );
-          updateExerciseInWeeklyPlan(planId, weeklyId);
-          removeExerciseInWeeklyPlan(
-            planId,
-            weeklyId,
-            exercises,
-            savedExercisesId,
-            getSavedExercise,
-          );
-        }
-      } catch (error) {
-        console.error("Error creating weekly plan exercise:", error);
-        Notification({
-          message: "An error occurred. Please try again",
-          type: "error",
-          duration: 5000,
-        });
-      } finally {
-        saveBtn!.innerHTML = "Save exercise";
-        validate();
-      }
-    }
-
-    form.addEventListener("submit", handleAddExercise);
+function viewExerciseButton(exerciseId: string): string {
+  return Button({
+    label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M15 9l-6 6m0-6h6v6"/>
+    </svg><span>View exercise</span>`,
+    type: "button",
+    btnClass: styles["view-exercise-btn"],
+    data: `data-exercise-id="${exerciseId}"`,
   });
 }
 
-function updateExerciseInWeeklyPlan(planId: string, weeklyId: string) {
-  const container = document.querySelector<HTMLDivElement>(
-    `.${styles["exercises-container"]}`,
-  );
-  const forms = container?.querySelectorAll<HTMLFormElement>(
-    `.${styles["update-form"]}`,
-  );
+function closeButton(): string {
+  return `
+    <div class="${styles["close-dialog-btn"]}">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </div>`;
+}
 
-  forms?.forEach((form) => {
-    const setsInput =
-      form.querySelector<HTMLInputElement>('input[name="sets"]');
-    const repsInput =
-      form.querySelector<HTMLInputElement>('input[name="reps"]');
-    const durationInput = form.querySelector<HTMLInputElement>(
-      'input[name="duration"]',
-    );
-    const updateBtn = form.querySelector<HTMLButtonElement>(
-      `.${styles["update-exercise-btn"]}`,
-    );
-
-    validate();
-
-    setsInput?.addEventListener("input", validate);
-    repsInput?.addEventListener("input", validate);
-    durationInput?.addEventListener("input", validate);
-
-    function validate() {
-      const sets = setsInput?.value;
-      const reps = repsInput?.value;
-      const duration = durationInput?.value;
-
-      if (sets && (reps || duration)) {
-        updateBtn!.disabled = false;
-        updateBtn!.style.backgroundColor = "var(--success-dark)";
-      } else {
-        updateBtn!.disabled = true;
-        updateBtn!.style.backgroundColor = "var(--success-light)";
-      }
-    }
-
-    async function handleUpdateExercise(e: Event) {
-      e.preventDefault();
-
-      const exerciseId = form.dataset.exerciseId;
-
-      const weeklyPlanExercise: WeeklyPlanExercise | null = form.dataset
-        .weeklyPlanExercise
-        ? JSON.parse(form.dataset.weeklyPlanExercise)
-        : null;
-
-      const sets = setsInput?.value;
-      const reps = repsInput?.value;
-      const duration = durationInput?.value;
-      const order = weeklyPlanExercise?.order ?? 1;
-
-      updateBtn!.innerHTML = `${Spinner({})} Updating...`;
-      updateBtn!.disabled = true;
-      updateBtn!.style.backgroundColor = "var(--success-light)";
-
-      const data: Record<string, string | number> = {
-        exerciseId: exerciseId!,
-        sets: parseInt(sets!),
-        order,
-      };
-
-      if (reps) data.reps = parseInt(reps);
-      if (duration) data.duration = parseInt(duration);
-
-      try {
-        await updateWeeklyPlanExercise(
-          planId,
-          weeklyId,
-          weeklyPlanExercise?.id ?? "",
-          data,
-        );
-      } catch (error) {
-        console.error("Error updating weekly plan exercise:", error);
-        Notification({
-          message: "An error occurred. Please try again",
-          type: "error",
-          duration: 5000,
-        });
-      } finally {
-        updateBtn!.innerHTML = "Update exercise";
-        validate();
-      }
-    }
-
-    form.addEventListener("submit", handleUpdateExercise);
+function setsInput(exerciseId: string, value?: number | null): string {
+  return Input({
+    label: "Sets",
+    id: `sets-${exerciseId}`,
+    type: "number",
+    placeholder: "e.g 1",
+    name: "sets",
+    required: true,
+    min: 1,
+    step: 1,
+    value: value ?? undefined,
+    errorMessage: "Sets must be a positive integer",
   });
 }
 
-function removeExerciseInWeeklyPlan(
-  planId: string,
-  weeklyId: string,
-  exercises: Exercise[] | null,
-  savedExercisesId: string[],
-  getSavedExercise: (exerciseId: string) => WeeklyPlanExercise | undefined,
-) {
-  const container = document.querySelector<HTMLDivElement>(
-    `.${styles["exercises-container"]}`,
+function repsAndDurationInputs(
+  exerciseId: string,
+  reps?: number | null,
+  duration?: number | null,
+): string {
+  return `
+    <div class="${styles["exercise-type"]}">
+      <h3>Select exercise reps or duration or both</h3>
+      <div class="${styles["exercise-type-input"]}">
+        ${Input({
+          label: "Reps",
+          id: `reps-${exerciseId}`,
+          type: "number",
+          placeholder: "e.g 1",
+          name: "reps",
+          required: false,
+          min: 1,
+          step: 1,
+          value: reps ?? undefined,
+          errorMessage: "Reps must be a positive integer",
+        })}
+        ${Input({
+          label: "Duration",
+          id: `duration-${exerciseId}`,
+          type: "number",
+          placeholder: "e.g 1",
+          name: "duration",
+          required: false,
+          min: 1,
+          step: 1,
+          value: duration ?? undefined,
+          errorMessage: "Duration must be a positive integer",
+        })}
+      </div>
+    </div>`;
+}
+
+function attachAllHandlers(container: HTMLDivElement, state: PageState) {
+  attachDialogHandlers(container);
+  attachViewHandlers(container);
+  attachAddHandlers(container, state);
+  attachUpdateHandlers(container, state);
+  attachRemoveHandlers(container, state);
+}
+
+function attachDialogHandlers(container: HTMLDivElement) {
+  container
+    .querySelectorAll<HTMLDivElement>(`.${styles["exercise"]}`)
+    .forEach((el) => {
+      el.addEventListener("click", () => toggleDialog(el, "open"));
+    });
+
+  container
+    .querySelectorAll<HTMLDivElement>(`.${styles["close-dialog-btn"]}`)
+    .forEach((btn) => {
+      btn.addEventListener("click", () => toggleDialog(btn, "close"));
+    });
+}
+
+function toggleDialog(el: Element, action: "open" | "close") {
+  const exerciseContainer = el.closest(`.${styles["exercise-container"]}`);
+  const dialog = exerciseContainer?.querySelector<HTMLDivElement>(
+    `.${styles["exercise-dialog-container"]}`,
   );
-  const removeBtns = container!.querySelectorAll<HTMLButtonElement>(
-    `.${styles["remove-exercise-btn"]}`,
-  );
+  if (!dialog) return;
 
-  removeBtns.forEach((btn) => {
-    btn.addEventListener("clik", () => removeExercise(btn));
-  });
-
-  async function removeExercise(btn: HTMLButtonElement) {
-    const weeklyPlanExercise: WeeklyPlanExercise | null = btn.dataset
-      .weeklyPlanExercise
-      ? JSON.parse(btn.dataset.weeklyPlanExercise)
-      : null;
-
-    btn!.innerHTML = `${Spinner({})} Removing...`;
-    btn!.disabled = true;
-    btn!.style.backgroundColor = "var(--success-dark)";
-    try {
-      const weeklyExercise = await removeWeeklyPlanExercise(
-        planId,
-        weeklyId,
-        weeklyPlanExercise?.id ?? "",
-      );
-
-      if (weeklyExercise) {
-        const index = savedExercisesId.findIndex(
-          (id) => id === weeklyExercise.id,
-        );
-        if (index !== -1) savedExercisesId.splice(index, 1);
-
-        container!.innerHTML = renderExercises(
-          exercises,
-          savedExercisesId,
-          getSavedExercise,
-        );
-
-        //re-attach all handlers after re-render since DOM was replaced
-        handelExerciseDialog();
-        handelViewExercise();
-        addExerciseInWeeklyPlan(
-          planId,
-          weeklyId,
-          exercises,
-          savedExercisesId,
-          getSavedExercise,
-        );
-        removeExerciseInWeeklyPlan(
-          planId,
-          weeklyId,
-          exercises,
-          savedExercisesId,
-          getSavedExercise,
-        );
-        updateExerciseInWeeklyPlan(planId, weeklyId);
-      }
-    } catch (error) {
-      console.error("Error updating weekly plan exercise:", error);
-      Notification({
-        message: "An error occurred. Please try again",
-        type: "error",
-        duration: 5000,
-      });
-    } finally {
-      btn!.style.backgroundColor = "var(--success-light)";
-      btn!.innerHTML = "Update exercise";
-    }
+  if (action === "open") {
+    dialog.classList.replace(styles["hide-dialog"], styles["view-dialog"]);
+  } else {
+    dialog.classList.replace(styles["view-dialog"], styles["hide-dialog"]);
   }
 }
 
-function handelViewExercise() {
-  const viewExerciseBtn = document.querySelectorAll<HTMLButtonElement>(
-    `.${styles["view-exercise-btn"]}`,
-  );
-
-  viewExerciseBtn.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const exerciseId = btn.dataset.exerciseId;
-      navigate(`/api/exercises/${exerciseId}`);
+function attachViewHandlers(container: HTMLDivElement) {
+  container
+    .querySelectorAll<HTMLButtonElement>(`.${styles["view-exercise-btn"]}`)
+    .forEach((btn) => {
+      btn.addEventListener("click", () => {
+        navigate(`/api/exercises/${btn.dataset.exerciseId}`);
+      });
     });
+}
+
+function attachAddHandlers(container: HTMLDivElement, state: PageState) {
+  container
+    .querySelectorAll<HTMLFormElement>(`.${styles["save-form"]}`)
+    .forEach((form) => {
+      const { setsEl, repsEl, durationEl } = getFormInputs(form);
+      const saveBtn = form.querySelector<HTMLButtonElement>(
+        `.${styles["save-exercise-btn"]}`,
+      )!;
+
+      const validate = makeValidator(setsEl, repsEl, durationEl, saveBtn);
+      setsEl?.addEventListener("input", validate);
+      repsEl?.addEventListener("input", validate);
+      durationEl?.addEventListener("input", validate);
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const exerciseId = form.dataset.exerciseId!;
+        const payload = buildPayload(exerciseId, setsEl, repsEl, durationEl);
+
+        setButtonLoading(
+          saveBtn,
+          Spinner({}),
+          "Saving...",
+          "var(--success-light)",
+        );
+
+        try {
+          const created = await createWeeklyPlanExercise(
+            state.planId,
+            state.weeklyId,
+            payload,
+          );
+
+          if (created) {
+            if (
+              !state.weeklyPlanExercises.some(
+                (e) => e.exerciseId === exerciseId,
+              )
+            ) {
+              state.weeklyPlanExercises.push(created);
+            }
+            renderPage(container, state);
+          }
+        } catch {
+          showError();
+        } finally {
+          setButtonText(saveBtn, "Save exercise");
+          validate();
+        }
+      });
+    });
+}
+
+function attachUpdateHandlers(container: HTMLDivElement, state: PageState) {
+  container
+    .querySelectorAll<HTMLFormElement>(`.${styles["update-form"]}`)
+    .forEach((form) => {
+      const { setsEl, repsEl, durationEl } = getFormInputs(form);
+      const updateBtn = form.querySelector<HTMLButtonElement>(
+        `.${styles["update-exercise-btn"]}`,
+      )!;
+
+      const validate = makeValidator(setsEl, repsEl, durationEl, updateBtn);
+      validate();
+      setsEl?.addEventListener("input", validate);
+      repsEl?.addEventListener("input", validate);
+      durationEl?.addEventListener("input", validate);
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const exerciseId = form.dataset.exerciseId!;
+        const saved: WeeklyPlanExercise | null = form.dataset.weeklyPlanExercise
+          ? JSON.parse(form.dataset.weeklyPlanExercise)
+          : null;
+
+        const payload = buildPayload(
+          exerciseId,
+          setsEl,
+          repsEl,
+          durationEl,
+          saved?.order ?? 1,
+        );
+
+        setButtonLoading(
+          updateBtn,
+          Spinner({}),
+          "Updating...",
+          "var(--success-light)",
+        );
+
+        try {
+          const updated = await updateWeeklyPlanExercise(
+            state.planId,
+            state.weeklyId,
+            saved?.id ?? "",
+            payload,
+          );
+
+          if (updated) {
+            const idx = state.weeklyPlanExercises.findIndex(
+              (e) => e.id === updated.id,
+            );
+            if (idx !== -1) state.weeklyPlanExercises[idx] = updated;
+            renderPage(container, state);
+          }
+        } catch {
+          showError();
+        } finally {
+          setButtonText(updateBtn, "Update exercise");
+          validate();
+        }
+      });
+    });
+}
+
+function attachRemoveHandlers(container: HTMLDivElement, state: PageState) {
+  container
+    .querySelectorAll<HTMLButtonElement>(`.${styles["remove-exercise-btn"]}`)
+    .forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const saved: WeeklyPlanExercise | null = btn.dataset.weeklyPlanExercise
+          ? JSON.parse(btn.dataset.weeklyPlanExercise)
+          : null;
+
+        setButtonLoading(btn, Spinner({}), "Removing...", "var(--error-dark)");
+
+        try {
+          const removed = await removeWeeklyPlanExercise(
+            state.planId,
+            state.weeklyId,
+            saved?.id ?? "",
+          );
+
+          if (removed) {
+            state.weeklyPlanExercises = state.weeklyPlanExercises.filter(
+              (e) => e.id !== saved?.id,
+            );
+            renderPage(container, state);
+          }
+        } catch {
+          showError();
+        }
+      });
+    });
+}
+
+function getFormInputs(form: HTMLFormElement) {
+  return {
+    setsEl: form.querySelector<HTMLInputElement>('input[name="sets"]'),
+    repsEl: form.querySelector<HTMLInputElement>('input[name="reps"]'),
+    durationEl: form.querySelector<HTMLInputElement>('input[name="duration"]'),
+  };
+}
+
+function makeValidator(
+  setsEl: HTMLInputElement | null,
+  repsEl: HTMLInputElement | null,
+  durationEl: HTMLInputElement | null,
+  btn: HTMLButtonElement,
+) {
+  return function validate() {
+    const valid = setsEl?.value && (repsEl?.value || durationEl?.value);
+    btn.disabled = !valid;
+    btn.style.backgroundColor = valid
+      ? "var(--success-dark)"
+      : "var(--success-light)";
+  };
+}
+
+function buildPayload(
+  exerciseId: string,
+  setsEl: HTMLInputElement | null,
+  repsEl: HTMLInputElement | null,
+  durationEl: HTMLInputElement | null,
+  order = 1,
+): Record<string, string | number> {
+  const payload: Record<string, string | number> = {
+    exerciseId,
+    sets: parseInt(setsEl?.value ?? "1"),
+    order,
+  };
+  if (repsEl?.value) payload.reps = parseInt(repsEl.value);
+  if (durationEl?.value) payload.duration = parseInt(durationEl.value);
+  return payload;
+}
+
+function setButtonLoading(
+  btn: HTMLButtonElement,
+  spinner: string,
+  label: string,
+  bg: string,
+) {
+  btn.innerHTML = `${spinner} ${label}`;
+  btn.disabled = true;
+  btn.style.backgroundColor = bg;
+}
+
+function setButtonText(btn: HTMLButtonElement, label: string) {
+  btn.innerHTML = label;
+}
+
+function showError() {
+  Notification({
+    message: "An error occurred. Please try again",
+    type: "error",
+    duration: 5000,
   });
 }
 
-function handelExerciseDialog() {
-  const exercisesDiv = document.querySelectorAll<HTMLDivElement>(
-    `.${styles["exercise"]}`,
-  );
-  const closeDialogBtn = document.querySelectorAll<HTMLDivElement>(
-    `.${styles["close-dialog-btn"]}`,
-  );
+function formatList(items: string[]): string {
+  return items
+    .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
+    .join(", ");
+}
 
-  exercisesDiv.forEach((exercise) => {
-    exercise.addEventListener("click", () => {
-      const container = exercise.closest(`.${styles["exercise-container"]}`);
-      const dialog = container!.querySelector(
-        `.${styles["exercise-dialog-container"]}`,
-      ) as HTMLDivElement;
-      dialog.classList.replace(styles["hide-dialog"], styles["view-dialog"]);
-    });
-  });
-
-  closeDialogBtn.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const container = btn.closest(`.${styles["exercise-container"]}`);
-      const dialog = container!.querySelector(
-        `.${styles["exercise-dialog-container"]}`,
-      ) as HTMLDivElement;
-      dialog.classList.replace(styles["view-dialog"], styles["hide-dialog"]);
-    });
-  });
+function authHeaders() {
+  return {
+    "Content-Type": "application/json",
+    Authorization: token,
+  };
 }
 
 async function createWeeklyPlanExercise(
   planId: string,
   weeklyId: string,
   data: Record<string, string | number>,
-): Promise<WeeklyPlan | null> {
-  const response = await fetch(
+): Promise<WeeklyPlanExercise | null> {
+  const res = await fetch(
     `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}/exercises/new`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
+      headers: authHeaders(),
       body: JSON.stringify(data),
     },
   );
-
-  const resData = await response.json(); // Fix: avoid shadowing `data` param
-  if (response.ok) {
-    Notification({
-      message: resData.message || "Weekly plan exercise created successfully.",
-      type: "success",
-      duration: 5000,
-    });
-    return resData.exercise;
-  } else {
-    Notification({
-      message: resData.error || "Failed to create weekly plan exercise.",
-      type: "error",
-      duration: 5000,
-    });
-    return null;
-  }
+  const json = await res.json();
+  Notification({
+    message:
+      json.message ?? (res.ok ? "Exercise saved." : "Failed to save exercise."),
+    type: res.ok ? "success" : "error",
+    duration: 5000,
+  });
+  return res.ok ? json.exercise : null;
 }
 
 async function updateWeeklyPlanExercise(
@@ -621,69 +552,47 @@ async function updateWeeklyPlanExercise(
   weeklyId: string,
   id: string,
   data: Record<string, string | number>,
-): Promise<WeeklyPlan | null> {
-  const response = await fetch(
-    `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}/exercises/${id}/update`, // Fix: was "/new"
+): Promise<WeeklyPlanExercise | null> {
+  const res = await fetch(
+    `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}/exercises/${id}/update`,
     {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
+      headers: authHeaders(),
       body: JSON.stringify(data),
     },
   );
-
-  const resData = await response.json();
-  if (response.ok) {
-    Notification({
-      message: resData.message || "Weekly plan exercise updated successfully.",
-      type: "success",
-      duration: 5000,
-    });
-    return resData.exercise;
-  } else {
-    Notification({
-      message: resData.error || "Failed to update weekly plan exercise.",
-      type: "error",
-      duration: 5000,
-    });
-  }
-  return null;
+  const json = await res.json();
+  Notification({
+    message:
+      json.message ??
+      (res.ok ? "Exercise updated." : "Failed to update exercise."),
+    type: res.ok ? "success" : "error",
+    duration: 5000,
+  });
+  return res.ok ? json.exercise : null;
 }
 
 async function removeWeeklyPlanExercise(
   planId: string,
   weeklyId: string,
   id: string,
-): Promise<WeeklyPlan | null> {
-  const response = await fetch(
-    `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}/exercises/${id}/delete`, // Fix: was "/new"
+): Promise<WeeklyPlanExercise | null> {
+  const res = await fetch(
+    `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}/exercises/${id}/delete`,
     {
       method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
+      headers: authHeaders(),
     },
   );
-
-  const resData = await response.json();
-  if (response.ok) {
-    Notification({
-      message: resData.message || "Weekly plan exercise updated successfully.",
-      type: "success",
-      duration: 5000,
-    });
-    return resData.exercise;
-  } else {
-    Notification({
-      message: resData.error || "Failed to update weekly plan exercise.",
-      type: "error",
-      duration: 5000,
-    });
-  }
-  return null;
+  const json = await res.json();
+  Notification({
+    message:
+      json.message ??
+      (res.ok ? "Exercise removed." : "Failed to remove exercise."),
+    type: res.ok ? "success" : "error",
+    duration: 5000,
+  });
+  return res.ok ? json.exercise : null;
 }
 
 async function fetchWeeklyPlan(
@@ -691,83 +600,68 @@ async function fetchWeeklyPlan(
   weeklyId: string,
 ): Promise<WeeklyPlan | null> {
   try {
-    const response = await fetch(
+    const res = await fetch(
       `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}`,
       {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
+        headers: authHeaders(),
       },
     );
-    const data = await response.json();
-
-    if (!response.ok) {
+    const json = await res.json();
+    if (!res.ok) {
       Notification({
-        message: data.error || "Failed to fetch Weekly plan",
+        message: json.error ?? "Failed to fetch weekly plan.",
         type: "error",
         duration: 5000,
       });
     }
-    return data.weeklyPlan;
-  } catch (error) {
+    return json.weeklyPlan ?? null;
+  } catch {
     return null;
   }
 }
 
 async function fetchExercisesByMuscleGroup(
   params: string,
-): Promise<Exercise[] | null> {
+): Promise<Exercise[]> {
   try {
-    const response = await fetch(`${backendUrl}/api/exercises?${params}`, {
+    const res = await fetch(`${backendUrl}/api/exercises?${params}`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token,
-      },
+      headers: authHeaders(),
     });
-    const data = await response.json();
-
-    if (!response.ok) {
+    const json = await res.json();
+    if (!res.ok) {
       Notification({
-        message: data.error || "Failed to fetch exercises",
+        message: json.error ?? "Failed to fetch exercises.",
         type: "error",
         duration: 5000,
       });
     }
-    return data.exercises;
-  } catch (error) {
+    return json.exercises ?? [];
+  } catch {
     return [];
   }
 }
 
 async function fetchWeeklyPlanExercises(
   planId: string,
-  id: string,
+  weeklyId: string,
 ): Promise<WeeklyPlanExercise[]> {
   try {
-    const response = await fetch(
-      `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${id}/exercises`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-      },
+    const res = await fetch(
+      `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}/exercises`,
+      { method: "GET", headers: authHeaders() },
     );
-    const data = await response.json();
-
-    if (!response.ok) {
+    const json = await res.json();
+    if (!res.ok) {
       Notification({
-        message: data.error || "Failed to fetch Weekly plan exercises",
+        message: json.error ?? "Failed to fetch exercises.",
         type: "error",
         duration: 5000,
       });
     }
-    return data.exercises;
-  } catch (error) {
+    return json.exercises ?? [];
+  } catch {
     return [];
   }
 }
