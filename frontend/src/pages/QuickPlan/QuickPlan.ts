@@ -2,7 +2,7 @@ import styles from "./QuickPlan.module.css";
 import Button from "../../components/Button/Button";
 import Notification from "../../components/Notification/Notification";
 import Spinner from "../../components/Spinner/Spinner";
-import type { Goal, Level } from "../../utils/types";
+import type { Exercise, Goal, Level, QuickPlan } from "../../utils/types";
 import { navigate } from "../../router";
 
 interface Plan {
@@ -19,8 +19,14 @@ const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 const token = localStorage.getItem("Authorization") || "";
 
-export default async function QuickPlan() {
-  const mainApp = document.getElementById("main-app");
+interface CurrentState {
+  plans: Plan[];
+  exercises: Exercise[];
+  planId: string;
+}
+
+export default async function QuickPlan(params?: Record<string, string>) {
+  const mainApp = document.getElementById("main-app")!;
 
   mainApp!.innerHTML = Spinner({
     type: "large",
@@ -28,41 +34,59 @@ export default async function QuickPlan() {
   });
 
   const plans = await fetchAllPlans();
-  const planId = plans[0]?.id;
+  const planId = params?.planId || plans[0]?.id;
+  const currentState: CurrentState = {
+    plans,
+    exercises: [],
+    planId,
+  };
 
-  mainApp!.innerHTML = `
-  <div class="${styles["plans-container"]}">
-    <div class="${styles["plans-quick-action-btn"]}">
-      <div class="${styles["show-aside-btn"]} ${styles["toggle-aside-btn"]}">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3-3 3m-4-6l3 3-3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <p>Show quick plans</p>
-      </div>
-      ${Button({
-        label: `
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
-                </path>
-              </svg>
-              <p>Weekly Plan</p>`,
-        btnClass: styles["add-weekly-plan-btn"],
-        data: `data-plan-id="${planId}"`,
-      })}
-    </div>
-   ${renderQuickPlans(plans).outerHTML};
-   ${renderQuickPlansExercises().outerHTML}
-   <div class=""></div>
-  </div>
-      
+  mainApp.innerHTML = `
+  <div class="${styles["plans-container"]}"></div>
   `;
+  const container = mainApp.querySelector<HTMLDivElement>(
+    `.${styles["plans-container"]}`,
+  )!;
+  renderPage(container, currentState);
+}
 
-  const addWeeklyPlanBtn = document.querySelector(
-    `.${styles["add-weekly-plan-btn"]}`,
-  ) as HTMLButtonElement;
-  addWeeklyPlanBtn.addEventListener("click", () => {
-    const planId = addWeeklyPlanBtn.dataset.planId;
-    navigate(`/api/quick-plans/${planId}/weekly-plans/new?day=0`);
-  });
+function renderPage(container: HTMLDivElement, currentState: CurrentState) {
+  container.innerHTML = renderPlansAndExercise(
+    currentState.planId,
+    currentState.plans,
+    currentState.exercises,
+  );
+  allHandlersAttachment(container, currentState);
+}
+
+function renderPlansAndExercise(
+  planId: string,
+  plans: Plan[],
+  exercises: Exercise[],
+) {
+  return `
+    <div>
+      <div class="${styles["plans-quick-action-btn"]}">
+        <div class="${styles["show-aside-btn"]} ${styles["toggle-aside-btn"]}">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 9l3 3-3 3m-4-6l3 3-3 3M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p>Show quick plans</p>
+        </div>
+        ${Button({
+          label: `
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6">
+                  </path>
+                </svg>
+                <p>Weekly Plan</p>`,
+          btnClass: styles["add-weekly-plan-btn"],
+          data: `data-plan-id="${planId}"`,
+        })}
+      </div>
+    ${renderQuickPlans(plans).outerHTML};
+    ${renderQuickPlansExercises(exercises).outerHTML}
+    </div>
+  `;
 }
 
 // render quik plans
@@ -113,7 +137,7 @@ function renderQuickPlans(plans: Plan[]): HTMLDivElement {
 }
 
 // render quick plans exercises
-function renderQuickPlansExercises(): HTMLDivElement {
+function renderQuickPlansExercises(exercise: Exercise[]): HTMLDivElement {
   const wrap = document.createElement("div");
   wrap.className = `${styles["quick-weekly-plans-container"]}`;
 
@@ -139,6 +163,16 @@ function renderQuickPlansExercises(): HTMLDivElement {
   return wrap;
 }
 
+// All handlers attachment
+function allHandlersAttachment(
+  container: HTMLDivElement,
+  currentState: HTMLDivElement,
+) {
+  addQuickPlanHandler(container);
+  addWeeklyPlanHandler(container);
+  toggleQuickPlan(container);
+}
+
 // Add quick plan button
 function addQuickPlanHandler(container: HTMLDivElement) {
   const addQuickPlanBtn = container?.querySelector(
@@ -146,6 +180,17 @@ function addQuickPlanHandler(container: HTMLDivElement) {
   ) as HTMLButtonElement;
   addQuickPlanBtn.addEventListener("click", () => {
     navigate("/api/quick-plans/new");
+  });
+}
+
+// Add weekly plan button
+function addWeeklyPlanHandler(container: HTMLDivElement) {
+  const addWeeklyPlanBtn = document.querySelector(
+    `.${styles["add-weekly-plan-btn"]}`,
+  ) as HTMLButtonElement;
+  addWeeklyPlanBtn.addEventListener("click", () => {
+    const planId = addWeeklyPlanBtn.dataset.planId;
+    navigate(`/api/quick-plans/${planId}/weekly-plans/new?day=0`);
   });
 }
 
