@@ -15,6 +15,16 @@ const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 const token = localStorage.getItem("Authorization") || "";
 
+const weekDays = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
 interface PageState {
   planId: string;
   weeklyId: string;
@@ -69,8 +79,6 @@ export default async function NewQuickWeeklyPlanExercises(
   renderPage(container, state);
 }
 
-// ─── Render ───────────────────────────────────────────────────────────────────
-
 function renderPage(container: HTMLDivElement, state: PageState) {
   const savedIds = getSavedIds(state);
   container.innerHTML = renderExercises(state.exercises, savedIds, state);
@@ -87,6 +95,7 @@ function renderExercises(
   }
 
   return `
+    <h2 class="${styles["heading"]}">Add ${getDay()} Exercise</h2>
     <div class="${styles["exercises"]}">
       ${exercises
         .map((exercise) => {
@@ -515,6 +524,17 @@ function formatList(items: string[]): string {
   return items
     .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
     .join(", ");
+}
+
+function getDay(): string {
+  const nextDay: string | null = new URLSearchParams(
+    window.location.search,
+  ).get("nextDay");
+  const num = Number(nextDay);
+  if (!isNaN(num) && isFinite(num)) {
+    return weekDays[num - 1];
+  }
+  return weekDays[0];
 }
 
 function authHeaders() {

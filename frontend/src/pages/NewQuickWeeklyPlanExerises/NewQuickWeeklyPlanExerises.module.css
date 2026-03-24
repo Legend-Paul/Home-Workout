@@ -1,6 +1,10 @@
 .exercises-container {
   position: relative;
 }
+.heading {
+  margin-bottom: var(--space-4);
+}
+
 .exercises {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
