@@ -12,7 +12,10 @@
   z-index: 100;
   .next-day-btn,
   .finish-weekly-plan-btn {
-    background-color: var(--primary-light);
+    background-color: var(--primary);
+    &:disabled {
+      background-color: var(--primary-light);
+    }
   }
 }
 

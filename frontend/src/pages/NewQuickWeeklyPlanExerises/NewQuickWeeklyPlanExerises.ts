@@ -119,7 +119,7 @@ function renderExercises(
         .join("")}
         
     </div>
-    ${nextDayButton()}
+    ${nextDayButton(savedIds)}
   </div>  
     
     `;
@@ -217,7 +217,7 @@ function closeButton(): string {
     </div>`;
 }
 
-function nextDayButton() {
+function nextDayButton(savedIds: string[]) {
   const day = getDay(1);
   return `
   <dv class="${styles["next-day-btns"]}">
@@ -226,10 +226,12 @@ function nextDayButton() {
         ? Button({
             label: `${getDay(1)} weekly plan`,
             btnClass: styles["next-day-btn"],
+            disabled: !(savedIds.length > 0),
           })
         : Button({
             label: `Finish weekly plan`,
             btnClass: styles["finish-weekly-plan-btn"],
+            disabled: !(savedIds.length > 0),
           })
     }
     </div>
