@@ -299,6 +299,7 @@ function attachAllHandlers(container: HTMLDivElement, state: PageState) {
   attachUpdateHandlers(container, state);
   attachRemoveHandlers(container, state);
   attachNextDayhandler(container, state);
+  attachFinishWeeklyPlanHandler(container);
 }
 
 function attachDialogHandlers(container: HTMLDivElement) {
@@ -339,6 +340,17 @@ function attachNextDayhandler(container: HTMLDivElement, state: PageState) {
       const day = button.dataset.day;
       const planId = state.planId;
       navigate(`/api/quick-plans/${planId}/weekly-plans/new?day=${day}`);
+    });
+  });
+}
+
+function attachFinishWeeklyPlanHandler(container: HTMLDivElement) {
+  const nextDayButtons = container!.querySelectorAll<HTMLButtonElement>(
+    `.${styles["finish-weekly-plan-btn"]}`,
+  );
+  nextDayButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      navigate(`/api/quick-plans`);
     });
   });
 }
