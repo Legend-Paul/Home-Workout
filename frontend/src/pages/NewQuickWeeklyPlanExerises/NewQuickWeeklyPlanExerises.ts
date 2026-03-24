@@ -219,6 +219,7 @@ function closeButton(): string {
 
 function nextDayButton(savedIds: string[]) {
   const day = getDay(1);
+  const dayIndex = weekDays.findIndex((d) => d === day);
   return `
   <dv class="${styles["next-day-btns"]}">
     ${
@@ -227,6 +228,7 @@ function nextDayButton(savedIds: string[]) {
             label: `${getDay(1)} weekly plan`,
             btnClass: styles["next-day-btn"],
             disabled: !(savedIds.length > 0),
+            data: `data-day=${dayIndex}`,
           })
         : Button({
             label: `Finish weekly plan`,
@@ -296,6 +298,7 @@ function attachAllHandlers(container: HTMLDivElement, state: PageState) {
   attachAddHandlers(container, state);
   attachUpdateHandlers(container, state);
   attachRemoveHandlers(container, state);
+  attachNextDayhandler(container, state);
 }
 
 function attachDialogHandlers(container: HTMLDivElement) {
@@ -324,6 +327,20 @@ function toggleDialog(el: Element, action: "open" | "close") {
   } else {
     dialog.classList.replace(styles["view-dialog"], styles["hide-dialog"]);
   }
+}
+
+function attachNextDayhandler(container: HTMLDivElement, state: PageState) {
+  const nextDayButtons = container!.querySelectorAll<HTMLButtonElement>(
+    `.${styles["next-day-btn"]}`,
+  );
+
+  nextDayButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const day = button.dataset.day;
+      const planId = state.planId;
+      navigate(`/api/quick-plans/${planId}/weekly-plans/new?day=${day}`);
+    });
+  });
 }
 
 function attachViewHandlers(container: HTMLDivElement) {
