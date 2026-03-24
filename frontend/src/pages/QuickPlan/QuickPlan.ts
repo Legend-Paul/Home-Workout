@@ -49,13 +49,13 @@ export default async function QuickPlan() {
         data: `data-plan-id="${planId}"`,
       })}
     </div>
-   <div class="${styles["quick-plans-container"]} ${styles["hide"]}"></div>
-   <div class="${styles["quick-weekly-plans-container"]}"></div>
+   ${renderQuickPlans(plans).outerHTML};
+   ${renderQuickPlansExercises().outerHTML}
+   <div class=""></div>
   </div>
       
   `;
-  renderQuickPlans(plans);
-  renderQuickPlansExercises();
+
   const addWeeklyPlanBtn = document.querySelector(
     `.${styles["add-weekly-plan-btn"]}`,
   ) as HTMLButtonElement;
@@ -66,12 +66,11 @@ export default async function QuickPlan() {
 }
 
 // render quik plans
-function renderQuickPlans(plans: Plan[]) {
-  const quickPlansContainer = document.querySelector(
-    `.${styles["quick-plans-container"]}`,
-  ) as HTMLDivElement;
+function renderQuickPlans(plans: Plan[]): HTMLDivElement {
+  const wrap = document.createElement("div");
+  wrap.className = `${styles["quick-plans-container"]} ${styles["hide"]}`;
 
-  quickPlansContainer!.innerHTML = `
+  wrap!.innerHTML = `
       <div class="${styles["quick-plans-header"]}">
       <div class="${styles["toggle-aside-btn"]} ${styles["hide-aside-btn"]}">
           <svg fill="none" stroke="currentColor" 
@@ -110,24 +109,15 @@ function renderQuickPlans(plans: Plan[]) {
         })
         .join("")}  
   `;
-  const addQuickPlanBtn = quickPlansContainer?.querySelector(
-    `.${styles["add-quick-plan-btn"]}`,
-  ) as HTMLButtonElement;
-
-  toggleQuickPlan();
-
-  addQuickPlanBtn.addEventListener("click", () => {
-    navigate("/api/quick-plans/new");
-  });
+  return wrap;
 }
 
 // render quick plans exercises
-function renderQuickPlansExercises() {
-  const quickPlansExerciseContainer = document.querySelector(
-    `.${styles["quick-weekly-plans-container"]}`,
-  ) as HTMLDivElement;
+function renderQuickPlansExercises(): HTMLDivElement {
+  const wrap = document.createElement("div");
+  wrap.className = `${styles["quick-weekly-plans-container"]}`;
 
-  quickPlansExerciseContainer.innerHTML = `
+  wrap.innerHTML = `
     <div class="${styles["weekly-plan"]} ${styles["rest-day"]}">
       <div class="${styles["weekly-plan-heading"]}">
         <h3>Rest Day</h3>
@@ -146,29 +136,43 @@ function renderQuickPlansExercises() {
       </div>
     </div>
   `;
+  return wrap;
+}
+
+// Add quick plan button
+function addQuickPlanHandler(container: HTMLDivElement) {
+  const addQuickPlanBtn = container?.querySelector(
+    `.${styles["add-quick-plan-btn"]}`,
+  ) as HTMLButtonElement;
+  addQuickPlanBtn.addEventListener("click", () => {
+    navigate("/api/quick-plans/new");
+  });
 }
 
 // toggle exercise
-function toggleQuickPlan() {
-  const mainApp = document.getElementById("main-app");
-  const hideAsideBtn = mainApp!.querySelector(
+function toggleQuickPlan(container: HTMLDivElement) {
+  const hideAsideBtn = container!.querySelector(
     `.${styles["hide-aside-btn"]}`,
   ) as HTMLDivElement;
-  const showAsideBtn = mainApp!.querySelector(
+  const showAsideBtn = container!.querySelector(
     `.${styles["show-aside-btn"]}`,
   ) as HTMLDivElement;
-  const quickPlanContainer = mainApp!.querySelector(
+  const quickPlanContainer = container!.querySelector(
     `.${styles["quick-plans-container"]}`,
   ) as HTMLDivElement;
 
   showAsideBtn.addEventListener("click", () => {
-    quickPlanContainer.classList.add(`${styles["show"]}`);
-    quickPlanContainer.classList.remove(`${styles["hide"]}`);
+    quickPlanContainer.classList.replace(
+      `${styles["hide"]}`,
+      `${styles["show"]}`,
+    );
   });
 
   hideAsideBtn.addEventListener("click", () => {
-    quickPlanContainer.classList.add(`${styles["hide"]}`);
-    quickPlanContainer.classList.remove(`${styles["show"]}`);
+    quickPlanContainer.classList.replace(
+      `${styles["show"]}`,
+      `${styles["hide"]}`,
+    );
   });
 }
 
