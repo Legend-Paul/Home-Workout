@@ -5,6 +5,17 @@
   margin-bottom: var(--space-4);
 }
 
+.next-day-btns {
+  position: fixed;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  z-index: 100;
+  .next-day-btn,
+  .finish-weekly-plan-btn {
+    background-color: var(--primary-light);
+  }
+}
+
 .exercises {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -40,6 +51,7 @@
   width: 100%;
   min-height: 75vh;
   padding: var(--space-8);
+  z-index: 101;
   transition: var(--transition-all-base);
 }
 

@@ -95,6 +95,7 @@ function renderExercises(
   }
 
   return `
+  <div>
     <h2 class="${styles["heading"]}">Add ${getDay()} Exercise</h2>
     <div class="${styles["exercises"]}">
       ${exercises
@@ -116,7 +117,12 @@ function renderExercises(
           </div>`;
         })
         .join("")}
-    </div>`;
+        
+    </div>
+    ${nextDayButton()}
+  </div>  
+    
+    `;
 }
 
 function renderAddDialog(exercise: Exercise): HTMLDivElement {
@@ -209,6 +215,25 @@ function closeButton(): string {
           d="M6 18L18 6M6 6l12 12"/>
       </svg>
     </div>`;
+}
+
+function nextDayButton() {
+  const day = getDay(1);
+  return `
+  <dv class="${styles["next-day-btns"]}">
+    ${
+      day
+        ? Button({
+            label: `${getDay(1)} weekly plan`,
+            btnClass: styles["next-day-btn"],
+          })
+        : Button({
+            label: `Finish weekly plan`,
+            btnClass: styles["finish-weekly-plan-btn"],
+          })
+    }
+    </div>
+  `;
 }
 
 function setsInput(exerciseId: string, value?: number | null): string {
@@ -526,13 +551,13 @@ function formatList(items: string[]): string {
     .join(", ");
 }
 
-function getDay(): string {
+function getDay(day: number = 0): string {
   const nextDay: string | null = new URLSearchParams(
     window.location.search,
   ).get("nextDay");
   const num = Number(nextDay);
   if (!isNaN(num) && isFinite(num)) {
-    return weekDays[num - 1];
+    return weekDays[num - (1 - day)];
   }
   return weekDays[0];
 }
