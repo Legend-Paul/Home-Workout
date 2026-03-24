@@ -79,12 +79,16 @@ export default async function NewQuickWeeklyPlanExercises(
   renderPage(container, state);
 }
 
+// Render page
 function renderPage(container: HTMLDivElement, state: PageState) {
   const savedIds = getSavedIds(state);
   container.innerHTML = renderExercises(state.exercises, savedIds, state);
   attachAllHandlers(container, state);
 }
 
+/*--------- Render components handlers ------ */
+
+// Render weekly exercises
 function renderExercises(
   exercises: Exercise[],
   savedIds: string[],
@@ -96,7 +100,7 @@ function renderExercises(
 
   return `
   <div>
-    <h2 class="${styles["heading"]}">Add ${getDay()} Exercise</h2>
+    <h2 class="${styles["heading"]}">Add ${getDayName()} Exercise</h2>
     <div class="${styles["exercises"]}">
       ${exercises
         .map((exercise) => {
@@ -125,6 +129,7 @@ function renderExercises(
     `;
 }
 
+// Render Add exercise to weekly plan dialog
 function renderAddDialog(exercise: Exercise): HTMLDivElement {
   const wrap = document.createElement("div");
   wrap.className = `${styles["exercise-dialog-container"]} ${styles["hide-dialog"]}`;
@@ -154,6 +159,7 @@ function renderAddDialog(exercise: Exercise): HTMLDivElement {
   return wrap;
 }
 
+// Render update exercise to weekly plan dialog
 function renderUpdateDialog(
   exercise: Exercise,
   saved: WeeklyPlanExercise | undefined,
@@ -193,6 +199,7 @@ function renderUpdateDialog(
   return wrap;
 }
 
+// Render View exercise button
 function viewExerciseButton(exerciseId: string): string {
   return Button({
     label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,6 +214,7 @@ function viewExerciseButton(exerciseId: string): string {
   });
 }
 
+// Render close dialog button
 function closeButton(): string {
   return `
     <div class="${styles["close-dialog-btn"]}">
@@ -217,15 +225,16 @@ function closeButton(): string {
     </div>`;
 }
 
+// Render next day and finish weekly plan button
 function nextDayButton(savedIds: string[]) {
-  const day = getDay(1);
+  const day = getDayName(1);
   const dayIndex = weekDays.findIndex((d) => d === day);
   return `
   <dv class="${styles["next-day-btns"]}">
     ${
       day
         ? Button({
-            label: `${getDay(1)} weekly plan`,
+            label: `${getDayName(1)} weekly plan`,
             btnClass: styles["next-day-btn"],
             disabled: !(savedIds.length > 0),
             data: `data-day=${dayIndex}`,
@@ -240,6 +249,7 @@ function nextDayButton(savedIds: string[]) {
   `;
 }
 
+// Render sets input component
 function setsInput(exerciseId: string, value?: number | null): string {
   return Input({
     label: "Sets",
@@ -255,6 +265,7 @@ function setsInput(exerciseId: string, value?: number | null): string {
   });
 }
 
+// Render reps and duration input component
 function repsAndDurationInputs(
   exerciseId: string,
   reps?: number | null,
@@ -292,6 +303,9 @@ function repsAndDurationInputs(
     </div>`;
 }
 
+/*--------- Events and actions handlers ------ */
+
+// Handler for all events  and actions
 function attachAllHandlers(container: HTMLDivElement, state: PageState) {
   attachDialogHandlers(container);
   attachViewHandlers(container);
@@ -302,6 +316,7 @@ function attachAllHandlers(container: HTMLDivElement, state: PageState) {
   attachFinishWeeklyPlanHandler(container);
 }
 
+// Open and close dialog handler
 function attachDialogHandlers(container: HTMLDivElement) {
   container
     .querySelectorAll<HTMLDivElement>(`.${styles["exercise"]}`)
@@ -316,6 +331,7 @@ function attachDialogHandlers(container: HTMLDivElement) {
     });
 }
 
+// Open and close dialog handler helper function
 function toggleDialog(el: Element, action: "open" | "close") {
   const exerciseContainer = el.closest(`.${styles["exercise-container"]}`);
   const dialog = exerciseContainer?.querySelector<HTMLDivElement>(
@@ -330,6 +346,7 @@ function toggleDialog(el: Element, action: "open" | "close") {
   }
 }
 
+// Move to next day handler
 function attachNextDayhandler(container: HTMLDivElement, state: PageState) {
   const nextDayButtons = container!.querySelectorAll<HTMLButtonElement>(
     `.${styles["next-day-btn"]}`,
@@ -344,6 +361,7 @@ function attachNextDayhandler(container: HTMLDivElement, state: PageState) {
   });
 }
 
+// Finish weekly plan handler
 function attachFinishWeeklyPlanHandler(container: HTMLDivElement) {
   const nextDayButtons = container!.querySelectorAll<HTMLButtonElement>(
     `.${styles["finish-weekly-plan-btn"]}`,
@@ -355,6 +373,7 @@ function attachFinishWeeklyPlanHandler(container: HTMLDivElement) {
   });
 }
 
+// View exercise handler
 function attachViewHandlers(container: HTMLDivElement) {
   container
     .querySelectorAll<HTMLButtonElement>(`.${styles["view-exercise-btn"]}`)
@@ -365,6 +384,7 @@ function attachViewHandlers(container: HTMLDivElement) {
     });
 }
 
+// Add exercise to weekly plan handler
 function attachAddHandlers(container: HTMLDivElement, state: PageState) {
   container
     .querySelectorAll<HTMLFormElement>(`.${styles["save-form"]}`)
@@ -419,6 +439,7 @@ function attachAddHandlers(container: HTMLDivElement, state: PageState) {
     });
 }
 
+// Update exercise to weekly plan handler
 function attachUpdateHandlers(container: HTMLDivElement, state: PageState) {
   container
     .querySelectorAll<HTMLFormElement>(`.${styles["update-form"]}`)
@@ -482,6 +503,7 @@ function attachUpdateHandlers(container: HTMLDivElement, state: PageState) {
     });
 }
 
+// Remove exercise to weekly plan handler
 function attachRemoveHandlers(container: HTMLDivElement, state: PageState) {
   container
     .querySelectorAll<HTMLButtonElement>(`.${styles["remove-exercise-btn"]}`)
@@ -513,6 +535,9 @@ function attachRemoveHandlers(container: HTMLDivElement, state: PageState) {
     });
 }
 
+/*--------- Helper functions ------ */
+
+// Get form inputs {sets, reps, duration}
 function getFormInputs(form: HTMLFormElement) {
   return {
     setsEl: form.querySelector<HTMLInputElement>('input[name="sets"]'),
@@ -521,6 +546,7 @@ function getFormInputs(form: HTMLFormElement) {
   };
 }
 
+// Validate form inputs
 function makeValidator(
   setsEl: HTMLInputElement | null,
   repsEl: HTMLInputElement | null,
@@ -536,6 +562,7 @@ function makeValidator(
   };
 }
 
+// Create data to create and update weekly exercise
 function buildPayload(
   exerciseId: string,
   setsEl: HTMLInputElement | null,
@@ -553,6 +580,7 @@ function buildPayload(
   return payload;
 }
 
+// Add loading and spinner in button
 function setButtonLoading(
   btn: HTMLButtonElement,
   spinner: string,
@@ -564,10 +592,12 @@ function setButtonLoading(
   btn.style.backgroundColor = bg;
 }
 
+// Reset button text
 function setButtonText(btn: HTMLButtonElement, label: string) {
   btn.innerHTML = label;
 }
 
+//Error notification
 function showError() {
   Notification({
     message: "An error occurred. Please try again",
@@ -576,13 +606,15 @@ function showError() {
   });
 }
 
+// Format list to remove comma as the delimeter
 function formatList(items: string[]): string {
   return items
     .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
     .join(", ");
 }
 
-function getDay(day: number = 0): string {
+// Get day name for each day of the week
+function getDayName(day: number = 0): string {
   const nextDay: string | null = new URLSearchParams(
     window.location.search,
   ).get("nextDay");
@@ -593,6 +625,7 @@ function getDay(day: number = 0): string {
   return weekDays[0];
 }
 
+// Create header content-type and authorization
 function authHeaders() {
   return {
     "Content-Type": "application/json",
@@ -600,6 +633,9 @@ function authHeaders() {
   };
 }
 
+/*--------- Backed Api ------ */
+
+// Create weekly plan exercise
 async function createWeeklyPlanExercise(
   planId: string,
   weeklyId: string,
@@ -623,6 +659,7 @@ async function createWeeklyPlanExercise(
   return res.ok ? json.exercise : null;
 }
 
+// Update weekly plan exercise
 async function updateWeeklyPlanExercise(
   planId: string,
   weeklyId: string,
@@ -648,6 +685,7 @@ async function updateWeeklyPlanExercise(
   return res.ok ? json.exercise : null;
 }
 
+// Remove weekly plan exercise
 async function removeWeeklyPlanExercise(
   planId: string,
   weeklyId: string,
@@ -671,6 +709,7 @@ async function removeWeeklyPlanExercise(
   return res.ok ? json.exercise : null;
 }
 
+// Fetch weekly plan
 async function fetchWeeklyPlan(
   planId: string,
   weeklyId: string,
@@ -697,6 +736,7 @@ async function fetchWeeklyPlan(
   }
 }
 
+// Fetch exercise by muscle group
 async function fetchExercisesByMuscleGroup(
   params: string,
 ): Promise<Exercise[]> {
@@ -719,6 +759,7 @@ async function fetchExercisesByMuscleGroup(
   }
 }
 
+// Create weekly plan exercise
 async function fetchWeeklyPlanExercises(
   planId: string,
   weeklyId: string,
