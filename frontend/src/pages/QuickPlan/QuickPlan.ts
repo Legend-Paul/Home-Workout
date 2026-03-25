@@ -2,18 +2,15 @@ import styles from "./QuickPlan.module.css";
 import Button from "../../components/Button/Button";
 import Notification from "../../components/Notification/Notification";
 import Spinner from "../../components/Spinner/Spinner";
-import type { Exercise, Goal, Level, QuickPlan } from "../../utils/types";
+import type {
+  Exercise,
+  Goal,
+  Level,
+  QuickPlan,
+  WeeklyPlan,
+  Plan,
+} from "../../utils/types";
 import { navigate } from "../../router";
-
-interface Plan {
-  id: string;
-  name: string;
-  goal: Goal;
-  level: Level;
-  isActive: boolean;
-  totalExercises: number;
-  activeDays: number;
-}
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -235,7 +232,7 @@ function changeQuickPlan(container: HTMLDivElement) {
   });
 }
 
-async function fetchAllPlans() {
+async function fetchAllPlans(): Promise<Plan[]> {
   try {
     const response = await fetch(`${backendUrl}/api/quick-plans`, {
       headers: {
@@ -248,13 +245,43 @@ async function fetchAllPlans() {
     if (!response.ok) {
       const data = await response.json();
       Notification({
-        message: data.error || "Failed to fetch exercises",
+        message: data.error || "Failed to fetch quick plans",
         type: "error",
         duration: 5000,
       });
     }
     const data = await response.json();
     return data.plans;
+  } catch (error) {
+    return [];
+  }
+}
+
+async function fetchWeekyPlansByQuickplan(
+  planId: string,
+): Promise<WeeklyPlan[]> {
+  try {
+    const response = await fetch(
+      `${backendUrl}/api/quick-plans/${planId}/weekly-plans`,
+      {
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+        method: "GET",
+      },
+    );
+
+    if (!response.ok) {
+      const data = await response.json();
+      Notification({
+        message: data.error || "Failed to fetch exercises",
+        type: "error",
+        duration: 5000,
+      });
+    }
+    const data = await response.json();
+    return data.weeklyPlans;
   } catch (error) {
     return [];
   }
