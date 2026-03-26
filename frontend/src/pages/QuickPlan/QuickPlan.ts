@@ -166,7 +166,7 @@ function renderQuickPlansExercises(exercise: Exercise[]): HTMLDivElement {
 // All handlers attachment
 function allHandlersAttachment(
   container: HTMLDivElement,
-  currentState: HTMLDivElement,
+  currentState: CurrentState,
 ) {
   addQuickPlanHandler(container);
   addWeeklyPlanHandler(container);

@@ -148,6 +148,7 @@
   background: var(--color-cardio);
   border-radius: var(--radius);
   padding: var(--space-3);
+  color: var(--text-white);
   cursor: pointer;
   &:nth-child(2) {
     background: var(--color-running);
