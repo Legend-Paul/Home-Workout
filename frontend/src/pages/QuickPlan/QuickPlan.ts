@@ -83,7 +83,7 @@ function renderPlansAndExercise(
           data: `data-plan-id="${planId}"`,
         })}
       </div>
-    ${renderQuickPlans(plans).outerHTML};
+    ${renderQuickPlans(plans).outerHTML}
     ${renderQuickPlansExercises(exercises).outerHTML}
     </div>
   `;
@@ -92,7 +92,7 @@ function renderPlansAndExercise(
 // render quik plans
 function renderQuickPlans(plans: Plan[]): HTMLDivElement {
   const wrap = document.createElement("div");
-  wrap.className = `${styles["quick-plans-container"]} ${styles["hide"]}`;
+  wrap.className = `${styles["quick-plans-container"]} ${styles["show"]}`;
 
   wrap!.innerHTML = `
       <div class="${styles["quick-plans-header"]}">
@@ -120,7 +120,7 @@ function renderQuickPlans(plans: Plan[]): HTMLDivElement {
       ${plans
         .map((plan: Plan) => {
           return `
-            <div class="${styles["quick-plan"]}  ${styles["active-quick-plan"]}">
+            <div class="${styles["quick-plan"]} ${styles["active-quick-plan"]}" data-plan-id="${plan.id}">
             <h3>${plan.name}</h3>
             <div class="${styles["quick-plan-summary"]}">
                 <p>Exercises: ${plan.totalExercises}</p>
@@ -171,6 +171,7 @@ function allHandlersAttachment(
   addQuickPlanHandler(container);
   addWeeklyPlanHandler(container);
   toggleQuickPlan(container);
+  changeQuickPlan(container);
 }
 
 // Add quick plan button
@@ -185,7 +186,7 @@ function addQuickPlanHandler(container: HTMLDivElement) {
 
 // Add weekly plan button
 function addWeeklyPlanHandler(container: HTMLDivElement) {
-  const addWeeklyPlanBtn = document.querySelector(
+  const addWeeklyPlanBtn = container.querySelector(
     `.${styles["add-weekly-plan-btn"]}`,
   ) as HTMLButtonElement;
   addWeeklyPlanBtn.addEventListener("click", () => {
@@ -218,6 +219,19 @@ function toggleQuickPlan(container: HTMLDivElement) {
       `${styles["show"]}`,
       `${styles["hide"]}`,
     );
+  });
+}
+
+// Change quick plan
+function changeQuickPlan(container: HTMLDivElement) {
+  const quickPlans = container.querySelectorAll<HTMLDivElement>(
+    `.${styles["quick-plan"]}`,
+  );
+  quickPlans.forEach((plan) => {
+    plan.addEventListener("click", () => {
+      const planId = plan.dataset.planId;
+      navigate(`/api/quick-plans/${planId}`);
+    });
   });
 }
 
