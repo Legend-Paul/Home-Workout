@@ -47,12 +47,23 @@ export type QuickPlan = {
   updatedAt: Date;
 };
 
+export type Plan = {
+  id: string;
+  name: string;
+  goal: Goal;
+  level: Level;
+  isActive: boolean;
+  totalExercises: number;
+  activeDays: number;
+};
+
 export type WeeklyPlan = {
   id: string;
   quickStartPlanId: string;
   name: string;
   dayOfWeek: number;
   muscleGroup: string[];
+  quickStartExercises?: WeeklyPlanExercise[];
   isRestDay: boolean;
   createdAt: Date;
   updatedAt: Date;

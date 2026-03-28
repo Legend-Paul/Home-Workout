@@ -90,6 +90,7 @@ const createQuickWeeklyPlanHandler = async (
     res.status(500).json({ error: "Failed to create weekly plan" });
   }
 };
+
 export const createQuickWeeklyPlan = [
   ...validate,
   createQuickWeeklyPlanHandler,
@@ -107,6 +108,7 @@ export const getQuickWeeklyPlan = async (
   res: Response,
 ): Promise<void> => {
   const { planId } = req.params;
+  console.log(planId);
 
   try {
     const plan = await prisma.quickStartPlan.findUnique({

@@ -18,7 +18,7 @@ const token = localStorage.getItem("Authorization") || "";
 
 interface CurrentState {
   plans: Plan[];
-  exercises: Exercise[];
+  weeklyPlans: WeeklyPlan[];
   planId: string;
 }
 
@@ -31,10 +31,12 @@ export default async function QuickPlan(params?: Record<string, string>) {
   });
 
   const plans = await fetchAllPlans();
-  const planId = params?.planId || plans[0]?.id;
+  const planId = params?.planId || (plans[0]?.id as string);
+  console.log(planId);
+  const weeklyPlans = await fetchWeekyPlansByQuickplan(planId);
   const currentState: CurrentState = {
     plans,
-    exercises: [],
+    weeklyPlans,
     planId,
   };
 
@@ -51,7 +53,7 @@ function renderPage(container: HTMLDivElement, currentState: CurrentState) {
   container.innerHTML = renderPlansAndExercise(
     currentState.planId,
     currentState.plans,
-    currentState.exercises,
+    currentState.weeklyPlans,
   );
   allHandlersAttachment(container, currentState);
 }
@@ -59,7 +61,7 @@ function renderPage(container: HTMLDivElement, currentState: CurrentState) {
 function renderPlansAndExercise(
   planId: string,
   plans: Plan[],
-  exercises: Exercise[],
+  weeklyPlans: WeeklyPlan[],
 ) {
   return `
     <div>
@@ -81,7 +83,7 @@ function renderPlansAndExercise(
         })}
       </div>
     ${renderQuickPlans(plans).outerHTML}
-    ${renderQuickPlansExercises(exercises).outerHTML}
+    ${renderQuickWeeklyPlans(weeklyPlans).outerHTML}
     </div>
   `;
 }
@@ -134,7 +136,7 @@ function renderQuickPlans(plans: Plan[]): HTMLDivElement {
 }
 
 // render quick plans exercises
-function renderQuickPlansExercises(exercise: Exercise[]): HTMLDivElement {
+function renderQuickWeeklyPlans(weeklyPlans: WeeklyPlan[]): HTMLDivElement {
   const wrap = document.createElement("div");
   wrap.className = `${styles["quick-weekly-plans-container"]}`;
 
@@ -272,15 +274,15 @@ async function fetchWeekyPlansByQuickplan(
       },
     );
 
+    const data = await response.json();
     if (!response.ok) {
-      const data = await response.json();
+      console.timeLog(data);
       Notification({
         message: data.error || "Failed to fetch exercises",
         type: "error",
         duration: 5000,
       });
     }
-    const data = await response.json();
     return data.weeklyPlans;
   } catch (error) {
     return [];
