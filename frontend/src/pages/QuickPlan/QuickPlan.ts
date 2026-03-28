@@ -16,6 +16,16 @@ const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 const token = localStorage.getItem("Authorization") || "";
 
+const weekDays = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
 interface CurrentState {
   plans: Plan[];
   weeklyPlans: WeeklyPlan[];
@@ -32,8 +42,8 @@ export default async function QuickPlan(params?: Record<string, string>) {
 
   const plans = await fetchAllPlans();
   const planId = params?.planId || (plans[0]?.id as string);
-  console.log(planId);
   const weeklyPlans = await fetchWeekyPlansByQuickplan(planId);
+  console.log(weeklyPlans);
   const currentState: CurrentState = {
     plans,
     weeklyPlans,
@@ -141,23 +151,34 @@ function renderQuickWeeklyPlans(weeklyPlans: WeeklyPlan[]): HTMLDivElement {
   wrap.className = `${styles["quick-weekly-plans-container"]}`;
 
   wrap.innerHTML = `
-    <div class="${styles["weekly-plan"]} ${styles["rest-day"]}">
-      <div class="${styles["weekly-plan-heading"]}">
-        <h3>Rest Day</h3>
-        <p>Sunday</p>
-      </div>
-    </div>
+  ${weeklyPlans
+    .map((weeklyPlan) => {
+      if (weeklyPlan.isRestDay)
+        return `
+        <div class="${styles["weekly-plan"]} ${styles["rest-day"]}">
+          <div class="${styles["weekly-plan-heading"]}">
+            <h3>Rest Day</h3>
+            <p>${weekDays[weeklyPlan.dayOfWeek]}</p>
+          </div>
+        </div>
+      `;
 
-    <div class="${styles["weekly-plan"]}">
-      <div class="${styles["weekly-plan-heading"]}">
-        <h3>Leg day</h3>
-        <p>Sunday</p>
+      return `
+      <div class="${styles["weekly-plan"]}">
+        <div class="${styles["weekly-plan-heading"]}">
+          <h3>${weeklyPlan.name}</h3>
+          <p>${weekDays[weeklyPlan.dayOfWeek]}</p>
+        </div>
+        <p>Exercises: ${weeklyPlan.quickStartExercises?.length}</p>
+        <div class="${styles["muscle-group"]}">
+          <p>${weeklyPlan.muscleGroup
+            .map((muscle) => muscle.charAt(0).toUpperCase() + muscle.slice(1))
+            .join(", ")}</p>
+        </div>
       </div>
-      <p>Exercises: 4</p>
-      <div class="${styles["muscle-group"]}">
-        <p>Shoulder Traps Triceps</p>
-      </div>
-    </div>
+    `;
+    })
+    .join(" ")}     
   `;
   return wrap;
 }
@@ -275,6 +296,7 @@ async function fetchWeekyPlansByQuickplan(
     );
 
     const data = await response.json();
+    console.log(data);
     if (!response.ok) {
       console.timeLog(data);
       Notification({

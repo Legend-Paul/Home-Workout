@@ -108,7 +108,6 @@ export const getQuickWeeklyPlan = async (
   res: Response,
 ): Promise<void> => {
   const { planId } = req.params;
-  console.log(planId);
 
   try {
     const plan = await prisma.quickStartPlan.findUnique({

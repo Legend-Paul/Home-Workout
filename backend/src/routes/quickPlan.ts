@@ -29,7 +29,7 @@ quickPlanRouter.put("/:id/update", requireAdmin, updateQuickPlan);
 quickPlanRouter.delete("/:id/delete", requireAdmin, deleteQuickPlanHandler);
 
 // quick weekly plan
-quickPlanRouter.get(":planId/weekly-plans", getQuickWeeklyPlan);
+quickPlanRouter.get("/:planId/weekly-plans", getQuickWeeklyPlan);
 quickPlanRouter.post(
   "/:planId/weekly-plans/new",
   requireAdmin,
