@@ -32,6 +32,10 @@ interface CurrentState {
   planId: string;
 }
 
+const getPlanById = (plans: Plan[], id: string): Plan | undefined => {
+  return plans.find((plan) => plan.id === id);
+};
+
 export default async function QuickPlan(params?: Record<string, string>) {
   const mainApp = document.getElementById("main-app")!;
 
@@ -75,6 +79,7 @@ function renderPlansAndExercise(
 ) {
   return `
     <div>
+      <h2 class="${styles["page-heading"]}">${getPlanById(plans, planId)?.name || "Quick Plan"}</h2>
       <div class="${styles["plans-quick-action-btn"]}">
         <div class="${styles["show-aside-btn"]} ${styles["toggle-aside-btn"]}">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

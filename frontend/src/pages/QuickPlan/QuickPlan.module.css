@@ -5,6 +5,12 @@
     width: var(--space-4);
   }
 }
+
+.page-heading {
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+
 .quick-plans-container {
   display: grid;
   gap: var(--space-4);
