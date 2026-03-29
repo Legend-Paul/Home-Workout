@@ -156,6 +156,7 @@
   padding: var(--space-3);
   color: var(--text-white);
   cursor: pointer;
+  transition: var(--transition-all-base);
   &:nth-child(2) {
     background: var(--color-running);
   }
@@ -174,6 +175,9 @@
   &:nth-child(8) {
     background: var(--color-energetic);
   }
+  &:hover {
+    transform: scale(0.98);
+  }
 }
 .rest-day {
   background: var(--color-strength) !important;
@@ -181,4 +185,44 @@
 
 .muscle-group {
   font-size: var(--text-sm);
+}
+
+.plan-header-btns {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: flex-end;
+  button {
+    color: var(--text-white);
+    transition: var(--transition-all-base);
+  }
+}
+
+.plan-action-btns {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: flex-end;
+  button {
+    background-color: transparent !important;
+    padding: 0;
+    margin: 0;
+    color: var(--text-white);
+    transition: var(--transition-all-base);
+    svg {
+      width: var(--space-6);
+      height: var(--space-6);
+    }
+  }
+}
+.delete-plan-btn {
+  color: var(--error) !important;
+  &:hover {
+    color: var(--error-dark) !important;
+  }
+}
+
+.update-plan-btn {
+  color: var(--info) !important;
+  &:hover {
+    color: var(--info-dark) !important;
+  }
 }
