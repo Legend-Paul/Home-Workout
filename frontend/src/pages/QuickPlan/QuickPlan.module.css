@@ -7,7 +7,7 @@
 }
 
 .page-heading {
-  text-align: center;
+  /* text-align: center; */
   margin-bottom: var(--space-6);
 }
 
@@ -62,6 +62,9 @@
 .plans-quick-action-btn {
   display: flex;
   justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  width: 100%;
 }
 .add-quick-plan-btn,
 .add-weekly-plan-btn {
@@ -190,7 +193,7 @@
 .plan-header-btns {
   display: flex;
   gap: var(--space-4);
-  justify-content: flex-end;
+  justify-content: space-between;
   button {
     color: var(--text-white);
     transition: var(--transition-all-base);
@@ -224,5 +227,11 @@
   color: var(--info) !important;
   &:hover {
     color: var(--info-dark) !important;
+  }
+}
+
+@media screen and (width <= 400px) {
+  .plan-header-btns {
+    width: 100%;
   }
 }
