@@ -45,7 +45,7 @@ export default async function WeeklyPlan(params?: {
                       Back`,
               btnClass: styles["back-btn"],
             })}
-            <h2 class="${styles["page-heading"]}">Weekly Plan</h2>
+            <h2 class="${styles["page-heading"]}">${plan?.name || "Weekly"} Plan</h2>
           </div>
           <div class="${styles["plan-header-btns"]}">
             ${Button({
