@@ -78,5 +78,6 @@ export type WeeklyPlanExercise = {
   sets: number | null;
   duration: number | null;
   createdAt: string;
+  exercises?: Exercise[];
   updatedAt: string;
 };

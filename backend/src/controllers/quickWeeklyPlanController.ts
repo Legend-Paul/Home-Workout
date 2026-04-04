@@ -159,6 +159,14 @@ export const quickWeeklyPlanById = async (
       }),
       prisma.quickStartWeeklyPlan.findUnique({
         where: { id },
+        include: {
+          quickStartExercises: {
+            orderBy: { order: "asc" },
+            include: {
+              exercise: true,
+            },
+          },
+        },
       }),
     ]);
     if (!planExists) {

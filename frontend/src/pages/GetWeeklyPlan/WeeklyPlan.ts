@@ -7,7 +7,7 @@ const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 const token = localStorage.getItem("Authorization") || "";
 
-const weekDays = [
+const DAYS = [
   "Sunday",
   "Monday",
   "Tuesday",
@@ -31,6 +31,8 @@ export default async function WeeklyPlan(params?: {
   const { planId, id } = params || { planId: "", id: "" };
 
   const plan = await fetchWeeklyPlanById(planId, id);
+  const plans = await fetchPlanById(planId);
+  console.log("Fetched Plans:", plans);
   console.log("Fetched Weekly Plan:", plan);
   const mainApp = document.getElementById("main-app")!;
 
@@ -61,6 +63,21 @@ export default async function WeeklyPlan(params?: {
       </div>`;
 }
 
+function renderDayTabs(activeDay: string): string {
+  return DAYS.map((day) => {
+    const hasExercises = !!(MOCK_PLAN[day] && MOCK_PLAN[day].length > 0);
+    const isActive = day === activeDay;
+    return `
+      <button
+        class="${styles["day-tab"]} ${isActive ? styles["day-tab--active"] : ""}"
+        data-day="${day}"
+      >
+        ${day}
+        ${hasExercises ? `<span class="${styles["day-dot"]}"></span>` : ""}
+      </button>`;
+  }).join("");
+}
+
 async function fetchWeeklyPlanById(
   planId: string,
   id: string,
@@ -82,6 +99,28 @@ async function fetchWeeklyPlanById(
       });
     }
     return json.weeklyPlan;
+  } catch (error) {
+    return null;
+  }
+}
+async function fetchPlanById(planId: string): Promise<WeeklyPlan[] | null> {
+  try {
+    const response = await fetch(
+      `${backendUrl}/api/quick-plans/${planId}/weekly-plans`,
+      {
+        method: "GET",
+        headers: authHeaders(),
+      },
+    );
+    const json = await response.json();
+    if (!response.ok) {
+      Notification({
+        message: json.error ?? "Failed to fetch exercises.",
+        type: "error",
+        duration: 5000,
+      });
+    }
+    return json.weeklyPlans;
   } catch (error) {
     return null;
   }
