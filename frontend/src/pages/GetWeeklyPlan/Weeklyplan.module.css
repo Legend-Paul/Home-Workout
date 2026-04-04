@@ -1,14 +1,16 @@
 /* ── LAYOUT ─────────────────────────────── */
 
 .weekly-plan-container {
-  min-height: 100vh;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
-  display: flex;
-  flex-direction: column;
 }
 
+.weekly-plan-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
 /* ── HEADER ─────────────────────────────── */
 
 .weekly-plan-header {

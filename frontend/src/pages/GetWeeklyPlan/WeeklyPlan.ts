@@ -51,46 +51,61 @@ export default async function WeeklyPlan(params?: Record<string, string>) {
     weeklyPlans,
   };
   mainApp!.innerHTML = `
-      <div class="${styles["weekly-plan-container"]}">
-        <div class="${styles["weekly-plan-header"]}">
-          <div class="${styles["header-left"]}">
-            ${Button({
-              label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                      </svg>
-                      Back`,
-              btnClass: styles["back-btn"],
-            })}
-            <h2 class="${styles["page-heading"]}">${plan?.name || "Weekly"} Plan</h2>
-          </div>
-          <div class="${styles["plan-header-btns"]}">
-            ${Button({
-              label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                      </svg>
-                      Add Exercise`,
-              btnClass: styles["add-weekly-plan-exercise-btn"],
-            })}
-          </div>
-        </div>
-
-        <div class="${styles["day-tabs-wrapper"]}">
-          <div class="${styles["day-tabs"]}">
-            ${renderDayTabs(state)}
-          </div>
-        </div>
-      </div>`;
+      <div class="${styles["weekly-plan-container"]}"></div>`;
+  updatePage(state);
 }
 
-function renderDayTabs(state: PageState): string | undefined {
-  return state.weeklyPlans
-    ?.map((weeklyPlan) => {
-      const day = DAYS[weeklyPlan.dayOfWeek];
-      const isActive = state.weeklyPlan?.dayOfWeek === weeklyPlan.dayOfWeek;
-      const isRestDay = weeklyPlan?.isRestDay;
+function updatePage(state: PageState) {
+  const container = document.querySelector(
+    `.${styles["weekly-plan-container"]}`,
+  )! as HTMLDivElement;
+  container.innerHTML = renderWeeklyPlan(state);
+}
 
-      return `
+function renderWeeklyPlan(state: PageState) {
+  return `
+    <div class="${styles["weekly-plan-content"]}">
+      <div class="${styles["weekly-plan-header"]}">
+        <div class="${styles["header-left"]}">
+          ${Button({
+            label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Back`,
+            btnClass: styles["back-btn"],
+          })}
+          <h2 class="${styles["page-heading"]}">${state.weeklyPlan?.name || "Weekly"} Plan</h2>
+        </div>
+        <div class="${styles["plan-header-btns"]}">
+          ${Button({
+            label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                    </svg>
+                    Add Exercise`,
+            btnClass: styles["add-weekly-plan-exercise-btn"],
+          })}
+        </div>
+
+        </div>
+        <div class="${styles["day-tabs-wrapper"]}">  
+          ${renderDayTabs(state).outerHTML}
+        </div>
+    </div>  
+  `;
+}
+
+function renderDayTabs(state: PageState): HTMLDivElement {
+  const dayTabs = document.createElement("div");
+  dayTabs.className = styles["day-tabs"];
+  dayTabs.innerHTML = state.weeklyPlans
+    ? state.weeklyPlans
+        ?.map((weeklyPlan) => {
+          const day = DAYS[weeklyPlan.dayOfWeek];
+          const isActive = state.weeklyPlan?.dayOfWeek === weeklyPlan.dayOfWeek;
+          const isRestDay = weeklyPlan?.isRestDay;
+
+          return `
     ${Button({
       label: `${day.slice(0, 3)}
        `,
@@ -99,8 +114,10 @@ function renderDayTabs(state: PageState): string | undefined {
       data: `data-day="${day}"`,
     })}
       `;
-    })
-    .join("");
+        })
+        .join("")
+    : "";
+  return dayTabs;
 }
 
 async function fetchWeeklyPlanById(
