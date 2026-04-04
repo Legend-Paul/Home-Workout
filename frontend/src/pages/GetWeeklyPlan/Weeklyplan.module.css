@@ -19,7 +19,7 @@
   justify-content: space-between;
   padding: var(--space-4);
   background: var(--transparent-bg);
-  border-bottom: 1px solid var(--border);
+  /* border-bottom: 1px solid var(--border); */
   backdrop-filter: blur(10px);
   position: sticky;
   top: 0;
@@ -93,4 +93,59 @@
   background: var(--success-dark);
   box-shadow: var(--shadow-lg);
   transform: translateY(-1px);
+}
+
+/* ── DAY TABS ───────────────────────────── */
+.day-tabs-wrapper {
+  background: var(--bg-surface);
+}
+
+.day-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border);
+  justify-content: space-between;
+  flex-shrink: shrink;
+}
+
+.day-tab {
+  position: relative;
+  padding: var(--space-3);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--text-sm);
+  font-weight: var(--semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: var(--transition-all-fast);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.day-tab:hover {
+  color: var(--text);
+  background: var(--bg-card);
+}
+
+.day-tab--active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: var(--bg-card);
+}
+
+.day-tab--rest {
+  color: var(--text-lighter);
+}
+
+.day-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--primary);
 }

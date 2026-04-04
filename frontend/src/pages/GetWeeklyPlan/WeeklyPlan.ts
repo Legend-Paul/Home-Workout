@@ -77,32 +77,30 @@ export default async function WeeklyPlan(params?: Record<string, string>) {
 
         <div class="${styles["day-tabs-wrapper"]}">
           <div class="${styles["day-tabs"]}">
-            ${renderDayTabs(state.weeklyPlan!)}
+            ${renderDayTabs(state)}
           </div>
         </div>
       </div>`;
 }
 
-function renderDayTabs(weeklyPlan: WeeklyPlan): string {
-  return DAYS.map((day) => {
-    const hasExercises = weeklyPlan?.quickStartExercises
-      ? weeklyPlan?.quickStartExercises.some(
-          (weeklyPlanExercise: WeeklyPlanExercise) =>
-            weeklyPlanExercise?.exercises
-              ? weeklyPlanExercise?.exercises.length > 0
-              : false,
-        )
-      : false;
-    const isActive = weeklyPlan.isRestDay;
-    return `
+function renderDayTabs(state: PageState): string | undefined {
+  return state.weeklyPlans
+    ?.map((weeklyPlan) => {
+      const day = DAYS[weeklyPlan.dayOfWeek];
+      const isActive = state.weeklyPlan?.dayOfWeek === weeklyPlan.dayOfWeek;
+      const isRestDay = weeklyPlan?.isRestDay;
+
+      return `
     ${Button({
-      label: `${day}
-        ${hasExercises ? `<span class="${styles["day-dot"]}"></span>` : ""}`,
-      btnClass: `${styles["day-tab"]} ${isActive ? styles["day-tab--active"] : ""}`,
+      label: `${day.slice(0, 3)}
+       `,
+      btnClass: `${styles["day-tab"]} ${isActive ? styles["day-tab--active"] : ""} 
+        ${isRestDay ? styles["day-tab--rest"] : ""} `,
       data: `data-day="${day}"`,
     })}
       `;
-  }).join("");
+    })
+    .join("");
 }
 
 async function fetchWeeklyPlanById(
