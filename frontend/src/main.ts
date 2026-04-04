@@ -19,6 +19,7 @@ import NewQuickPlan from "./pages/NewQuickPlan/NewQuickPlan";
 import NewQuickWeeklyPlan from "./pages/NewQuickWeeklyPlan/NewQuickWeeklyPlan";
 import NewQuickWeeklyPlanExerises from "./pages/NewQuickWeeklyPlanExerises/NewQuickWeeklyPlanExerises";
 import WeeklyPlan from "./pages/GetWeeklyPlan/WeeklyPlan";
+import WeeklyPlans from "./pages/WeeklyPlan copy/WeeklyPlan";
 
 initTheme();
 await Header();
@@ -43,7 +44,7 @@ register("/api/exercises/:id/update", UpdateExercise);
 register("/api/quick-plans", QuickPlan);
 register("/api/quick-plans/new", NewQuickPlan);
 register("/api/quick-plans/:PlanId", QuickPlan);
-register("/api/quick-plans/:planId/weekly-plans", WeeklyPlan);
+register("/api/quick-plans/:planId/weekly-plans", WeeklyPlans);
 register("/api/quick-plans/:planId/weekly-plans/:id", WeeklyPlan);
 register("/api/quick-plans/:planId/weekly-plans/new", NewQuickWeeklyPlan);
 register(

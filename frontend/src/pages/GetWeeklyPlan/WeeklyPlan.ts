@@ -1,6 +1,6 @@
 import Button from "../../components/Button/Button";
 import Notification from "../../components/Notification/Notification";
-import type { WeeklyPlan } from "../../utils/types";
+import type { WeeklyPlan, WeeklyPlanExercise } from "../../utils/types";
 import styles from "./Weeklyplan.module.css";
 
 const backendUrl =
@@ -24,18 +24,32 @@ const authHeaders = () => {
   };
 };
 
-export default async function WeeklyPlan(params?: {
-  planId: string;
+interface PageState {
   id: string;
-}) {
+  planId: string;
+  weeklyPlan: WeeklyPlan | null;
+  weeklyPlans: WeeklyPlan[] | null;
+}
+
+export default async function WeeklyPlan(params?: Record<string, string>) {
+  const mainApp = document.getElementById("main-app")!;
+
   const { planId, id } = params || { planId: "", id: "" };
 
   const plan = await fetchWeeklyPlanById(planId, id);
-  const plans = await fetchPlanById(planId);
-  console.log("Fetched Plans:", plans);
-  console.log("Fetched Weekly Plan:", plan);
-  const mainApp = document.getElementById("main-app")!;
+  const weeklyPlans = await fetchAllWeeklyPlans(planId);
+  const weeklyPlan: WeeklyPlan | null =
+    weeklyPlans?.find((plan) => plan.id === id) || null;
 
+  console.log("Fetched weekly plan:", weeklyPlan);
+  console.log("Fetched all weekly plans:", weeklyPlans);
+
+  const state: PageState = {
+    id,
+    planId,
+    weeklyPlan,
+    weeklyPlans,
+  };
   mainApp!.innerHTML = `
       <div class="${styles["weekly-plan-container"]}">
         <div class="${styles["weekly-plan-header"]}">
@@ -60,21 +74,34 @@ export default async function WeeklyPlan(params?: {
             })}
           </div>
         </div>
+
+        <div class="${styles["day-tabs-wrapper"]}">
+          <div class="${styles["day-tabs"]}">
+            ${renderDayTabs(state.weeklyPlan!)}
+          </div>
+        </div>
       </div>`;
 }
 
-function renderDayTabs(activeDay: string): string {
+function renderDayTabs(weeklyPlan: WeeklyPlan): string {
   return DAYS.map((day) => {
-    const hasExercises = !!(MOCK_PLAN[day] && MOCK_PLAN[day].length > 0);
-    const isActive = day === activeDay;
+    const hasExercises = weeklyPlan?.quickStartExercises
+      ? weeklyPlan?.quickStartExercises.some(
+          (weeklyPlanExercise: WeeklyPlanExercise) =>
+            weeklyPlanExercise?.exercises
+              ? weeklyPlanExercise?.exercises.length > 0
+              : false,
+        )
+      : false;
+    const isActive = weeklyPlan.isRestDay;
     return `
-      <button
-        class="${styles["day-tab"]} ${isActive ? styles["day-tab--active"] : ""}"
-        data-day="${day}"
-      >
-        ${day}
-        ${hasExercises ? `<span class="${styles["day-dot"]}"></span>` : ""}
-      </button>`;
+    ${Button({
+      label: `${day}
+        ${hasExercises ? `<span class="${styles["day-dot"]}"></span>` : ""}`,
+      btnClass: `${styles["day-tab"]} ${isActive ? styles["day-tab--active"] : ""}`,
+      data: `data-day="${day}"`,
+    })}
+      `;
   }).join("");
 }
 
@@ -103,7 +130,9 @@ async function fetchWeeklyPlanById(
     return null;
   }
 }
-async function fetchPlanById(planId: string): Promise<WeeklyPlan[] | null> {
+async function fetchAllWeeklyPlans(
+  planId: string,
+): Promise<WeeklyPlan[] | null> {
   try {
     const response = await fetch(
       `${backendUrl}/api/quick-plans/${planId}/weekly-plans`,
