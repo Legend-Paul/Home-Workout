@@ -1,6 +1,7 @@
 import Button from "../../components/Button/Button";
 import Notification from "../../components/Notification/Notification";
-import type { WeeklyPlan, WeeklyPlanExercise } from "../../utils/types";
+import { navigate } from "../../router";
+import type { WeeklyPlan } from "../../utils/types";
 import styles from "./Weeklyplan.module.css";
 
 const backendUrl =
@@ -36,7 +37,7 @@ export default async function WeeklyPlan(params?: Record<string, string>) {
 
   const { planId, id } = params || { planId: "", id: "" };
 
-  const plan = await fetchWeeklyPlanById(planId, id);
+  // const plan = await fetchWeeklyPlanById(planId, id);
   const weeklyPlans = await fetchAllWeeklyPlans(planId);
   const weeklyPlan: WeeklyPlan | null =
     weeklyPlans?.find((plan) => plan.id === id) || null;
@@ -60,6 +61,7 @@ function updatePage(state: PageState) {
     `.${styles["weekly-plan-container"]}`,
   )! as HTMLDivElement;
   container.innerHTML = renderWeeklyPlan(state);
+  attachEventHandlers(container, state);
 }
 
 function renderWeeklyPlan(state: PageState) {
@@ -111,13 +113,59 @@ function renderDayTabs(state: PageState): HTMLDivElement {
        `,
       btnClass: `${styles["day-tab"]} ${isActive ? styles["day-tab--active"] : ""} 
         ${isRestDay ? styles["day-tab--rest"] : ""} `,
-      data: `data-day="${day}"`,
+      data: `data-day="${day}" data-id="${weeklyPlan.id}"`,
     })}
       `;
         })
         .join("")
     : "";
   return dayTabs;
+}
+
+/* Event handlers */
+
+// All event handler
+function attachEventHandlers(container: HTMLDivElement, state: PageState) {
+  changeWeeklyPlan(container, state);
+}
+
+// Fetch weekly plan by ID
+function changeWeeklyPlan(container: HTMLDivElement, state: PageState) {
+  const allDayTabs = container.querySelectorAll(`.${styles["day-tab"]}`);
+
+  const handleDayTabClick = (event: Event) => {
+    const target = event.currentTarget as HTMLElement;
+    const day = target.getAttribute("data-day");
+    const id = target.getAttribute("data-id");
+    if (!day || !id) return;
+    navigate(`/api/quick-plans/${state.planId}/weekly-plans/${id}`);
+
+    // const target = event.target as HTMLElement;
+    // const day = target.getAttribute("data-day");
+    // if (!day) return;
+
+    // const dayIndex = DAYS.findIndex((d) => d === day);
+    // if (dayIndex === -1) return;
+
+    // const selectedWeeklyPlan = state.weeklyPlans?.find(
+    //   (plan) => plan.dayOfWeek === dayIndex,
+    // );
+    // if (!selectedWeeklyPlan) {
+    //   Notification({
+    //     message: "No weekly plan found for the selected day.",
+    //     type: "error",
+    //     duration: 5000,
+    //   });
+    //   return;
+    // }
+
+    // state.weeklyPlan = selectedWeeklyPlan;
+    // updatePage(state);
+  };
+
+  allDayTabs.forEach((tab) => {
+    tab.addEventListener("click", handleDayTabClick);
+  });
 }
 
 async function fetchWeeklyPlanById(

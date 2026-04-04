@@ -107,6 +107,7 @@
   border-bottom: 2px solid var(--border);
   justify-content: space-between;
   flex-shrink: shrink;
+  padding: var(--space-2);
 }
 
 .day-tab {
@@ -125,6 +126,10 @@
   cursor: pointer;
   transition: var(--transition-all-fast);
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  &:focus {
+    background: var(--bg-card);
+    border: none;
+  }
 }
 
 .day-tab:hover {
