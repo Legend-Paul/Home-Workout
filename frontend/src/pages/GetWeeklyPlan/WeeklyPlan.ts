@@ -2,6 +2,7 @@ import Button from "../../components/Button/Button";
 import Notification from "../../components/Notification/Notification";
 import { navigate } from "../../router";
 import type { WeeklyPlan } from "../../utils/types";
+import type { WeeklyPlanExercise } from "../WeeklyPlan copy/WeeklyPlan";
 import styles from "./Weeklyplan.module.css";
 
 const backendUrl =
@@ -41,9 +42,6 @@ export default async function WeeklyPlan(params?: Record<string, string>) {
   const weeklyPlans = await fetchAllWeeklyPlans(planId);
   const weeklyPlan: WeeklyPlan | null =
     weeklyPlans?.find((plan) => plan.id === id) || null;
-
-  console.log("Fetched weekly plan:", weeklyPlan);
-  console.log("Fetched all weekly plans:", weeklyPlans);
 
   const state: PageState = {
     id,
@@ -93,6 +91,13 @@ function renderWeeklyPlan(state: PageState) {
         <div class="${styles["day-tabs-wrapper"]}">  
           ${renderDayTabs(state).outerHTML}
         </div>
+        <div class="${styles["weekly-plan-content-container"]}">
+          ${
+            renderExerciseCards(
+              state.weeklyPlan ? [state.weeklyPlan] : (state.weeklyPlans ?? []),
+            ).outerHTML
+          }
+        </div>
     </div>  
   `;
 }
@@ -122,6 +127,51 @@ function renderDayTabs(state: PageState): HTMLDivElement {
   return dayTabs;
 }
 
+// render exercise cards
+function renderExerciseCards(weeklyPlans: WeeklyPlan[]): HTMLDivElement {
+  const exerciseCards = document.createElement("div");
+  exerciseCards.className = styles["exercise-cards"];
+
+  exerciseCards.innerHTML = weeklyPlans
+    .map((weeklyPlan) => {
+      const activeDay = DAYS[weeklyPlan.dayOfWeek];
+
+      return `
+      <div class="${styles["day-label"]}">
+        <span>
+        ${
+          activeDay ===
+          new Date().toLocaleDateString("en-US", { weekday: "long" })
+            ? "Today · "
+            : ""
+        }${activeDay}</span>
+        <span class="${styles["exercise-count"]}">
+        ${(weeklyPlan.quickStartExercises ?? []).length} 
+        exercise${(weeklyPlan.quickStartExercises ?? []).length !== 1 ? "s" : ""}</span>
+      </div>
+      <div class="${styles["weekly-plan-exercises"]}">
+        ${weeklyPlan.isRestDay ? renderRestDayCard().outerHTML : ""}
+      </div>
+    `;
+    })
+    .join("");
+  return exerciseCards;
+}
+
+function renderRestDayCard(): HTMLDivElement {
+  const emptyState = document.createElement("div");
+  emptyState.className = `${styles["empty-state"]}`;
+  emptyState.innerHTML = `
+        <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p>Rest day — no exercises scheduled</p>
+        <button class="${styles["add-rest-day-btn"]}">Add Exercise</button>
+      `;
+  return emptyState;
+}
+
 /* Event handlers */
 
 // All event handler
@@ -129,7 +179,7 @@ function attachEventHandlers(container: HTMLDivElement, state: PageState) {
   changeWeeklyPlan(container, state);
 }
 
-// Fetch weekly plan by ID
+// Change weekly plan when clicking on day tab
 function changeWeeklyPlan(container: HTMLDivElement, state: PageState) {
   const allDayTabs = container.querySelectorAll(`.${styles["day-tab"]}`);
 
@@ -139,28 +189,6 @@ function changeWeeklyPlan(container: HTMLDivElement, state: PageState) {
     const id = target.getAttribute("data-id");
     if (!day || !id) return;
     navigate(`/api/quick-plans/${state.planId}/weekly-plans/${id}`);
-
-    // const target = event.target as HTMLElement;
-    // const day = target.getAttribute("data-day");
-    // if (!day) return;
-
-    // const dayIndex = DAYS.findIndex((d) => d === day);
-    // if (dayIndex === -1) return;
-
-    // const selectedWeeklyPlan = state.weeklyPlans?.find(
-    //   (plan) => plan.dayOfWeek === dayIndex,
-    // );
-    // if (!selectedWeeklyPlan) {
-    //   Notification({
-    //     message: "No weekly plan found for the selected day.",
-    //     type: "error",
-    //     duration: 5000,
-    //   });
-    //   return;
-    // }
-
-    // state.weeklyPlan = selectedWeeklyPlan;
-    // updatePage(state);
   };
 
   allDayTabs.forEach((tab) => {
