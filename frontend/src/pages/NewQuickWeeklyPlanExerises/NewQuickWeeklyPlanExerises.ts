@@ -61,6 +61,7 @@ export default async function NewQuickWeeklyPlanExercises(
   weeklyPlan?.muscleGroup.forEach((mg) =>
     searchParams.append("muscleGroup", mg),
   );
+
   const exercises =
     (await fetchExercisesByMuscleGroup(searchParams.toString())) ?? [];
 
@@ -227,26 +228,48 @@ function closeButton(): string {
 
 // Render next day and finish weekly plan button
 function nextDayButton(savedIds: string[]) {
-  const day = getDayName(1);
-  const dayIndex = weekDays.findIndex((d) => d === day);
+  const { name, exerciseId } = getWeeklyPlanUpdatingParameters();
   return `
   <dv class="${styles["next-day-btns"]}">
-    ${
-      day
-        ? Button({
-            label: `${getDayName(1)} weekly plan`,
-            btnClass: styles["next-day-btn"],
-            disabled: !(savedIds.length > 0),
-            data: `data-day=${dayIndex}`,
-          })
-        : Button({
-            label: `Finish weekly plan`,
-            btnClass: styles["finish-weekly-plan-btn"],
-            disabled: !(savedIds.length > 0),
-          })
-    }
-    </div>
+  ${
+    name || exerciseId
+      ? backToWeeklyPlanButton()
+      : navigateToWeeklyPlanButton(savedIds)
+  } </div>
   `;
+}
+
+// Back to Weekly plan button
+function backToWeeklyPlanButton(): string {
+  return Button({
+    label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>Back to Weekly Plan`,
+    btnClass: styles["back-to-weekly-plan-btn"],
+  });
+}
+
+// function navigate to weekly plan
+function navigateToWeeklyPlanButton(savedIds: string[]): string {
+  const day = getDayName(1);
+  const dayIndex = weekDays.findIndex((d) => d === day);
+  return `${
+    day
+      ? Button({
+          label: `${getDayName(1)} Plan 
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>`,
+          btnClass: styles["next-day-btn"],
+          disabled: !(savedIds.length > 0),
+          data: `data-day=${dayIndex}`,
+        })
+      : Button({
+          label: `Finish weekly plan`,
+          btnClass: styles["finish-weekly-plan-btn"],
+          disabled: !(savedIds.length > 0),
+        })
+  }`;
 }
 
 // Render sets input component
@@ -537,6 +560,15 @@ function attachRemoveHandlers(container: HTMLDivElement, state: PageState) {
 
 /*--------- Helper functions ------ */
 
+// Get name and exercise id of weekly plan to update
+function getWeeklyPlanUpdatingParameters() {
+  const query = new URLSearchParams(window.location.search);
+  return {
+    name: query.get("name"),
+    exerciseId: query.get("exerciseId"),
+  };
+}
+
 // Get form inputs {sets, reps, duration}
 function getFormInputs(form: HTMLFormElement) {
   return {
@@ -617,10 +649,10 @@ function formatList(items: string[]): string {
 function getDayName(day: number = 0): string {
   const nextDay: string | null = new URLSearchParams(
     window.location.search,
-  ).get("nextDay");
+  ).get("day");
   const num = Number(nextDay);
   if (!isNaN(num) && isFinite(num)) {
-    return weekDays[num - (1 - day)];
+    return weekDays[num + day];
   }
   return weekDays[0];
 }
@@ -735,6 +767,8 @@ async function fetchWeeklyPlan(
     return null;
   }
 }
+
+/* Backed API Call */
 
 // Fetch exercise by muscle group
 async function fetchExercisesByMuscleGroup(

@@ -326,7 +326,7 @@ async function createWeeklyPlan(
       duration: 5000,
     });
     navigate(
-      `/api/quick-plans/${planId}/weekly-plans/${weeklyPlanId}/exercises/new?nextDay=${nexDay}`,
+      `/api/quick-plans/${planId}/weekly-plans/${weeklyPlanId}/exercises/new?day=${nexDay}`,
     );
   } else {
     const data = await response.json();

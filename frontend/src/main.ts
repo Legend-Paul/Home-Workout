@@ -46,8 +46,8 @@ register("/api/quick-plans", QuickPlan);
 register("/api/quick-plans/new", NewQuickPlan);
 register("/api/quick-plans/:PlanId", QuickPlan);
 register("/api/quick-plans/:planId/weekly-plans", WeeklyPlans);
-register("/api/quick-plans/:planId/weekly-plans/:id", WeeklyPlan);
 register("/api/quick-plans/:planId/weekly-plans/new", NewQuickWeeklyPlan);
+register("/api/quick-plans/:planId/weekly-plans/:id", WeeklyPlan);
 register("/api/quick-plans/:planId/weekly-plans/:id/edit", EditQuickWeeklyPlan);
 register(
   "/api/quick-plans/:planId/weekly-plans/:id/exercises/new",

@@ -38,9 +38,11 @@
 .exercise {
   background-color: var(--bg-card);
   padding: var(--space-2);
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-2);
   border-radius: var(--radius-sm);
+  height: 100%;
   p {
     font-size: var(--text-sm);
   }

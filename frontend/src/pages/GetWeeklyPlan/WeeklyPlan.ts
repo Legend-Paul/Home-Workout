@@ -293,7 +293,7 @@ function addExerciseHandler(container: HTMLDivElement, state: PageState) {
   ) as HTMLButtonElement;
   addExerciseBtn.addEventListener("click", () => {
     navigate(
-      `/api/quick-plans/${state.planId}/weekly-plans/${state.id}/exercises/new?day=${state.weeklyPlan?.dayOfWeek}`,
+      `/api/quick-plans/${state.planId}/weekly-plans/${state.id}/exercises/new?day=${state.weeklyPlan?.dayOfWeek}&name=${state.weeklyPlan?.name}`,
     );
   });
 }
