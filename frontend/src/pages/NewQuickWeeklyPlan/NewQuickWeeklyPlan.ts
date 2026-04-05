@@ -29,7 +29,6 @@ export default function NewQuickWeeklyPlan(params?: Record<string, string>) {
   ).get("day");
   const planId = params?.planId as string;
   const day = dayIndex ? daysOfWeek[Number(dayIndex)] : daysOfWeek[0];
-  console.log(dayIndex, window.location.search);
 
   mainApp!.innerHTML = `
     <div class="${styles["new-weekly-plan-container"]}">

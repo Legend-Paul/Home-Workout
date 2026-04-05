@@ -154,6 +154,7 @@ function renderExerciseCards(weeklyPlans: WeeklyPlan[]): HTMLDivElement {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg> Add Exercise`,
+          data: `data-day="${activeDay}" data-id="${weeklyPlan.id}"`,
           btnClass: styles["add-exercise-btn"],
         })}
       </div>
@@ -253,6 +254,7 @@ function formatList(items: string[]): string {
 function attachEventHandlers(container: HTMLDivElement, state: PageState) {
   changeWeeklyPlan(container, state);
   editWeeklyPlan(container, state);
+  addExerciseHandler(container, state);
 }
 
 // Change weekly plan when clicking on day tab
@@ -280,6 +282,18 @@ function editWeeklyPlan(container: HTMLDivElement, state: PageState) {
   editBtn.addEventListener("click", () => {
     navigate(
       `/api/quick-plans/${state.planId}/weekly-plans/${state.id}/edit?day=${state.weeklyPlan?.dayOfWeek}`,
+    );
+  });
+}
+
+// Add exercise button click handler
+function addExerciseHandler(container: HTMLDivElement, state: PageState) {
+  const addExerciseBtn = container.querySelector(
+    `.${styles["add-exercise-btn"]}`,
+  ) as HTMLButtonElement;
+  addExerciseBtn.addEventListener("click", () => {
+    navigate(
+      `/api/quick-plans/${state.planId}/weekly-plans/${state.id}/exercises/new?day=${state.weeklyPlan?.dayOfWeek}`,
     );
   });
 }
