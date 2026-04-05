@@ -150,13 +150,19 @@ function renderExerciseCards(weeklyPlans: WeeklyPlan[]): HTMLDivElement {
         exercise${(weeklyPlan.quickStartExercises ?? []).length !== 1 ? "s" : ""}</span>
       </div>
       <div class="${styles["weekly-plan-exercises"]}">
-        ${weeklyPlan.isRestDay ? renderRestDayCard().outerHTML : ""}
+        ${
+          weeklyPlan.isRestDay
+            ? renderRestDayCard().outerHTML
+            : renderExercisesForDay(weeklyPlan).outerHTML
+        }
       </div>
     `;
     })
     .join("");
   return exerciseCards;
 }
+
+// render rest day card
 
 function renderRestDayCard(): HTMLDivElement {
   const emptyState = document.createElement("div");
@@ -170,6 +176,52 @@ function renderRestDayCard(): HTMLDivElement {
         <button class="${styles["add-rest-day-btn"]}">Add Exercise</button>
       `;
   return emptyState;
+}
+
+// render exercise cards when clicking on day tab
+function renderExercisesForDay(weeklyPlan: WeeklyPlan): HTMLDivElement {
+  const exercisesContainer = document.createElement("div");
+  exercisesContainer.className = styles["exercises-card"];
+  exercisesContainer.innerHTML = (weeklyPlan.quickStartExercises ?? [])
+    .map((quickStart) => {
+      const ex = quickStart.exercise!;
+      const metaLine = [
+        quickStart.sets ? `${quickStart.sets} sets` : null,
+        quickStart.reps ? `${quickStart.reps} reps` : null,
+        quickStart.duration ? `${quickStart.duration}s` : null,
+      ]
+        .filter(Boolean)
+        .join(" · ");
+      return `
+    <div class="${styles["exercise-order"]}">${quickStart.order}</div>        
+        <div class="${styles["exercise-info"]}">
+          <h3 class="${styles["exercise-name"]}">${ex.name ?? "Unknown Exercise"}</h3>
+          <p class="${styles["exercise-muscles"]}">${ex.muscleGroup.join(", ") ?? ""}</p>
+          <div class="${styles["exercise-meta"]}">
+            <span class="${styles["exercise-meta-pill"]}">${metaLine || "—"}</span>
+            <span class="${styles["exercise-level-badge"]} ${styles[ex.level]}" >
+              ${ex.level ?? ""}
+            </span>
+          </div>
+        </div>
+        <div class="${styles["exercise-actions"]}">
+          <button class="${styles["action-btn"]} ${styles["edit-btn"]}" title="Edit">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+          </button>
+          <button class="${styles["action-btn"]} ${styles["delete-btn"]}" title="Remove">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
+        </div>
+  `;
+    })
+    .join("");
+  return exercisesContainer;
 }
 
 /* Event handlers */

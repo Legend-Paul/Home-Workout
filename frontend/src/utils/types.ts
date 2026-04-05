@@ -69,7 +69,7 @@ export type WeeklyPlan = {
   updatedAt: Date;
 };
 
-export type WeeklyPlanExercise = {
+export interface WeeklyPlanExercise {
   id: string;
   quickStartWeeklyPlanId: string;
   exerciseId: string;
@@ -77,7 +77,8 @@ export type WeeklyPlanExercise = {
   reps: number | null;
   sets: number | null;
   duration: number | null;
-  createdAt: string;
-  exercises?: Exercise[];
-  updatedAt: string;
-};
+  createdAt: Date;
+  updatedAt: Date;
+  quickStartWeeklyPlan?: WeeklyPlan;
+  exercise?: Exercise;
+}
