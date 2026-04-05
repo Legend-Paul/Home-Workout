@@ -19,6 +19,7 @@
     }
     &:focus {
       background-color: var(--primary-dark);
+      transform: scale(0.985);
     }
     &:disabled {
       background-color: var(--primary-light);

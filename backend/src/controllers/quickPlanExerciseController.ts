@@ -218,7 +218,6 @@ export const deleteQuickPlanExercise = async (
   res: Response,
 ): Promise<void> => {
   const { id } = req.params;
-
   try {
     const planExerciseExist = await prisma.quickStartExercise.findUnique({
       where: { id: id },

@@ -1,7 +1,8 @@
 import Button from "../../components/Button/Button";
 import Notification from "../../components/Notification/Notification";
+import Spinner from "../../components/Spinner/Spinner";
 import { navigate } from "../../router";
-import type { WeeklyPlan } from "../../utils/types";
+import type { WeeklyPlan, WeeklyPlanExercise } from "../../utils/types";
 import styles from "./Weeklyplan.module.css";
 
 const backendUrl =
@@ -236,7 +237,7 @@ function renderExercisesForDay(weeklyPlan: WeeklyPlan): HTMLDivElement {
                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
             </svg> `,
             btnClass: `${styles["action-btn"]} ${styles["delete-btn"]}`,
-            data: `data-exercise-id="${quickStartExercise.exercise?.id}"`,
+            data: `data-exercise-id="${quickStartExercise.id}"`,
           })}
           
         </div>
@@ -264,6 +265,7 @@ function attachEventHandlers(container: HTMLDivElement, state: PageState) {
   editWeeklyPlan(container, state);
   addExerciseHandler(container, state);
   editQuickStartExercise(container, state);
+  deleteQuickStartExercise(container, state);
 }
 
 // Change weekly plan when clicking on day tab
@@ -325,6 +327,51 @@ function editQuickStartExercise(container: HTMLDivElement, state: PageState) {
   });
 }
 
+// delete exercise button click handler
+function deleteQuickStartExercise(container: HTMLDivElement, state: PageState) {
+  const deleteExerciseBtns = container.querySelectorAll(
+    `.${styles["delete-btn"]}`,
+  ) as NodeListOf<HTMLButtonElement>;
+  const deleteExerciseHandler = async (event: Event) => {
+    const target = event.currentTarget as HTMLButtonElement;
+    const exerciseId = target.getAttribute("data-exercise-id");
+    if (!exerciseId) return;
+    target.innerHTML = `${Spinner({})}`;
+    target.disabled = true;
+
+    try {
+      const deleted = await deleteWeeklyPlanExercise(
+        state.planId,
+        state.id,
+        exerciseId,
+      );
+
+      if (deleted) {
+        state.weeklyPlan!.quickStartExercises =
+          state.weeklyPlan!.quickStartExercises?.filter(
+            (e) => e.id !== deleted.id,
+          );
+        updatePage(state);
+      }
+    } catch (error) {
+      Notification({
+        message: "Failed to delete exercise.",
+        type: "error",
+        duration: 5000,
+      });
+    } finally {
+      target.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+      </svg> `;
+      target.disabled = false;
+    }
+  };
+
+  deleteExerciseBtns.forEach((btn) => {
+    btn.addEventListener("click", deleteExerciseHandler);
+  });
+}
 /*--------- Backed Api ------ */
 
 // Fetch all weekly plans for a quick plan
@@ -351,4 +398,34 @@ async function fetchAllWeeklyPlans(
   } catch (error) {
     return null;
   }
+}
+
+// Delete weekly plan exercise
+async function deleteWeeklyPlanExercise(
+  planId: string,
+  weeklyId: string,
+  id: string,
+): Promise<WeeklyPlanExercise | null> {
+  const res = await fetch(
+    `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${weeklyId}/exercises/${id}/delete`,
+    {
+      method: "DELETE",
+      headers: authHeaders(),
+    },
+  );
+  const json = await res.json();
+  if (!res.ok) {
+    Notification({
+      message: json.error ?? "Failed to delete exercise.",
+      type: "error",
+      duration: 5000,
+    });
+    return null;
+  }
+  Notification({
+    message: json.message ?? "Exercise deleted successfully.",
+    type: "success",
+    duration: 5000,
+  });
+  return json.exercise;
 }
