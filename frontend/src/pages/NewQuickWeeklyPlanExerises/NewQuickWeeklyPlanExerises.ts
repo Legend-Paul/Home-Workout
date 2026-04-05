@@ -606,7 +606,7 @@ function showError() {
   });
 }
 
-// Format list to remove comma as the delimeter
+// Format list to string with comma and space and capitalize first letter of each item
 function formatList(items: string[]): string {
   return items
     .map((item) => item.charAt(0).toUpperCase() + item.slice(1))

@@ -163,7 +163,6 @@ function renderExerciseCards(weeklyPlans: WeeklyPlan[]): HTMLDivElement {
 }
 
 // render rest day card
-
 function renderRestDayCard(): HTMLDivElement {
   const emptyState = document.createElement("div");
   emptyState.className = `${styles["empty-state"]}`;
@@ -181,8 +180,9 @@ function renderRestDayCard(): HTMLDivElement {
 // render exercise cards when clicking on day tab
 function renderExercisesForDay(weeklyPlan: WeeklyPlan): HTMLDivElement {
   const exercisesContainer = document.createElement("div");
-  exercisesContainer.className = styles["exercises-card"];
-  exercisesContainer.innerHTML = (weeklyPlan.quickStartExercises ?? [])
+  exercisesContainer.className = `${styles["exercise-cards"]}`;
+
+  (weeklyPlan.quickStartExercises ?? [])
     .map((quickStart) => {
       const ex = quickStart.exercise!;
       const metaLine = [
@@ -192,14 +192,19 @@ function renderExercisesForDay(weeklyPlan: WeeklyPlan): HTMLDivElement {
       ]
         .filter(Boolean)
         .join(" · ");
-      return `
-    <div class="${styles["exercise-order"]}">${quickStart.order}</div>        
+
+      const exerciseContainer = document.createElement("div");
+      exerciseContainer.className = `${styles["exercise-card"]}`;
+
+      exerciseContainer.innerHTML = `
+        <div class="${styles["exercise-order"]}">${quickStart.order}</div>        
         <div class="${styles["exercise-info"]}">
           <h3 class="${styles["exercise-name"]}">${ex.name ?? "Unknown Exercise"}</h3>
-          <p class="${styles["exercise-muscles"]}">${ex.muscleGroup.join(", ") ?? ""}</p>
+          <p class="${styles["exercise-muscles"]}">${formatList(ex.muscleGroup)}</p>
+          <p class="${styles["exercise-equipments"]}">${formatList(ex.equipment)}</p>
           <div class="${styles["exercise-meta"]}">
             <span class="${styles["exercise-meta-pill"]}">${metaLine || "—"}</span>
-            <span class="${styles["exercise-level-badge"]} ${styles[ex.level]}" >
+            <span class="${styles["exercise-level-badge"]} ${styles[ex.level?.toLowerCase() ?? ""]}" >
               ${ex.level ?? ""}
             </span>
           </div>
@@ -219,9 +224,19 @@ function renderExercisesForDay(weeklyPlan: WeeklyPlan): HTMLDivElement {
           </button>
         </div>
   `;
+      exercisesContainer.appendChild(exerciseContainer);
     })
     .join("");
   return exercisesContainer;
+}
+
+/* Helper functions */
+
+// Format list to string with comma and space and capitalize first letter of each item
+function formatList(items: string[]): string {
+  return items
+    .map((item) => item.charAt(0).toUpperCase() + item.slice(1))
+    .join(", ");
 }
 
 /* Event handlers */
