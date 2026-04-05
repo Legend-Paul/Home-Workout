@@ -414,8 +414,6 @@
 }
 
 .action-btn {
-  width: 34px;
-  height: 34px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--bg-button);

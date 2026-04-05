@@ -195,12 +195,12 @@ function renderExercisesForDay(weeklyPlan: WeeklyPlan): HTMLDivElement {
   exercisesContainer.className = `${styles["exercise-cards"]}`;
 
   (weeklyPlan.quickStartExercises ?? [])
-    .map((quickStart) => {
-      const ex = quickStart.exercise!;
+    .map((quickStartExercise) => {
+      const ex = quickStartExercise.exercise!;
       const metaLine = [
-        quickStart.sets ? `${quickStart.sets} sets` : null,
-        quickStart.reps ? `${quickStart.reps} reps` : null,
-        quickStart.duration ? `${quickStart.duration}s` : null,
+        quickStartExercise.sets ? `${quickStartExercise.sets} sets` : null,
+        quickStartExercise.reps ? `${quickStartExercise.reps} reps` : null,
+        quickStartExercise.duration ? `${quickStartExercise.duration}s` : null,
       ]
         .filter(Boolean)
         .join(" · ");
@@ -209,7 +209,7 @@ function renderExercisesForDay(weeklyPlan: WeeklyPlan): HTMLDivElement {
       exerciseContainer.className = `${styles["exercise-card"]}`;
 
       exerciseContainer.innerHTML = `
-        <div class="${styles["exercise-order"]}">${quickStart.order}</div>        
+        <div class="${styles["exercise-order"]}">${quickStartExercise.order}</div>        
         <div class="${styles["exercise-info"]}">
           <h3 class="${styles["exercise-name"]}">${ex.name ?? "Unknown Exercise"}</h3>
           <p class="${styles["exercise-muscles"]}">${formatList(ex.muscleGroup)}</p>
@@ -222,18 +222,23 @@ function renderExercisesForDay(weeklyPlan: WeeklyPlan): HTMLDivElement {
           </div>
         </div>
         <div class="${styles["exercise-actions"]}">
-          <button class="${styles["action-btn"]} ${styles["edit-btn"]}" title="Edit">
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          ${Button({
+            label: `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-            </svg>
-          </button>
-          <button class="${styles["action-btn"]} ${styles["delete-btn"]}" title="Remove">
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            </svg> `,
+            btnClass: `${styles["action-btn"]} ${styles["edit-btn"]}`,
+            data: `data-exercise-id="${quickStartExercise.id}"`,
+          })}
+          ${Button({
+            label: `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-          </button>
+            </svg> `,
+            btnClass: `${styles["action-btn"]} ${styles["delete-btn"]}`,
+            data: `data-exercise-id="${quickStartExercise.id}"`,
+          })}
+          
         </div>
   `;
       exercisesContainer.appendChild(exerciseContainer);
@@ -258,6 +263,7 @@ function attachEventHandlers(container: HTMLDivElement, state: PageState) {
   changeWeeklyPlan(container, state);
   editWeeklyPlan(container, state);
   addExerciseHandler(container, state);
+  editQuickStartExercise(container, state);
 }
 
 // Change weekly plan when clicking on day tab
@@ -298,6 +304,24 @@ function addExerciseHandler(container: HTMLDivElement, state: PageState) {
     navigate(
       `/api/quick-plans/${state.planId}/weekly-plans/${state.id}/exercises/new?day=${state.weeklyPlan?.dayOfWeek}&name=${state.weeklyPlan?.name}`,
     );
+  });
+}
+
+// Edit exercise button click handler
+function editQuickStartExercise(container: HTMLDivElement, state: PageState) {
+  const editExerciseBtns = container.querySelectorAll(
+    `.${styles["edit-btn"]}`,
+  ) as NodeListOf<HTMLButtonElement>;
+  const editExerciseHandler = (event: Event) => {
+    const target = event.currentTarget as HTMLElement;
+    const exerciseId = target.getAttribute("data-exercise-id");
+    if (!exerciseId) return;
+    navigate(
+      `/api/quick-plans/${state.planId}/weekly-plans/${state.id}/exercises/new?day=${state.weeklyPlan?.dayOfWeek}&exerciseId=${exerciseId}`,
+    );
+  };
+  editExerciseBtns.forEach((btn) => {
+    btn.addEventListener("click", editExerciseHandler);
   });
 }
 
