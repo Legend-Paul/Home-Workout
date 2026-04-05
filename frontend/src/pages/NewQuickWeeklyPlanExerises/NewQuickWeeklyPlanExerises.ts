@@ -76,6 +76,7 @@ export default async function NewQuickWeeklyPlanExercises(
   const container = mainApp.querySelector<HTMLDivElement>(
     `.${styles["exercises-container"]}`,
   )!;
+  openUpdateDialogIfExerciseIdExists(container);
 
   renderPage(container, state);
 }
@@ -109,7 +110,7 @@ function renderExercises(
           const savedExercise = getSavedExercise(state, exercise.id);
           return `
           <div class="${styles["exercise-container"]} ${isSaved ? styles["saved-exercise"] : ""}">
-            <div class="${styles["exercise"]}">
+            <div class="${styles["exercise"]}" data-exercise-id="${exercise.id}">
               <h3>${exercise.name}</h3>
               <p>${formatList(exercise.muscleGroup)}</p>
               <p>${formatList(exercise.equipment)}</p>
@@ -341,6 +342,29 @@ function attachAllHandlers(container: HTMLDivElement, state: PageState) {
   attachBackToWeeklyPlanHandler(container);
 }
 
+// Open update exercise dialog when param has exercise id
+const changeUpdateDialogHandler = (
+  container: HTMLDivElement,
+  action: "open" | "close",
+  exerciseId: string,
+) => {
+  const exerciseEl = container.querySelector<HTMLDivElement>(
+    `.${styles["exercise"]}[data-exercise-id="${exerciseId}"]`,
+  );
+  console.log(exerciseId);
+  console.log("exerciseEl", action, exerciseEl);
+
+  if (exerciseEl) {
+    toggleDialog(exerciseEl, action);
+  }
+};
+function openUpdateDialogIfExerciseIdExists(container: HTMLDivElement) {
+  const { exerciseId } = getWeeklyPlanUpdatingParameters();
+
+  if (!exerciseId) return;
+  changeUpdateDialogHandler(container, "open", exerciseId);
+}
+
 // Back to weekly plan handler
 function attachBackToWeeklyPlanHandler(container: HTMLDivElement) {
   const backToWeeklyPlanButtons =
@@ -527,6 +551,7 @@ function attachUpdateHandlers(container: HTMLDivElement, state: PageState) {
               (e) => e.id === updated.id,
             );
             if (idx !== -1) state.weeklyPlanExercises[idx] = updated;
+
             renderPage(container, state);
           }
         } catch {
@@ -562,6 +587,7 @@ function attachRemoveHandlers(container: HTMLDivElement, state: PageState) {
             state.weeklyPlanExercises = state.weeklyPlanExercises.filter(
               (e) => e.id !== saved?.id,
             );
+
             renderPage(container, state);
           }
         } catch {

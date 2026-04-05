@@ -13,7 +13,13 @@
   .next-day-btn,
   .finish-weekly-plan-btn,
   .back-to-weekly-plan-btn {
-    background-color: var(--primary-dark);
+    background-color: var(--primary);
+    &:hover {
+      background-color: var(--primary-dark);
+    }
+    &:focus {
+      background-color: var(--primary-dark);
+    }
     &:disabled {
       background-color: var(--primary-light);
     }
