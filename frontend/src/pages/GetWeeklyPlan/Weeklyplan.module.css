@@ -73,12 +73,11 @@
   color: var(--text);
 }
 
-.add-weekly-plan-exercise-btn {
+.edit-weekly-plan-exercise-btn {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2);
-  background: var(--primary);
   border: none;
   border-radius: var(--radius);
   color: var(--text-white);
@@ -88,11 +87,11 @@
   cursor: pointer;
   box-shadow: var(--shadow);
   transition: var(--transition-all-fast);
-  background: var(--success);
+  background: var(--info);
 }
 
-.add-weekly-plan-exercise-btn:hover {
-  background: var(--success-dark);
+.edit-weekly-plan-exercise-btn:hover {
+  background: var(--info-dark);
   box-shadow: var(--shadow-lg);
   transform: translateY(-1px);
 }
