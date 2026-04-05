@@ -2,7 +2,6 @@ import Button from "../../components/Button/Button";
 import Notification from "../../components/Notification/Notification";
 import { navigate } from "../../router";
 import type { WeeklyPlan } from "../../utils/types";
-import type { WeeklyPlanExercise } from "../WeeklyPlan copy/WeeklyPlan";
 import styles from "./Weeklyplan.module.css";
 
 const backendUrl =
@@ -101,6 +100,7 @@ function renderWeeklyPlan(state: PageState) {
   `;
 }
 
+//
 function renderDayTabs(state: PageState): HTMLDivElement {
   const dayTabs = document.createElement("div");
   dayTabs.className = styles["day-tabs"];
@@ -136,17 +136,26 @@ function renderExerciseCards(weeklyPlans: WeeklyPlan[]): HTMLDivElement {
       const activeDay = DAYS[weeklyPlan.dayOfWeek];
 
       return `
-      <div class="${styles["day-label"]}">
-        <span>
-        ${
-          activeDay ===
-          new Date().toLocaleDateString("en-US", { weekday: "long" })
-            ? "Today · "
-            : ""
-        }${activeDay}</span>
-        <span class="${styles["exercise-count"]}">
-        ${(weeklyPlan.quickStartExercises ?? []).length} 
-        exercise${(weeklyPlan.quickStartExercises ?? []).length !== 1 ? "s" : ""}</span>
+      <div class="${styles["exercise-cards-header"]}">
+        <div class="${styles["day-label"]}">
+          <span>
+          ${
+            activeDay ===
+            new Date().toLocaleDateString("en-US", { weekday: "long" })
+              ? "Today · "
+              : ""
+          }${activeDay}</span>
+          <span class="${styles["exercise-count"]}">
+          ${(weeklyPlan.quickStartExercises ?? []).length} 
+          exercise${(weeklyPlan.quickStartExercises ?? []).length !== 1 ? "s" : ""}</span>
+        </div>
+        ${Button({
+          label: `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg> Add Exercise`,
+          btnClass: styles["add-exercise-btn"],
+        })}
       </div>
       <div class="${styles["weekly-plan-exercises"]}">
         ${
@@ -276,33 +285,6 @@ function editWeeklyPlan(container: HTMLDivElement, state: PageState) {
 }
 
 /*--------- Backed Api ------ */
-
-// Fetch weekly plan by id
-async function fetchWeeklyPlanById(
-  planId: string,
-  id: string,
-): Promise<WeeklyPlan | null> {
-  try {
-    const response = await fetch(
-      `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${id}`,
-      {
-        method: "GET",
-        headers: authHeaders(),
-      },
-    );
-    const json = await response.json();
-    if (!response.ok) {
-      Notification({
-        message: json.error ?? "Failed to fetch exercises.",
-        type: "error",
-        duration: 5000,
-      });
-    }
-    return json.weeklyPlan;
-  } catch (error) {
-    return null;
-  }
-}
 
 // Fetch all weekly plans for a quick plan
 async function fetchAllWeeklyPlans(
