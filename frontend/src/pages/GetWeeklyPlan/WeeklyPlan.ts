@@ -149,14 +149,18 @@ function renderExerciseCards(weeklyPlans: WeeklyPlan[]): HTMLDivElement {
           ${(weeklyPlan.quickStartExercises ?? []).length} 
           exercise${(weeklyPlan.quickStartExercises ?? []).length !== 1 ? "s" : ""}</span>
         </div>
-        ${Button({
-          label: `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        ${
+          weeklyPlan.isRestDay
+            ? ""
+            : Button({
+                label: `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg> Add Exercise`,
-          data: `data-day="${activeDay}" data-id="${weeklyPlan.id}"`,
-          btnClass: styles["add-exercise-btn"],
-        })}
+                data: `data-day="${activeDay}" data-id="${weeklyPlan.id}"`,
+                btnClass: styles["add-exercise-btn"],
+              })
+        }
       </div>
       <div class="${styles["weekly-plan-exercises"]}">
         ${
@@ -181,8 +185,7 @@ function renderRestDayCard(): HTMLDivElement {
             d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
         <p>Rest day — no exercises scheduled</p>
-        <button class="${styles["add-rest-day-btn"]}">Add Exercise</button>
-      `;
+        `;
   return emptyState;
 }
 

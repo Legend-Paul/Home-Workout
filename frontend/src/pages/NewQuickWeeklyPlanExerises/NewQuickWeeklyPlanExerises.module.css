@@ -8,10 +8,11 @@
 .next-day-btns {
   position: fixed;
   bottom: var(--space-4);
-  right: var(--space-4);
+  right: var(--space-6);
   z-index: 100;
   .next-day-btn,
-  .finish-weekly-plan-btn {
+  .finish-weekly-plan-btn,
+  .back-to-weekly-plan-btn {
     background-color: var(--primary-dark);
     &:disabled {
       background-color: var(--primary-light);
@@ -37,7 +38,7 @@
 }
 .exercise {
   background-color: var(--bg-card);
-  padding: var(--space-2);
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);

@@ -9,7 +9,7 @@ import type {
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import formStyles from "../../assets/FormStyles.module.css";
-import { navigate } from "../../router";
+import { back, navigate } from "../../router";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -233,19 +233,20 @@ function nextDayButton(savedIds: string[]) {
   <dv class="${styles["next-day-btns"]}">
   ${
     name || exerciseId
-      ? backToWeeklyPlanButton()
+      ? backToWeeklyPlanButton(savedIds)
       : navigateToWeeklyPlanButton(savedIds)
   } </div>
   `;
 }
 
 // Back to Weekly plan button
-function backToWeeklyPlanButton(): string {
+function backToWeeklyPlanButton(savedIds: string[]): string {
   return Button({
     label: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>Back to Weekly Plan`,
+            </svg>Back`,
     btnClass: styles["back-to-weekly-plan-btn"],
+    disabled: !(savedIds.length > 0),
   });
 }
 
@@ -337,6 +338,18 @@ function attachAllHandlers(container: HTMLDivElement, state: PageState) {
   attachRemoveHandlers(container, state);
   attachNextDayhandler(container, state);
   attachFinishWeeklyPlanHandler(container);
+  attachBackToWeeklyPlanHandler(container);
+}
+
+// Back to weekly plan handler
+function attachBackToWeeklyPlanHandler(container: HTMLDivElement) {
+  const backToWeeklyPlanButtons =
+    container!.querySelectorAll<HTMLButtonElement>(
+      `.${styles["back-to-weekly-plan-btn"]}`,
+    );
+  backToWeeklyPlanButtons.forEach((button) => {
+    button.addEventListener("click", back);
+  });
 }
 
 // Open and close dialog handler
