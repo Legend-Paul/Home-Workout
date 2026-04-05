@@ -269,7 +269,9 @@ function editWeeklyPlan(container: HTMLDivElement, state: PageState) {
     `.${styles["edit-weekly-plan-exercise-btn"]}`,
   ) as HTMLButtonElement;
   editBtn.addEventListener("click", () => {
-    navigate(`/api/quick-plans/${state.planId}/weekly-plans/${state.id}/edit`);
+    navigate(
+      `/api/quick-plans/${state.planId}/weekly-plans/${state.id}/edit?day=${state.weeklyPlan?.dayOfWeek}`,
+    );
   });
 }
 

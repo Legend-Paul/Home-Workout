@@ -202,11 +202,11 @@ const updateQuickWeeklyPlanHandler = async (
   const { planId, id } = req.params;
 
   try {
-    const [weeklyPlanExists, quickPlanExists] = await Promise.all([
+    const [quickPlanExists, weeklyPlanExists] = await Promise.all([
       prisma.quickStartPlan.findUnique({
         where: { id: planId },
       }),
-      prisma.quickStartPlan.findUnique({
+      prisma.quickStartWeeklyPlan.findUnique({
         where: { id },
       }),
     ]);
