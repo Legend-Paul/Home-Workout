@@ -243,6 +243,7 @@ function formatList(items: string[]): string {
 // All event handler
 function attachEventHandlers(container: HTMLDivElement, state: PageState) {
   changeWeeklyPlan(container, state);
+  editWeeklyPlan(container, state);
 }
 
 // Change weekly plan when clicking on day tab
@@ -262,6 +263,19 @@ function changeWeeklyPlan(container: HTMLDivElement, state: PageState) {
   });
 }
 
+// Edit weekly plan
+function editWeeklyPlan(container: HTMLDivElement, state: PageState) {
+  const editBtn = container.querySelector(
+    `.${styles["edit-weekly-plan-exercise-btn"]}`,
+  ) as HTMLButtonElement;
+  editBtn.addEventListener("click", () => {
+    navigate(`/api/quick-plans/${state.planId}/weekly-plans/${state.id}/edit`);
+  });
+}
+
+/*--------- Backed Api ------ */
+
+// Fetch weekly plan by id
 async function fetchWeeklyPlanById(
   planId: string,
   id: string,
@@ -287,6 +301,8 @@ async function fetchWeeklyPlanById(
     return null;
   }
 }
+
+// Fetch all weekly plans for a quick plan
 async function fetchAllWeeklyPlans(
   planId: string,
 ): Promise<WeeklyPlan[] | null> {
