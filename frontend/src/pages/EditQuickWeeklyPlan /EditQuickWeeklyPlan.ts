@@ -117,6 +117,7 @@ export default async function EditQuickWeeklyPlan(
   validateForm();
   updateRestDay(planId, Number(dayIndex));
   updateWeeklyPlanDay(planId, Number(dayIndex));
+  backButtonHandler();
 }
 
 function muscleGroupCheckboxInput(label: string, checked = false) {
@@ -133,6 +134,17 @@ function muscleGroupCheckboxInput(label: string, checked = false) {
   });
 }
 
+// handle back button click
+function backButtonHandler() {
+  const backBtn = document.querySelector(
+    `.${styles["back-btn"]}`,
+  ) as HTMLButtonElement;
+  backBtn.addEventListener("click", () => {
+    back();
+  });
+}
+
+// Handle change between create day plan and rest day
 function changeDayStatusDisplay() {
   const createDayChip = document.querySelector(
     `.${styles["create-day-chip"]}`,
@@ -173,6 +185,7 @@ function changeDayStatusDisplay() {
   });
 }
 
+// Validate form input and enable/disable submit button
 function validateForm() {
   const weeklyPlanContainer = document.querySelector(
     `.${styles["new-weekly-plan-container"]}`,
@@ -213,6 +226,7 @@ function validateForm() {
   }
 }
 
+// Update weekly plan for the day to rest day
 function updateRestDay(planId: string, day: number) {
   const weeklyPlanContainer = document.querySelector(
     `.${styles["new-weekly-plan-container"]}`,
@@ -246,6 +260,7 @@ function updateRestDay(planId: string, day: number) {
   updateRestDayBtn?.addEventListener("click", updateRestDayHandler);
 }
 
+// Update weekly plan for the day
 function updateWeeklyPlanDay(planId: string, day: number) {
   const weeklyPlanContainer = document.querySelector(
     `.${styles["new-weekly-plan-container"]}`,
@@ -339,6 +354,7 @@ async function updateWeeklyPlan(
   }
 }
 
+// update weekly plan for the day to rest day
 async function updateWeeklyPlanRestDay(
   planId: string,
   id: string,

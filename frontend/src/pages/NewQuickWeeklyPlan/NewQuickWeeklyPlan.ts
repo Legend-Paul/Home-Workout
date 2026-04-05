@@ -3,7 +3,7 @@ import formStyles from "../../assets/FormStyles.module.css";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import Notification from "../../components/Notification/Notification";
-import { navigate } from "../../router";
+import { back, navigate } from "../../router";
 import Spinner from "../../components/Spinner/Spinner";
 
 const daysOfWeek: string[] = [
@@ -62,106 +62,18 @@ export default function NewQuickWeeklyPlan(params?: Record<string, string>) {
                     <div class="${styles["weekly-plan-checkbox-container"]} ${styles["weekly-plan-level-container"]}">
                         <h3>Select Musle Group</h3>
                         <div class="${styles["weekly-plan-checkbox"]}">
-                            ${Input({
-                              label: "Chest",
-                              id: "chest",
-                              type: "checkbox",
-                              placeholder: "",
-                              name: "level",
-                              errorMessage: "",
-                              checked: false,
-                              value: "chest",
-                            })}
-                            ${Input({
-                              label: "Lats",
-                              id: "lats",
-                              type: "checkbox",
-                              placeholder: "",
-                              name: "level",
-                              minLength: 3,
-                              errorMessage: "",
-                              checked: false,
-                              value: "lats",
-                            })}
-                            ${Input({
-                              label: "Traps",
-                              id: "traps",
-                              type: "checkbox",
-                              placeholder: "",
-                              name: "level",
-                              minLength: 3,
-                              errorMessage: "",
-                              checked: false,
-                              value: "traps",
-                            })}
-                            ${Input({
-                              label: "Back",
-                              id: "back",
-                              type: "checkbox",
-                              placeholder: "",
-                              name: "level",
-                              minLength: 3,
-                              errorMessage: "",
-                              checked: false,
-                              value: "back",
-                            })}
-                            ${Input({
-                              label: "Shoulder",
-                              id: "shoulder",
-                              type: "checkbox",
-                              placeholder: "",
-                              name: "level",
-                              minLength: 3,
-                              errorMessage: "",
-                              checked: false,
-                              value: "shoulder",
-                            })}  
-                            ${Input({
-                              label: "Biceps",
-                              id: "biceps",
-                              type: "checkbox",
-                              placeholder: "",
-                              name: "level",
-                              minLength: 3,
-                              errorMessage: "",
-                              checked: false,
-                              value: "biceps",
-                            })} 
-                            ${Input({
-                              label: "Triceps",
-                              id: "triceps",
-                              type: "checkbox",
-                              placeholder: "",
-                              name: "level",
-                              minLength: 3,
-                              errorMessage: "",
-                              checked: false,
-                              value: "triceps",
-                            })}  
-                            ${Input({
-                              label: "Legs",
-                              id: "legs",
-                              type: "checkbox",
-                              placeholder: "",
-                              name: "level",
-                              minLength: 3,
-                              errorMessage: "",
-                              checked: false,
-                              value: "legs",
-                            })} 
-                            ${Input({
-                              label: "Abs",
-                              id: "abs",
-                              type: "checkbox",
-                              placeholder: "",
-                              name: "level",
-                              minLength: 3,
-                              errorMessage: "",
-                              checked: false,
-                              value: "abs",
-                            })}   
-                        </div>     
-                    </div>    
+                            ${muscleGroupCheckboxInput("Chest")}
+                            ${muscleGroupCheckboxInput("Lats")}
+                            ${muscleGroupCheckboxInput("Traps")}
+                            ${muscleGroupCheckboxInput("Back")}
+                            ${muscleGroupCheckboxInput("Shoulder")}
+                            ${muscleGroupCheckboxInput("Biceps")}
+                            ${muscleGroupCheckboxInput("Triceps")}
+                            ${muscleGroupCheckboxInput("Legs")}
+                            ${muscleGroupCheckboxInput("Abs")}
+                        </div>
+                    </div>
+                                
                 
                     ${Button({
                       label: `Create ${day} Plan`,
@@ -184,8 +96,34 @@ export default function NewQuickWeeklyPlan(params?: Record<string, string>) {
   validateForm();
   createRestDay(planId, Number(dayIndex));
   createWeeklyPlanDay(planId, Number(dayIndex));
+  backButtonHandler();
 }
 
+function muscleGroupCheckboxInput(label: string, checked = false) {
+  return Input({
+    label,
+    id: label.toLowerCase(),
+    type: "checkbox",
+    placeholder: "",
+    name: "muscleGroup",
+    minLength: 3,
+    errorMessage: "",
+    checked,
+    value: label.toLowerCase(),
+  });
+}
+
+// handle back button click
+function backButtonHandler() {
+  const backBtn = document.querySelector(
+    `.${styles["back-btn"]}`,
+  ) as HTMLButtonElement;
+  backBtn.addEventListener("click", () => {
+    back();
+  });
+}
+
+// Change between create day plan and rest day
 function changeDayStatusDisplay() {
   const createDayChip = document.querySelector(
     `.${styles["create-day-chip"]}`,
@@ -226,6 +164,7 @@ function changeDayStatusDisplay() {
   });
 }
 
+// Validate form input and enable/disable create button
 function validateForm() {
   const weeklyPlanContainer = document.querySelector(
     `.${styles["new-weekly-plan-container"]}`,
@@ -266,6 +205,7 @@ function validateForm() {
   }
 }
 
+// Create rest day plan
 function createRestDay(planId: string, day: number) {
   const weeklyPlanContainer = document.querySelector(
     `.${styles["new-weekly-plan-container"]}`,
@@ -298,6 +238,7 @@ function createRestDay(planId: string, day: number) {
   createRestDayBtn?.addEventListener("click", createRestDayHandler);
 }
 
+// Create day plan
 function createWeeklyPlanDay(planId: string, day: number) {
   const weeklyPlanContainer = document.querySelector(
     `.${styles["new-weekly-plan-container"]}`,
@@ -352,6 +293,9 @@ function createWeeklyPlanDay(planId: string, day: number) {
   form.addEventListener("submit", createWeeklyPlanDayHandler);
 }
 
+/* Backend API calls */
+
+// Create day plan
 async function createWeeklyPlan(
   planId: string,
   data: {
@@ -395,6 +339,7 @@ async function createWeeklyPlan(
   }
 }
 
+// Create rest day plan
 async function createWeeklyPlanRestDay(
   planId: string,
   data: {
