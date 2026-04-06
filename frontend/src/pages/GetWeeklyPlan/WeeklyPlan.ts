@@ -1,4 +1,5 @@
 import Button from "../../components/Button/Button";
+import ConfirmationDialog from "../../components/ConfirmationDialog/ConfirmationDialog";
 import Notification from "../../components/Notification/Notification";
 import Spinner from "../../components/Spinner/Spinner";
 import { navigate } from "../../router";
@@ -96,6 +97,15 @@ function renderWeeklyPlan(state: PageState) {
               state.weeklyPlan ? [state.weeklyPlan] : (state.weeklyPlans ?? []),
             ).outerHTML
           }
+        </div>
+        <div class="${styles["plan-bottom-btns"]}">
+          ${Button({
+            label: `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg> Delete Plan`,
+            btnClass: styles["delete-weekly-plan-exercise-btn"],
+          })}
         </div>
     </div>  
   `;
@@ -266,6 +276,7 @@ function attachEventHandlers(container: HTMLDivElement, state: PageState) {
   addExerciseHandler(container, state);
   editQuickStartExercise(container, state);
   deleteQuickStartExercise(container, state);
+  deleteWeeklyPlan(container, state);
 }
 
 // Change weekly plan when clicking on day tab
@@ -372,6 +383,22 @@ function deleteQuickStartExercise(container: HTMLDivElement, state: PageState) {
     btn.addEventListener("click", deleteExerciseHandler);
   });
 }
+
+function deleteWeeklyPlan(container: HTMLDivElement, state: PageState) {
+  const deleteBtn = container.querySelector(
+    `.${styles["delete-weekly-plan-exercise-btn"]}`,
+  ) as HTMLButtonElement;
+  deleteBtn.addEventListener("click", () => {
+    ConfirmationDialog({
+      container,
+      message: "Are you sure you want to delete this weekly plan?",
+      onConfirm: async () => {
+        // Implementation for confirming weekly plan deletion
+      },
+    });
+  });
+}
+
 /*--------- Backed Api ------ */
 
 // Fetch all weekly plans for a quick plan

@@ -2,35 +2,41 @@ import Button from "../Button/Button";
 import styles from "./ConfirmationDialog.module.css";
 
 interface ConfirmationDialogProps {
+  container: HTMLDivElement;
   message: string;
   onConfirm: () => void;
-  onCancel: () => void;
+  onCancel?: () => void;
 }
 
 export default function ConfirmationDialog({
+  container,
   message,
   onConfirm,
   onCancel,
 }: ConfirmationDialogProps) {
-  `
-  <div class="${styles["overlay"]}" id="confirmation-dialog-overlay"></div>
-    <div class="${styles["confirmation-dialog"]}">
-        <p class="${styles["confirmation-message"]}">${message}</p>
-        <div class="${styles["button-group"]}">
-            ${Button({
-              label: "Cancel",
-              onClick: onCancel,
-              btnClass: styles["cancel-btn"],
-            })}
-            ${Button({
-              label: "Confirm",
-              onClick: onConfirm,
-              btnClass: styles["confirm-btn"],
-            })}
+  const overlayDiv = document.createElement("div");
+  overlayDiv.className = styles["overlay"];
+  overlayDiv.id = "confirmation-dialog-overlay";
+
+  overlayDiv.innerHTML = `    <div class="${styles["confirmation-dialog"]}">
+            <p class="${styles["confirmation-message"]}">${message}</p>
+            <div class="${styles["button-group"]}">
+                ${Button({
+                  label: "Cancel",
+                  onClick: onCancel,
+                  btnClass: styles["cancel-btn"],
+                })}
+                ${Button({
+                  label: "Confirm",
+                  onClick: onConfirm,
+                  btnClass: styles["confirm-btn"],
+                })}
+            </div>
         </div>
-    </div>
-  </div>
+ 
 `;
+  container.appendChild(overlayDiv);
+
   const overlay = document.getElementById("confirmation-dialog-overlay");
   const dialog = document.querySelector(`.${styles["confirmation-dialog"]}`);
   if (overlay) {

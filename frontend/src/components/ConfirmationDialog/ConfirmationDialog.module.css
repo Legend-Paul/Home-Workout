@@ -1,5 +1,5 @@
 .overlay {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
@@ -20,7 +20,7 @@
   width: 100%;
   text-align: center;
 }
-.buttons {
+.button-group {
   display: flex;
   justify-content: center;
   gap: var(--space-4);
@@ -36,4 +36,7 @@
   background-color: var(--bg-button);
   color: var(--text);
   padding: var(--space-2) var(--space-4);
+  &:hover {
+    background-color: var(--bg-button-hover);
+  }
 }
