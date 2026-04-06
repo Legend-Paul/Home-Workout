@@ -4,7 +4,7 @@ import styles from "./ConfirmationDialog.module.css";
 interface ConfirmationDialogProps {
   container: HTMLDivElement;
   message: string;
-  onConfirm: () => void;
+  onConfirm: () => boolean | Promise<boolean>;
   onCancel?: () => void;
 }
 
@@ -43,13 +43,19 @@ export default function ConfirmationDialog({
     overlay.addEventListener("click", cancelHandler);
   }
   if (dialog) {
-    const cancelBtn = dialog.querySelector(`.${styles["cancel-btn"]}`);
-    const confirmBtn = dialog.querySelector(`.${styles["confirm-btn"]}`);
+    const cancelBtn = dialog.querySelector<HTMLButtonElement>(
+      `.${styles["cancel-btn"]}`,
+    );
+    const confirmBtn = dialog.querySelector<HTMLButtonElement>(
+      `.${styles["confirm-btn"]}`,
+    );
     if (cancelBtn) {
       cancelBtn.addEventListener("click", cancelHandler);
     }
     if (confirmBtn) {
-      confirmBtn.addEventListener("click", () => confirmHandler(onConfirm));
+      confirmBtn.addEventListener("click", () =>
+        confirmHandler(confirmBtn, onConfirm),
+      );
     }
   }
 }
@@ -67,7 +73,14 @@ function cancelHandler() {
 }
 
 // Confirm handler
-function confirmHandler(onConfirm: () => void) {
-  onConfirm();
-  cancelHandler();
+function confirmHandler(
+  confirmBtn: HTMLButtonElement,
+  onConfirm: () => boolean | Promise<boolean>,
+) {
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = "Confirming...";
+  if (onConfirm()) {
+    confirmBtn.textContent = "Confirmed";
+    cancelHandler();
+  }
 }

@@ -333,10 +333,12 @@ function deleteQuickStartExercise(container: HTMLDivElement, state: PageState) {
   const deleteExerciseBtns = container.querySelectorAll(
     `.${styles["delete-btn"]}`,
   ) as NodeListOf<HTMLButtonElement>;
-  const deleteExerciseHandler = async (event: Event) => {
-    const target = event.currentTarget as HTMLButtonElement;
+
+  const deleteExerciseHandler = async (
+    target: HTMLButtonElement,
+  ): Promise<boolean> => {
     const exerciseId = target.getAttribute("data-exercise-id");
-    if (!exerciseId) return;
+    if (!exerciseId) return false;
     target.innerHTML = `${Spinner({})}`;
     target.disabled = true;
 
@@ -353,13 +355,16 @@ function deleteQuickStartExercise(container: HTMLDivElement, state: PageState) {
             (e) => e.id !== deleted.id,
           );
         updatePage(state);
+        return true;
       }
+      return false;
     } catch (error) {
       Notification({
         message: "Failed to delete exercise.",
         type: "error",
         duration: 5000,
       });
+      return false;
     } finally {
       target.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -370,7 +375,13 @@ function deleteQuickStartExercise(container: HTMLDivElement, state: PageState) {
   };
 
   deleteExerciseBtns.forEach((btn) => {
-    btn.addEventListener("click", deleteExerciseHandler);
+    btn.addEventListener("click", () => {
+      ConfirmationDialog({
+        container: document.getElementById("main-app")! as HTMLDivElement,
+        message: "Are you sure you want to delete this exercise?",
+        onConfirm: () => deleteExerciseHandler(btn),
+      });
+    });
   });
 }
 

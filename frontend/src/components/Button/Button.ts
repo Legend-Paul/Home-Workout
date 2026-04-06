@@ -11,7 +11,6 @@ type ButtonProps = {
 
 export default function Button({
   label,
-  onClick,
   type = "button",
   btnClass = "",
   disabled = false,
@@ -20,7 +19,7 @@ export default function Button({
 }: ButtonProps) {
   return `
     <button ${data ? data : ""} class="${styles["custom-button"]} ${addBtn ? styles["add-button"] : ""} ${btnClass}" type="${type}" 
-    ${disabled ? "disabled" : ""} ${onClick ? `onclick="${onClick()}"` : ""}>
+    ${disabled ? "disabled" : ""}>
       ${label}
     </button>
   `;
