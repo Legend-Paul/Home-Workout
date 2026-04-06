@@ -10,6 +10,7 @@ import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import formStyles from "../../assets/FormStyles.module.css";
 import { back, navigate } from "../../router";
+import ConfirmationDialog from "../../components/ConfirmationDialog/ConfirmationDialog";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -566,35 +567,48 @@ function attachUpdateHandlers(container: HTMLDivElement, state: PageState) {
 
 // Remove exercise to weekly plan handler
 function attachRemoveHandlers(container: HTMLDivElement, state: PageState) {
-  container
-    .querySelectorAll<HTMLButtonElement>(`.${styles["remove-exercise-btn"]}`)
-    .forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const saved: WeeklyPlanExercise | null = btn.dataset.weeklyPlanExercise
-          ? JSON.parse(btn.dataset.weeklyPlanExercise)
-          : null;
+  const btns = container.querySelectorAll<HTMLButtonElement>(
+    `.${styles["remove-exercise-btn"]}`,
+  );
 
-        setButtonLoading(btn, Spinner({}), "Removing...", "var(--error-dark)");
+  const removeWeeklyExercise = async (btn: HTMLButtonElement) => {
+    const saved: WeeklyPlanExercise | null = btn.dataset.weeklyPlanExercise
+      ? JSON.parse(btn.dataset.weeklyPlanExercise)
+      : null;
 
-        try {
-          const removed = await removeWeeklyPlanExercise(
-            state.planId,
-            state.weeklyId,
-            saved?.id ?? "",
-          );
+    setButtonLoading(btn, Spinner({}), "Removing...", "var(--error-dark)");
 
-          if (removed) {
-            state.weeklyPlanExercises = state.weeklyPlanExercises.filter(
-              (e) => e.id !== saved?.id,
-            );
+    try {
+      const removed = await removeWeeklyPlanExercise(
+        state.planId,
+        state.weeklyId,
+        saved?.id ?? "",
+      );
 
-            renderPage(container, state);
-          }
-        } catch {
-          showError();
-        }
+      if (removed) {
+        state.weeklyPlanExercises = state.weeklyPlanExercises.filter(
+          (e) => e.id !== saved?.id,
+        );
+
+        renderPage(container, state);
+        return true;
+      }
+      return false;
+    } catch {
+      showError();
+      return false;
+    }
+  };
+
+  btns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      ConfirmationDialog({
+        container: document.getElementById("main-app")! as HTMLDivElement,
+        message: "Are you sure you want to remove this exercise from the plan?",
+        onConfirm: () => removeWeeklyExercise(btn),
       });
     });
+  });
 }
 
 /*--------- Helper functions ------ */
