@@ -34,8 +34,10 @@ export default async function QuickPlan() {
 function renderPage(container: HTMLDivElement, plans: Plan[]) {
   const plansComponent = renderQuickPlans(plans);
   container.appendChild(plansComponent);
+  attachAllEventHandlers(container, plans);
 }
 
+// render quick plans
 function renderQuickPlans(plans: Plan[]) {
   const plansList = document.createElement("div");
   plansList.className = styles["plans-list"];
@@ -88,8 +90,28 @@ function renderQuickPlans(plans: Plan[]) {
   return plansList;
 }
 
-/* API calls */
+/* event handlers */
+function attachAllEventHandlers(container: HTMLDivElement, plan: Plan[]) {
+  editQuickPlansHandler();
+}
 
+// edit quick plan handler
+function editQuickPlansHandler() {
+  const editButtons = document.querySelectorAll<HTMLButtonElement>(
+    `.${styles["edit-btn"]}`,
+  );
+
+  const editPlansHandler = (btn: HTMLButtonElement) => {
+    const planId = btn.dataset.planId;
+    navigate(`/api/quick-plans/${planId}/edit`);
+  };
+
+  editButtons.forEach((btn) =>
+    btn.addEventListener("click", () => editPlansHandler(btn)),
+  );
+}
+
+/* API calls */
 async function fetchAllPlans(): Promise<Plan[]> {
   try {
     const response = await fetch(`${backendUrl}/api/quick-plans`, {
