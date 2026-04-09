@@ -30,6 +30,11 @@
   display: flex;
   justify-content: space-between;
   gap: var(--space-4);
+  h3 {
+    text-decoration: underline;
+    cursor: pointer;
+    color: var(--info);
+  }
 }
 
 .plan-days-exercises {
@@ -59,13 +64,13 @@
   border: 1px solid transparent;
   display: inline-block;
   transition: var(--transition-all-base);
-  cursor: pointer;
   display: flex;
   align-items: center;
   gap: var(--space-4);
 }
 
 .active-plan {
+  cursor: pointer;
   color: var(--text-light);
   border-color: var(--success);
   &:hover {
@@ -74,6 +79,7 @@
 }
 
 .deactive-plan {
+  cursor: pointer;
   color: var(--text-light);
   border-color: var(--error);
   &:hover {

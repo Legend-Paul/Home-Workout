@@ -2,15 +2,8 @@ import styles from "./QuickPlan.module.css";
 import Button from "../../components/Button/Button";
 import Notification from "../../components/Notification/Notification";
 import Spinner from "../../components/Spinner/Spinner";
-import type {
-  Exercise,
-  Goal,
-  Level,
-  QuickPlan,
-  WeeklyPlan,
-  Plan,
-} from "../../utils/types";
-import { back, navigate } from "../../router";
+import type { QuickPlan, Plan } from "../../utils/types";
+import { navigate } from "../../router";
 import ConfirmationDialog from "../../components/ConfirmationDialog/ConfirmationDialog";
 
 const backendUrl =
@@ -61,7 +54,7 @@ function renderQuickPlans(plans: Plan[]) {
 
     planCard.innerHTML = `
       <div class="${styles["plan-heading"]}">
-        <h3 class="${styles["plan-name"]}">${plan.name}</h3>
+        <h3 class="${styles["plan-name"]}" data-plan-id="${plan.id}">${plan.name}</h3>
         <p class="${styles["plan-goal"]}">${plan.goal}</p>
       </div>
       <div class="${styles["plan-days-exercises"]}">
@@ -112,6 +105,7 @@ function attachAllEventHandlers(container: HTMLDivElement, plans: Plan[]) {
   deactivateQuickPlanHandler(container, plans);
   activateQuickPlanHandler(container, plans);
   deleteQuickPlanHandler(container, plans);
+  viewWeeklyPlan();
 }
 
 // edit quick plan handler
@@ -246,6 +240,20 @@ function deleteQuickPlanHandler(container: HTMLDivElement, plans: Plan[]) {
         onConfirm: () => deleteQuickPlan(btn),
       }),
     );
+  });
+}
+
+// view weekly plan
+function viewWeeklyPlan() {
+  const planNames = document.querySelectorAll<HTMLHeadingElement>(
+    `.${styles["plan-name"]}`,
+  );
+
+  planNames.forEach((name) => {
+    name.addEventListener("click", () => {
+      const planId = name.dataset.planId;
+      navigate(`/api/quick-plans/${planId}/weekly-plans`);
+    });
   });
 }
 
