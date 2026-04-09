@@ -5,7 +5,7 @@ import Button from "../../components/Button/Button";
 import Spinner from "../../components/Spinner/Spinner";
 import { type Goal, type Level } from "../../utils/types";
 import Notification from "../../components/Notification/Notification";
-import { back, navigate } from "../../router";
+import { back } from "../../router";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -75,6 +75,7 @@ export default async function EditQuickPlan(params?: Record<string, string>) {
               label: "Update Quick Plan",
               type: "submit",
               btnClass: styles["create-quick-plan"],
+              data: `data-plan-id="${plan.id}"`,
             })}
 
         </form>
@@ -143,13 +144,14 @@ export default async function EditQuickPlan(params?: Record<string, string>) {
     const name = nameInput.value.trim();
     const level = getCheckedLevel() as Level;
     const goal = getCheckedGoal() as Goal;
+    const planId = submitButton.dataset.planId as string;
 
     submitButton.disabled = true;
     submitButton.style.backgroundColor = "var(--primary-light) !important";
     submitButton.innerHTML = `${Spinner({})}  Updating...`;
 
     try {
-      await createNewQuickPlan({ name, level, goal, isActive: true });
+      await createNewQuickPlan(planId, { name, level, goal, isActive: true });
     } catch (error) {
       console.error("Error updating quick pla:", error);
       Notification({
@@ -193,16 +195,19 @@ function goalRadioInput(label: string, checked = false) {
   });
 }
 
-async function createNewQuickPlan(data: {
-  name: string;
-  level: Level;
-  goal: Goal;
-  isActive: boolean;
-}) {
-  const response = await fetch(`${backendUrl}/api/quick-plans/new`, {
+async function createNewQuickPlan(
+  id: string,
+  data: {
+    name: string;
+    level: Level;
+    goal: Goal;
+    isActive: boolean;
+  },
+) {
+  const response = await fetch(`${backendUrl}/api/quick-plans/${id}/update`, {
     headers: authHeaders(),
     body: JSON.stringify(data),
-    method: "POST",
+    method: "PUT",
   });
   if (response.ok) {
     Notification({
@@ -210,7 +215,7 @@ async function createNewQuickPlan(data: {
       type: "success",
       duration: 5000,
     });
-    navigate("/api/quick-plans");
+    back();
   } else {
     const data = await response.json();
     Notification({
