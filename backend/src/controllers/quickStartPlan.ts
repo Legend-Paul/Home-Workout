@@ -240,3 +240,45 @@ export const deleteQuickPlanHandler = async (
     res.status(500).json({ error: "Failed to delete quick start plan" });
   }
 };
+
+// activate quick plan
+export const activateQuickPlan = async (
+  req: DeleteQuickPlanRequest,
+  res: Response,
+) => {
+  const { id } = req.params;
+
+  try {
+    const [plan, weeklyPlan] = await Promise.all([
+      prisma.quickStartPlan.findUnique({
+        where: { id },
+      }),
+      prisma.quickStartWeeklyPlan.findMany({
+        where: {
+          quickStartPlanId: id,
+        },
+      }),
+    ]);
+
+    if (!plan) {
+      res.status(404).json({ error: "Quick start plan not found" });
+      return;
+    }
+    if (weeklyPlan.length < 7) {
+      res.status(404).json({ error: "Create full weekly plan to activate" });
+      return;
+    }
+
+    await prisma.quickStartPlan.update({
+      where: { id },
+      data: {
+        isActive: true,
+      },
+    });
+
+    res.json({ message: "Quick start plan activated successfullly" });
+  } catch (error) {
+    console.error("Error getting quick start plan by id:", error);
+    res.status(500).json({ error: "Failed to get quick start plan by id" });
+  }
+};
