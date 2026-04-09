@@ -112,6 +112,36 @@ export const getAllQuickPlans = async (req: Request, res: Response) => {
   }
 };
 
+// Get quick plan by id
+interface GetQuickPlanByIdRequest {
+  params: {
+    id: string;
+  };
+}
+
+export const getQuickPlanById = async (
+  req: GetQuickPlanByIdRequest,
+  res: Response,
+) => {
+  const { id } = req.params;
+
+  try {
+    const plan = await prisma.quickStartPlan.findUnique({
+      where: { id },
+    });
+
+    if (!plan) {
+      res.status(404).json({ error: "Quick start plan not found" });
+      return;
+    }
+
+    res.json({ quickPlan: plan });
+  } catch (error) {
+    console.error("Error getting quick start plan by id:", error);
+    res.status(500).json({ error: "Failed to get quick start plan by id" });
+  }
+};
+
 // update quick plan
 interface UpdateQuickPlanRequest extends NewQuickPlanRequest {
   params: {
