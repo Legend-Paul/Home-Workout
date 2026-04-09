@@ -41,8 +41,6 @@ export default async function EditQuickWeeklyPlan(
 
   const planId = params?.planId as string;
   const id = params?.id as string;
-  console.log("planId", planId);
-  console.log("id", id);
 
   const weeklyPlan = await fetchWeeklyPlan(planId, id);
   const day = dayIndex ? daysOfWeek[Number(dayIndex)] : daysOfWeek[0];

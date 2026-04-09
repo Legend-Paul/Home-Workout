@@ -74,7 +74,6 @@ export const createNewQuickPlan = [...validate, createNewQuickPlanHandler];
 export const getAllQuickPlans = async (req: Request, res: Response) => {
   try {
     const plans = await prisma.quickStartPlan.findMany({
-      where: { isActive: true },
       include: {
         quickStartWeeklyPlan: {
           include: {

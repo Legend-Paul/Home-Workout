@@ -31,8 +31,8 @@ quickPlanRouter.post("/new", requireAdmin, createNewQuickPlan);
 quickPlanRouter.get("/:id", requireAdmin, getQuickPlanById);
 quickPlanRouter.put("/:id/update", requireAdmin, updateQuickPlan);
 quickPlanRouter.delete("/:id/delete", requireAdmin, deleteQuickPlanHandler);
-quickPlanRouter.delete("/:id/activate", requireAdmin, activateQuickPlan);
-quickPlanRouter.delete("/:id/deactivate", requireAdmin, deactivateQuickPlan);
+quickPlanRouter.put("/:id/activate", requireAdmin, activateQuickPlan);
+quickPlanRouter.put("/:id/deactivate", requireAdmin, deactivateQuickPlan);
 
 // quick weekly plan
 quickPlanRouter.get("/:planId/weekly-plans", getQuickWeeklyPlan);

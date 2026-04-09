@@ -10,11 +10,19 @@ import type {
   WeeklyPlan,
   Plan,
 } from "../../utils/types";
-import { navigate } from "../../router";
+import { back, navigate } from "../../router";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 const token = localStorage.getItem("Authorization") || "";
+
+// Create header content-type and authorization
+function authHeaders() {
+  return {
+    "Content-Type": "application/json",
+    Authorization: token,
+  };
+}
 
 export default async function QuickPlan() {
   const mainApp = document.getElementById("main-app");
@@ -32,6 +40,9 @@ export default async function QuickPlan() {
 }
 
 function renderPage(container: HTMLDivElement, plans: Plan[]) {
+  const existing = container.querySelector(`.${styles["plans-list"]}`);
+  existing?.remove();
+
   const plansComponent = renderQuickPlans(plans);
   container.appendChild(plansComponent);
   attachAllEventHandlers(container, plans);
@@ -59,9 +70,13 @@ function renderQuickPlans(plans: Plan[]) {
       <div class="${styles["plan-footer"]}">
         <div class="${styles["chips-container"]}">
           <span class="${styles["plan-chip"]} ${styles[plan.level.toLowerCase()]}">${plan.level}</span>
-          <span class="${styles["plan-chip"]} ${styles["active-plan"]}">
-            ${plan.isActive ? "Deactivate" : "Activate"}
-          </span>
+          ${
+            plan.isActive
+              ? `<span class="${styles["plan-chip"]} ${styles["active-plan"]}" data-plan-id="${plan.id}">
+            Deactivate </span>`
+              : `<span class="${styles["plan-chip"]} ${styles["deactive-plan"]}" data-plan-id="${plan.id}">
+            Activate</span>`
+          }
         </div>
         <div class="${styles["plan-actions"]}">
           ${Button({
@@ -91,8 +106,9 @@ function renderQuickPlans(plans: Plan[]) {
 }
 
 /* event handlers */
-function attachAllEventHandlers(container: HTMLDivElement, plan: Plan[]) {
+function attachAllEventHandlers(container: HTMLDivElement, plans: Plan[]) {
   editQuickPlansHandler();
+  deactivateQuickPlanHandler(container, plans);
 }
 
 // edit quick plan handler
@@ -111,14 +127,47 @@ function editQuickPlansHandler() {
   );
 }
 
+// Deactivate plan handler
+function deactivateQuickPlanHandler(container: HTMLDivElement, plans: Plan[]) {
+  const deactivateQuickPlanBtns = document.querySelectorAll<HTMLSpanElement>(
+    `.${styles["active-plan"]}`,
+  );
+  const deactivateQuickPlan = async (btn: HTMLSpanElement) => {
+    const planId = btn.dataset.planId as string;
+    btn.innerHTML = `${Spinner({})} Deactivating...`;
+    // btn.removeEventListener("click", deactivateQuickPlan)
+
+    try {
+      await deactivateWeeklyPlan(planId);
+      const newPlans: Plan[] =
+        plans.map((plan) => {
+          if (plan.id === planId) plan.isActive = false;
+          return plan;
+        }) ?? [];
+
+      renderPage(container, newPlans);
+    } catch (error) {
+      console.log("Error deactivating quick plan", error);
+      Notification({
+        message: "An error occurred. Please try again.",
+        type: "error",
+        duration: 5000,
+      });
+
+      btn.innerHTML = `Deactivate`;
+    }
+  };
+
+  deactivateQuickPlanBtns.forEach((btn: HTMLSpanElement) =>
+    btn.addEventListener("click", () => deactivateQuickPlan(btn)),
+  );
+}
+
 /* API calls */
 async function fetchAllPlans(): Promise<Plan[]> {
   try {
     const response = await fetch(`${backendUrl}/api/quick-plans`, {
-      headers: {
-        Authorization: token,
-        "Content-Type": "application/json",
-      },
+      headers: authHeaders(),
       method: "GET",
     });
 
@@ -137,33 +186,29 @@ async function fetchAllPlans(): Promise<Plan[]> {
   }
 }
 
-async function fetchWeekyPlansByQuickplan(
-  planId: string,
-): Promise<WeeklyPlan[]> {
-  try {
-    const response = await fetch(
-      `${backendUrl}/api/quick-plans/${planId}/weekly-plans`,
-      {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-        method: "GET",
-      },
-    );
-
-    const data = await response.json();
-    console.log(data);
-    if (!response.ok) {
-      console.timeLog(data);
-      Notification({
-        message: data.error || "Failed to fetch exercises",
-        type: "error",
-        duration: 5000,
-      });
-    }
-    return data.weeklyPlans;
-  } catch (error) {
-    return [];
+// Deactivate quick plan
+async function deactivateWeeklyPlan(id: string) {
+  const response = await fetch(
+    `${backendUrl}/api/quick-plans/${id}/deactivate`,
+    {
+      headers: authHeaders(),
+      method: "PUT",
+    },
+  );
+  const data = await response.json();
+  console.log(id);
+  console.log(data);
+  if (response.ok) {
+    Notification({
+      message: data.message || "Quick plan deactivated successfully",
+      type: "success",
+      duration: 5000,
+    });
+  } else {
+    Notification({
+      message: data.error || "Failed to deactivate day plan",
+      type: "error",
+      duration: 5000,
+    });
   }
 }
