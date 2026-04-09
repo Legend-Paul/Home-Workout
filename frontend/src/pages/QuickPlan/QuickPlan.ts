@@ -109,6 +109,7 @@ function renderQuickPlans(plans: Plan[]) {
 function attachAllEventHandlers(container: HTMLDivElement, plans: Plan[]) {
   editQuickPlansHandler();
   deactivateQuickPlanHandler(container, plans);
+  activateQuickPlanHandler(container, plans);
 }
 
 // edit quick plan handler
@@ -163,6 +164,42 @@ function deactivateQuickPlanHandler(container: HTMLDivElement, plans: Plan[]) {
   );
 }
 
+// activate plan handler
+function activateQuickPlanHandler(container: HTMLDivElement, plans: Plan[]) {
+  const activateQuickPlanBtns = document.querySelectorAll<HTMLSpanElement>(
+    `.${styles["deactive-plan"]}`,
+  );
+  const activateQuickPlan = async (btn: HTMLSpanElement) => {
+    const planId = btn.dataset.planId as string;
+    btn.innerHTML = `${Spinner({})} Activating...`;
+    // btn.removeEventListener("click", activateQuickPlan)
+
+    try {
+      await activateWeeklyPlan(planId);
+      const newPlans: Plan[] =
+        plans.map((plan) => {
+          if (plan.id === planId) plan.isActive = true;
+          return plan;
+        }) ?? [];
+
+      renderPage(container, newPlans);
+    } catch (error) {
+      console.log("Error deactivating quick plan", error);
+      Notification({
+        message: "An error occurred. Please try again.",
+        type: "error",
+        duration: 5000,
+      });
+
+      btn.innerHTML = `Activate`;
+    }
+  };
+
+  activateQuickPlanBtns.forEach((btn: HTMLSpanElement) =>
+    btn.addEventListener("click", () => activateQuickPlan(btn)),
+  );
+}
+
 /* API calls */
 async function fetchAllPlans(): Promise<Plan[]> {
   try {
@@ -196,8 +233,7 @@ async function deactivateWeeklyPlan(id: string) {
     },
   );
   const data = await response.json();
-  console.log(id);
-  console.log(data);
+
   if (response.ok) {
     Notification({
       message: data.message || "Quick plan deactivated successfully",
@@ -207,6 +243,29 @@ async function deactivateWeeklyPlan(id: string) {
   } else {
     Notification({
       message: data.error || "Failed to deactivate day plan",
+      type: "error",
+      duration: 5000,
+    });
+  }
+}
+
+// activate quick plan
+async function activateWeeklyPlan(id: string) {
+  const response = await fetch(`${backendUrl}/api/quick-plans/${id}/activate`, {
+    headers: authHeaders(),
+    method: "PUT",
+  });
+  const data = await response.json();
+
+  if (response.ok) {
+    Notification({
+      message: data.message || "Quick plan activated successfully",
+      type: "success",
+      duration: 5000,
+    });
+  } else {
+    Notification({
+      message: data.error || "Failed to activate day plan",
       type: "error",
       duration: 5000,
     });
