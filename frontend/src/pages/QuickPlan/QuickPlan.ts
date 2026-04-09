@@ -11,6 +11,7 @@ import type {
   Plan,
 } from "../../utils/types";
 import { back, navigate } from "../../router";
+import ConfirmationDialog from "../../components/ConfirmationDialog/ConfirmationDialog";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -110,6 +111,7 @@ function attachAllEventHandlers(container: HTMLDivElement, plans: Plan[]) {
   editQuickPlansHandler();
   deactivateQuickPlanHandler(container, plans);
   activateQuickPlanHandler(container, plans);
+  deleteQuickPlanHandler(container, plans);
 }
 
 // edit quick plan handler
@@ -139,7 +141,7 @@ function deactivateQuickPlanHandler(container: HTMLDivElement, plans: Plan[]) {
     // btn.removeEventListener("click", deactivateQuickPlan)
 
     try {
-      await deactivateWeeklyPlan(planId);
+      await deactivatPlan(planId);
       const newPlans: Plan[] =
         plans.map((plan) => {
           if (plan.id === planId) plan.isActive = false;
@@ -175,7 +177,7 @@ function activateQuickPlanHandler(container: HTMLDivElement, plans: Plan[]) {
     // btn.removeEventListener("click", activateQuickPlan)
 
     try {
-      await activateWeeklyPlan(planId);
+      await activatePlan(planId);
       const newPlans: Plan[] =
         plans.map((plan) => {
           if (plan.id === planId) plan.isActive = true;
@@ -198,6 +200,53 @@ function activateQuickPlanHandler(container: HTMLDivElement, plans: Plan[]) {
   activateQuickPlanBtns.forEach((btn: HTMLSpanElement) =>
     btn.addEventListener("click", () => activateQuickPlan(btn)),
   );
+}
+
+// delete quick plan
+function deleteQuickPlanHandler(container: HTMLDivElement, plans: Plan[]) {
+  const deleteBtns = document.querySelectorAll<HTMLButtonElement>(
+    `.${styles["delete-btn"]}`,
+  );
+
+  const deleteQuickPlan = async (btn: HTMLButtonElement): Promise<boolean> => {
+    const planId = btn.dataset.planId as string;
+    btn.innerHTML = `${Spinner({})}`;
+    btn.disabled = true;
+
+    try {
+      await deletePlan(planId);
+      const newPlans: Plan[] =
+        plans.filter((plan) => {
+          if (plan.id !== planId) return plan;
+        }) ?? [];
+      renderPage(container, newPlans);
+      return true;
+    } catch (error) {
+      console.log("Error deactivating quick plan", error);
+      Notification({
+        message: "An error occurred. Please try again.",
+        type: "error",
+        duration: 5000,
+      });
+
+      btn.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>`;
+
+      return false;
+    }
+  };
+
+  deleteBtns.forEach((btn) => {
+    btn.addEventListener("click", () =>
+      ConfirmationDialog({
+        container,
+        message: "Are you sure you want to delete this exercise?",
+        onConfirm: () => deleteQuickPlan(btn),
+      }),
+    );
+  });
 }
 
 /* API calls */
@@ -224,7 +273,7 @@ async function fetchAllPlans(): Promise<Plan[]> {
 }
 
 // Deactivate quick plan
-async function deactivateWeeklyPlan(id: string) {
+async function deactivatPlan(id: string) {
   const response = await fetch(
     `${backendUrl}/api/quick-plans/${id}/deactivate`,
     {
@@ -250,10 +299,33 @@ async function deactivateWeeklyPlan(id: string) {
 }
 
 // activate quick plan
-async function activateWeeklyPlan(id: string) {
+async function activatePlan(id: string) {
   const response = await fetch(`${backendUrl}/api/quick-plans/${id}/activate`, {
     headers: authHeaders(),
     method: "PUT",
+  });
+  const data = await response.json();
+
+  if (response.ok) {
+    Notification({
+      message: data.message || "Quick plan activated successfully",
+      type: "success",
+      duration: 5000,
+    });
+  } else {
+    Notification({
+      message: data.error || "Failed to activate day plan",
+      type: "error",
+      duration: 5000,
+    });
+  }
+}
+
+// activate quick plan
+async function deletePlan(id: string) {
+  const response = await fetch(`${backendUrl}/api/quick-plans/${id}/delete`, {
+    headers: authHeaders(),
+    method: "DELETE",
   });
   const data = await response.json();
 
