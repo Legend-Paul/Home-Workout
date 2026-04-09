@@ -443,16 +443,22 @@
   transition: var(--transition-all-fast);
 }
 
-.edit-btn:hover {
-  border-color: var(--info);
+.edit-btn {
   color: var(--info);
-  background: var(--bg-input);
+  border-color: var(--info);
+  &:hover {
+    box-shadow: var(--shadow-info);
+    background: var(--bg-input);
+  }
 }
 
-.delete-btn:hover {
+.delete-btn {
   border-color: var(--error);
   color: var(--error);
-  background: var(--bg-input);
+  &:hover {
+    box-shadow: var(--shadow-error);
+    background: var(--bg-input);
+  }
 }
 
 /* ── RESPONSIVE ─────────────────────────── */

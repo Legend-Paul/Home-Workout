@@ -23,59 +23,69 @@ export default async function QuickPlan() {
   mainApp!.innerHTML = `
     <div class="${styles["plans-container"]}">
       <h2 class="${styles["title"]}">Quick Plans</h2>
-      <div class="${styles["plans-list"]}">
-        ${plans.map(
-          (plan) => `
-              <div class="${styles["plan-card"]} ${plan.isActive ? styles["active"] : ""}" data-plan-id="${plan.id}">
-                <div class="${styles["plan-heading"]}">
-                  <h3 class="${styles["plan-name"]}">${plan.name}</h3>
-                  <p class="${styles["plan-goal"]}">${plan.goal}</p>
-                </div>
-                <div class="${styles["plan-days-exercises"]}">
-                  <span class="${styles["plan-days"]}">
-                  Days: ${plan.activeDays}</span>
-                  <span class="${styles["plan-exercises"]}">
-                  Exercises: ${plan.totalExercises}</span>
-                </div>
-
-                <div class="${styles["plan-footer"]}"> 
-                  <div class="${styles["chips-container"]}">
-                    <span class="${styles["plan-chip"]} 
-                    ${styles[plan.level.toLowerCase()]}">${plan.level}</span>
-                    ${
-                      plan.isActive
-                        ? `<span class="${styles["plan-chip"]} 
-                          ${styles["active-plan"]}">Deactivate</span>`
-                        : `<span class="${styles["plan-chip"]} 
-                          ${styles["active-plan"]}">Activate</span>`
-                    } 
-                  </div>
-
-                  <div class="${styles["plan-actions"]}">
-                    ${Button({
-                      label: `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                      </svg> `,
-                      btnClass: `${styles["action-btn"]} ${styles["edit-btn"]}`,
-                      data: `data-plan-id="${plan?.id}"`,
-                    })}
-                    ${Button({
-                      label: `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                      </svg> `,
-                      btnClass: `${styles["action-btn"]} ${styles["delete-btn"]}`,
-                      data: `data-plan-id="${plan.id}"`,
-                    })}
-                  </div>
-                </div>
-              </div>
-            `,
-        )}
-      </div>
     </div>
   `;
+  const container = document.querySelector<HTMLDivElement>(
+    `.${styles["plans-container"]}`,
+  )!;
+  renderPage(container, plans);
+}
+
+function renderPage(container: HTMLDivElement, plans: Plan[]) {
+  const plansComponent = renderQuickPlans(plans);
+  container.appendChild(plansComponent);
+}
+
+function renderQuickPlans(plans: Plan[]) {
+  const plansList = document.createElement("div");
+  plansList.className = styles["plans-list"];
+
+  plans.forEach((plan) => {
+    const planCard = document.createElement("div");
+    planCard.className = `${styles["plan-card"]} ${!plan.isActive ? styles["deactive"] : ""}`;
+    planCard.setAttribute("data-plan-id", plan.id);
+
+    planCard.innerHTML = `
+      <div class="${styles["plan-heading"]}">
+        <h3 class="${styles["plan-name"]}">${plan.name}</h3>
+        <p class="${styles["plan-goal"]}">${plan.goal}</p>
+      </div>
+      <div class="${styles["plan-days-exercises"]}">
+        <span class="${styles["plan-days"]}">Days: ${plan.activeDays}</span>
+        <span class="${styles["plan-exercises"]}">Exercises: ${plan.totalExercises}</span>
+      </div>
+      <div class="${styles["plan-footer"]}">
+        <div class="${styles["chips-container"]}">
+          <span class="${styles["plan-chip"]} ${styles[plan.level.toLowerCase()]}">${plan.level}</span>
+          <span class="${styles["plan-chip"]} ${styles["active-plan"]}">
+            ${plan.isActive ? "Deactivate" : "Activate"}
+          </span>
+        </div>
+        <div class="${styles["plan-actions"]}">
+          ${Button({
+            label: `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>`,
+            btnClass: `${styles["action-btn"]} ${styles["edit-btn"]}`,
+            data: `data-plan-id="${plan.id}"`,
+          })}
+          ${Button({
+            label: `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>`,
+            btnClass: `${styles["action-btn"]} ${styles["delete-btn"]}`,
+            data: `data-plan-id="${plan.id}"`,
+          })}
+        </div>
+      </div>
+    `;
+
+    plansList.appendChild(planCard);
+  });
+
+  return plansList;
 }
 
 /* API calls */
