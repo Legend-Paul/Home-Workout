@@ -282,3 +282,34 @@ export const activateQuickPlan = async (
     res.status(500).json({ error: "Failed to get quick start plan by id" });
   }
 };
+
+// deactivate quick plan
+export const deactivateQuickPlan = async (
+  req: DeleteQuickPlanRequest,
+  res: Response,
+) => {
+  const { id } = req.params;
+
+  try {
+    const plan = prisma.quickStartPlan.findUnique({
+      where: { id },
+    });
+
+    if (!plan) {
+      res.status(404).json({ error: "Quick start plan not found" });
+      return;
+    }
+
+    await prisma.quickStartPlan.update({
+      where: { id },
+      data: {
+        isActive: false,
+      },
+    });
+
+    res.json({ message: "Quick start plan deactivated successfullly" });
+  } catch (error) {
+    console.error("Error getting quick start plan by id:", error);
+    res.status(500).json({ error: "Failed to get quick start plan by id" });
+  }
+};
