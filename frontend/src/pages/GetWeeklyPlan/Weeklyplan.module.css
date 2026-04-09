@@ -450,6 +450,9 @@
     box-shadow: var(--shadow-info);
     background: var(--bg-input);
   }
+  &:focus {
+    background: var(--bg-input);
+  }
 }
 
 .delete-btn {
@@ -457,6 +460,9 @@
   color: var(--error);
   &:hover {
     box-shadow: var(--shadow-error);
+    background: var(--bg-input);
+  }
+  &:focus {
     background: var(--bg-input);
   }
 }

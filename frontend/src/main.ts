@@ -15,6 +15,7 @@ import NewExercise from "./pages/NewExercise/NewExercise";
 import UpdateExercise from "./pages/UpdateExercise/UpdateExercise";
 import Exercise from "./pages/Exercise/Exercise";
 import QuickPlan from "./pages/QuickPlan/QuickPlan";
+import EditQuickPlan from "./pages/EditQuickPlan/EditQuickPlan";
 import NewQuickPlan from "./pages/NewQuickPlan/NewQuickPlan";
 import NewQuickWeeklyPlan from "./pages/NewQuickWeeklyPlan/NewQuickWeeklyPlan";
 import EditQuickWeeklyPlan from "./pages/EditQuickWeeklyPlan /EditQuickWeeklyPlan";
@@ -42,13 +43,17 @@ register("/api/exercises", Exercises);
 register("/api/exercises/new", NewExercise);
 register("/api/exercises/:id", Exercise);
 register("/api/exercises/:id/update", UpdateExercise);
+
 register("/api/quick-plans", QuickPlan);
 register("/api/quick-plans/new", NewQuickPlan);
+register("/api/quick-plans/:id/edit", EditQuickPlan);
 register("/api/quick-plans/:PlanId", QuickPlan);
+
 register("/api/quick-plans/:planId/weekly-plans", WeeklyPlans);
 register("/api/quick-plans/:planId/weekly-plans/new", NewQuickWeeklyPlan);
 register("/api/quick-plans/:planId/weekly-plans/:id", WeeklyPlan);
 register("/api/quick-plans/:planId/weekly-plans/:id/edit", EditQuickWeeklyPlan);
+
 register(
   "/api/quick-plans/:planId/weekly-plans/:id/exercises/new",
   NewQuickWeeklyPlanExerises,
