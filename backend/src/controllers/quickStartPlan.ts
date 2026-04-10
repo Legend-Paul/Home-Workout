@@ -271,6 +271,11 @@ export const deleteQuickPlanHandler = async (
       return;
     }
 
+    if (plan.createdBy == req.user?.id || req.user?.role === "MASTER") {
+      res.status(404).json({ error: "Failed! You are not the owner of plan" });
+      return;
+    }
+
     await prisma.quickStartPlan.delete({
       where: { id },
     });
