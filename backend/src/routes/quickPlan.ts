@@ -7,6 +7,7 @@ import {
   getQuickPlanById,
   activateQuickPlan,
   deactivateQuickPlan,
+  getExerciseByQuickStartId,
 } from "../controllers/quickStartPlan.js";
 import requireAdmin from "../middleware/requireAuth.js";
 import {
@@ -29,6 +30,7 @@ const quickPlanRouter = Router();
 quickPlanRouter.get("/", getAllQuickPlans);
 quickPlanRouter.post("/new", requireAdmin, createNewQuickPlan);
 quickPlanRouter.get("/:id", requireAdmin, getQuickPlanById);
+quickPlanRouter.get("/:id/exercises", requireAdmin, getExerciseByQuickStartId);
 quickPlanRouter.put("/:id/update", requireAdmin, updateQuickPlan);
 quickPlanRouter.delete("/:id/delete", requireAdmin, deleteQuickPlanHandler);
 quickPlanRouter.put("/:id/activate", requireAdmin, activateQuickPlan);

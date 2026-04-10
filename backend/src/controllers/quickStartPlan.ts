@@ -141,6 +141,48 @@ export const getQuickPlanById = async (
   }
 };
 
+// Get quick weekly exercise by quick start id
+export const getExerciseByQuickStartId = async (
+  req: GetQuickPlanByIdRequest,
+  res: Response,
+) => {
+  const { id } = req.params;
+  try {
+    const plan = await prisma.quickStartPlan.findUnique({
+      where: { id },
+    });
+
+    if (!plan) {
+      res.status(404).json({ error: "Quick start plan not found" });
+      return;
+    }
+
+    const quickPlan = await prisma.quickStartPlan.findMany({
+      where: {
+        id,
+      },
+      include: {
+        quickStartWeeklyPlan: {
+          include: {
+            quickStartExercises: {
+              include: {
+                exercise: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    res.json({ quickPlan });
+  } catch (error) {
+    console.error("Error getting exercise quick start plan by id:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to get exercise quick start plan by id" });
+  }
+};
+
 // update quick plan
 interface UpdateQuickPlanRequest extends NewQuickPlanRequest {
   params: {
