@@ -37,10 +37,13 @@ interface PageState {
 export default async function WeeklyPlan(params?: Record<string, string>) {
   const mainApp = document.getElementById("main-app")!;
 
-  const { planId, id } = params || { planId: "", id: "" };
+  const planId = params?.planId ?? "";
 
   // const plan = await fetchWeeklyPlanById(planId, id);
   const weeklyPlans = await fetchAllWeeklyPlans(planId);
+  console.log(weeklyPlans);
+  const id = params?.id ?? (weeklyPlans ? weeklyPlans[0]?.id : "");
+  console.log(id);
   const weeklyPlan: WeeklyPlan | null =
     weeklyPlans?.find((plan) => plan.id === id) || null;
 
@@ -50,6 +53,7 @@ export default async function WeeklyPlan(params?: Record<string, string>) {
     weeklyPlan,
     weeklyPlans,
   };
+
   mainApp!.innerHTML = `
       <div class="${styles["weekly-plan-container"]}"></div>`;
   updatePage(state);
