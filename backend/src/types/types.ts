@@ -1,6 +1,4 @@
-// ============================================================
-// Enums
-// ============================================================
+import { Prisma } from "@prisma/client";
 
 export enum Role {
   USER = "USER",
@@ -245,3 +243,27 @@ export interface Friendship {
   user?: User;
   friend?: User;
 }
+
+export type EnrollmentWithPlan = Prisma.QuickPlanUserGetPayload<{
+  include: {
+    quickStartPlan: {
+      include: {
+        quickStartWeeklyPlan: {
+          include: {
+            _count: {
+              select: { quickStartExercises: true };
+            };
+          };
+        };
+      };
+    };
+  };
+}>;
+
+export type WeeklyPlanWithCount = Prisma.QuickStartWeeklyPlanGetPayload<{
+  include: {
+    _count: {
+      select: { quickStartExercises: true };
+    };
+  };
+}>;

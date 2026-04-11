@@ -1,6 +1,10 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
+import type {
+  EnrollmentWithPlan,
+  WeeklyPlanWithCount,
+} from "../types/types.js";
 
 // Validation
 const validate = [
@@ -86,30 +90,34 @@ export const getQuickPlanUsers = async (req: Request, res: Response) => {
       },
     });
 
-    const formattedEnrollments = enrollments.map((enrollment) => {
-      const activeDays = enrollment.quickStartPlan.quickStartWeeklyPlan.filter(
-        (day) => !day.isRestDay,
-      );
-      const totalExercises =
-        enrollment.quickStartPlan.quickStartWeeklyPlan.reduce(
-          (sum, day) => sum + day._count.quickStartExercises,
+    const formattedEnrollments = enrollments.map(
+      (enrollment: EnrollmentWithPlan) => {
+        const activeDays = (
+          enrollment?.quickStartPlan?.quickStartWeeklyPlan ?? []
+        ).filter((day: WeeklyPlanWithCount) => !day.isRestDay);
+        const totalExercises = (
+          enrollment?.quickStartPlan?.quickStartWeeklyPlan ?? []
+        ).reduce(
+          (sum: number, day: WeeklyPlanWithCount) =>
+            sum + day._count.quickStartExercises,
           0,
         );
 
-      return {
-        id: enrollment.id,
-        isActive: enrollment.isActive,
-        enrolledAt: enrollment.createdAt,
-        plan: {
-          id: enrollment.quickStartPlan.id,
-          name: enrollment.quickStartPlan.name,
-          goal: enrollment.quickStartPlan.goal,
-          level: enrollment.quickStartPlan.level,
-          activeDays: activeDays.length,
-          totalExercises,
-        },
-      };
-    });
+        return {
+          id: enrollment.id,
+          isActive: enrollment.isActive,
+          enrolledAt: enrollment.createdAt,
+          plan: {
+            id: enrollment.quickStartPlan.id,
+            name: enrollment.quickStartPlan.name,
+            goal: enrollment.quickStartPlan.goal,
+            level: enrollment.quickStartPlan.level,
+            activeDays: activeDays.length,
+            totalExercises,
+          },
+        };
+      },
+    );
 
     res.status(200).json({ enrollments: formattedEnrollments });
   } catch (error) {
