@@ -1,6 +1,10 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
+import type {
+  PlanWithWeeklyCount,
+  QuickStartWeeklyPlanWithCount,
+} from "../types/types.js";
 
 // Validation middleware
 const validate = [
@@ -85,12 +89,13 @@ export const getAllQuickPlans = async (req: Request, res: Response) => {
       },
     });
 
-    const formattedPlans = plans.map((plan) => {
+    const formattedPlans = plans.map((plan: PlanWithWeeklyCount) => {
       const activeDays = plan.quickStartWeeklyPlan.filter(
-        (day) => !day.isRestDay,
+        (day: QuickStartWeeklyPlanWithCount) => !day.isRestDay,
       );
       const totalExercises = plan.quickStartWeeklyPlan.reduce(
-        (sum, day) => sum + day._count.quickStartExercises,
+        (sum: number, day: QuickStartWeeklyPlanWithCount) =>
+          sum + day._count.quickStartExercises,
         0,
       );
       return {
