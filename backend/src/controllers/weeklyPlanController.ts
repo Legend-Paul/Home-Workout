@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
+import type { QuickWeeklyPlanWithCount } from "../types/types.js";
 
 // Validation middleware
 const validate = [
@@ -134,15 +135,17 @@ export const getWeeklyPlans = async (
       orderBy: { dayOfWeek: "asc" },
     });
 
-    const formattedPlans = weeklyPlans.map((plan) => ({
-      id: plan.id,
-      name: plan.name,
-      dayOfWeek: plan.dayOfWeek,
-      muscleGroup: plan.muscleGroup,
-      isRestDay: plan.isRestDay,
-      isActive: plan.isActive,
-      totalExercises: plan._count.weeklyPlanExercises,
-    }));
+    const formattedPlans = weeklyPlans.map(
+      (plan: QuickWeeklyPlanWithCount) => ({
+        id: plan.id,
+        name: plan.name,
+        dayOfWeek: plan.dayOfWeek,
+        muscleGroup: plan.muscleGroup,
+        isRestDay: plan.isRestDay,
+        isActive: plan.isActive,
+        totalExercises: plan._count.weeklyPlanExercises,
+      }),
+    );
 
     res.status(200).json({ weeklyPlans: formattedPlans });
   } catch (error) {
