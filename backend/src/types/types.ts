@@ -282,3 +282,18 @@ export type PlanWithWeeklyCount = Prisma.QuickStartPlanGetPayload<{
 
 export type QuickStartWeeklyPlanWithCount =
   PlanWithWeeklyCount["quickStartWeeklyPlan"][number];
+
+export type UserPlanWithWeekly = Prisma.UserPlanGetPayload<{
+  include: {
+    weeklyPlan: {
+      include: {
+        _count: {
+          select: { weeklyPlanExercises: true };
+        };
+      };
+    };
+  };
+}>;
+
+export type UserPlanWeeklyPlanWithCount =
+  UserPlanWithWeekly["weeklyPlan"][number];

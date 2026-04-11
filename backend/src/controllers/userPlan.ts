@@ -1,6 +1,10 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
+import type {
+  UserPlanWeeklyPlanWithCount,
+  UserPlanWithWeekly,
+} from "../types/types.js";
 
 // Validation
 const validate = [
@@ -65,10 +69,13 @@ export const getUserPlans = async (req: Request, res: Response) => {
       },
     });
 
-    const formattedPlans = plans.map((plan) => {
-      const activeDays = plan.weeklyPlan.filter((day) => !day.isRestDay);
+    const formattedPlans = plans.map((plan: UserPlanWithWeekly) => {
+      const activeDays = plan.weeklyPlan.filter(
+        (day: UserPlanWeeklyPlanWithCount) => !day.isRestDay,
+      );
       const totalExercises = plan.weeklyPlan.reduce(
-        (sum, day) => sum + day._count.weeklyPlanExercises,
+        (sum: number, day: UserPlanWeeklyPlanWithCount) =>
+          sum + day._count.weeklyPlanExercises,
         0,
       );
 
