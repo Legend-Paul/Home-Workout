@@ -363,7 +363,6 @@ async function updateWeeklyPlanRestDay(
     isRestDay: boolean;
   },
 ) {
-  const nexDay = data.dayOfWeek + 1;
   const response = await fetch(
     `${backendUrl}/api/quick-plans/${planId}/weekly-plans/${id}/update`,
     {

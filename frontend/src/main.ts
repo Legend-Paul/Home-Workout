@@ -20,8 +20,7 @@ import NewQuickPlan from "./pages/NewQuickPlan/NewQuickPlan";
 import NewQuickWeeklyPlan from "./pages/NewQuickWeeklyPlan/NewQuickWeeklyPlan";
 import EditQuickWeeklyPlan from "./pages/EditQuickWeeklyPlan /EditQuickWeeklyPlan";
 import NewQuickWeeklyPlanExerises from "./pages/NewQuickWeeklyPlanExerises/NewQuickWeeklyPlanExerises";
-import WeeklyPlan from "./pages/GetWeeklyPlan/WeeklyPlan";
-import WeeklyPlans from "./pages/WeeklyPlan copy/WeeklyPlan";
+import WeeklyPlan from "./pages/WeeklyPlan/WeeklyPlan";
 
 initTheme();
 await Header();
