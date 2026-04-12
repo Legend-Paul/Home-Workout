@@ -27,7 +27,7 @@ passportConfig(passport);
 // CORS Configuration - MUST come before other middleware
 const allowedOrigins = [
   "https://admin-fittrack.onrender.com",
-  "http://localhost:5173/",
+  "http://localhost:5173",
 ];
 
 app.use(
@@ -49,6 +49,8 @@ app.use(
     maxAge: 86400, // Cache preflight request for 24 hours
   }),
 );
+
+app.options("*", cors());
 
 // Middleware
 app.use(express.json());

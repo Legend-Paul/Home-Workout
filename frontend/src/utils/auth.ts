@@ -3,7 +3,7 @@ const backendUrl =
 
 export default async function isAuthenticated(): Promise<boolean> {
   const token = localStorage.getItem("Authorization");
-
+  console.log(backendUrl);
   if (!token) return false;
 
   try {

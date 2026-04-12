@@ -1,6 +1,5 @@
 type RouterHandler = (params?: Record<string, string>) => void;
 const routes = new Map<string, RouterHandler>();
-
 let notFoundHandler: RouterHandler | null = null;
 
 export function register(path: string, handler: RouterHandler) {
@@ -11,36 +10,40 @@ export function notFound(handler: RouterHandler) {
   notFoundHandler = handler;
 }
 
+/** Score a route by specificity: more static segments = higher priority */
+function routeScore(path: string): number {
+  return path.split("/").filter((seg) => !seg.startsWith(":")).length;
+}
+
 export function handleRoute() {
   const path = window.location.pathname;
 
-  for (const [routePath, handler] of routes.entries()) {
+  // Sort routes: static segments first, param segments last
+  const sorted = [...routes.entries()].sort(
+    ([a], [b]) => routeScore(b) - routeScore(a),
+  );
+
+  for (const [routePath, handler] of sorted) {
     const paramNames: string[] = [];
 
-    // Convert route to regex & collect param names
     const regexPath = routePath.replace(/:([^/]+)/g, (_, paramName) => {
       paramNames.push(paramName);
       return "([^/]+)";
     });
 
-    const routeRegex = new RegExp("^" + regexPath + "$");
-    const match = path.match(routeRegex);
+    const match = path.match(new RegExp("^" + regexPath + "$"));
 
     if (match) {
       const params: Record<string, string> = {};
-
       paramNames.forEach((name, index) => {
         params[name] = match[index + 1];
       });
-
       handler(params);
       return;
     }
   }
 
-  if (notFoundHandler) {
-    notFoundHandler();
-  }
+  notFoundHandler?.();
 }
 
 export function navigate(path: string) {
