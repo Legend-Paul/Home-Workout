@@ -46,8 +46,12 @@ export function handleRoute() {
   notFoundHandler?.();
 }
 
-export function navigate(path: string) {
-  window.history.pushState({}, "", path);
+export function navigate(path: string, { replace = false } = {}) {
+  if (replace) {
+    window.history.replaceState({}, "", path);
+  } else {
+    window.history.pushState({}, "", path);
+  }
   handleRoute();
 }
 

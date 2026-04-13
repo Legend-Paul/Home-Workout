@@ -145,7 +145,7 @@ function changeActiveLink(currentPath: string) {
 
   const newActiveLink = headerApp!.querySelector(`a[href="${currentPath}"]`);
   if (newActiveLink) {
-    if (currentPath === "/") {
+    if (currentPath === "/" || currentPath === "/dashboard") {
       const dashboardLink = headerApp!.querySelector(`a[href="/dashboard"]`);
       dashboardLink?.parentElement?.classList.add(styles["active-nav-link"]);
       return;
