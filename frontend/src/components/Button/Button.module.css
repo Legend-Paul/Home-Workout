@@ -14,7 +14,6 @@
   align-items: center;
   gap: var(--space-2);
   &:focus {
-    background-color: inherit;
     transform: scale(0.98);
   }
   &:hover {
@@ -26,7 +25,7 @@
   }
 }
 .custom-button:hover {
-  background-color: inherit;
+  background-color: var(--primary-dark);
 }
 
 .secondary {

@@ -21,6 +21,7 @@ export default async function Header() {
   const headerApp = document.getElementById("header-app");
   const currentTheme = (localStorage.getItem(THEME_KEY) as Theme) || "auto";
   const isAuth = await isAuthenticated();
+  console.log(isAuth);
 
   headerApp!.innerHTML = `
   <div class="${styles["header-container"]}">

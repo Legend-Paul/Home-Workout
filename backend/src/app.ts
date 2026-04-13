@@ -50,7 +50,7 @@ app.use(
   }),
 );
 
-app.options("*", cors());
+app.options("/{*path}", cors());
 
 // Middleware
 app.use(express.json());
