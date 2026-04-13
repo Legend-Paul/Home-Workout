@@ -147,21 +147,21 @@ function changeActiveLink(currentPath: string) {
   if (newActiveLink) {
     if (currentPath === "/") {
       const dashboardLink = headerApp!.querySelector(`a[href="/dashboard"]`);
-      dashboardLink?.parentElement?.classList.add(styles["active-nav-link"]); // ✅
+      dashboardLink?.parentElement?.classList.add(styles["active-nav-link"]);
       return;
     }
-    newActiveLink.parentElement?.classList.add(styles["active-nav-link"]); // ✅
+    newActiveLink.parentElement?.classList.add(styles["active-nav-link"]);
   }
 
   if (currentPath.includes("/api/exercises")) {
     const exercisesLink = headerApp!.querySelector(`a[href="/api/exercises"]`);
-    exercisesLink?.parentElement?.classList.add(styles["active-nav-link"]); // ✅
+    exercisesLink?.parentElement?.classList.add(styles["active-nav-link"]);
     return;
   }
 
   if (currentPath.includes("/api/quick-plans")) {
     const plansLink = headerApp!.querySelector(`a[href="/api/quick-plans"]`);
-    plansLink?.parentElement?.classList.add(styles["active-nav-link"]); // ✅
+    plansLink?.parentElement?.classList.add(styles["active-nav-link"]);
     return;
   }
 }
