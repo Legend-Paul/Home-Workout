@@ -3,7 +3,7 @@ import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import isAuthenticated from "../../utils/auth";
 import Spinner from "../../components/Spinner/Spinner";
-import { navigate } from "../../router";
+import { back, navigate } from "../../router";
 import Header from "../../components/Header/Header";
 
 const backendUrl =
@@ -140,7 +140,7 @@ async function signinUser(
     if (response.ok) {
       const data = await response.json();
       localStorage.setItem("Authorization", data.token);
-      navigate("/dashboard");
+      back();
     } else {
       const errorData = await response.json();
       errorMessage.innerHTML = `${errorSvg} <span>${errorData.message || "An error occurred. Please try again"}</span>`;
