@@ -5,6 +5,7 @@ import Button from "../../components/Button/Button";
 import Notification from "../../components/Notification/Notification";
 import { back, navigate } from "../../router";
 import Spinner from "../../components/Spinner/Spinner";
+import Header from "../../components/Header/Header";
 
 const daysOfWeek: string[] = [
   "Sunday",
@@ -21,7 +22,9 @@ const backendUrl =
 
 const token = localStorage.getItem("Authorization") || "";
 
-export default function NewQuickWeeklyPlan(params?: Record<string, string>) {
+export default async function NewQuickWeeklyPlan(
+  params?: Record<string, string>,
+) {
   const mainApp = document.getElementById("main-app");
 
   const dayIndex: string | null = new URLSearchParams(
@@ -29,7 +32,7 @@ export default function NewQuickWeeklyPlan(params?: Record<string, string>) {
   ).get("day");
   const planId = params?.planId as string;
   const day = dayIndex ? daysOfWeek[Number(dayIndex)] : daysOfWeek[0];
-
+  await Header();
   mainApp!.innerHTML = `
     <div class="${styles["new-weekly-plan-container"]}">
       <div class="${formStyles["auth-form-container"]}">

@@ -6,6 +6,7 @@ import Notification from "../../components/Notification/Notification";
 import { back } from "../../router";
 import Spinner from "../../components/Spinner/Spinner";
 import type { WeeklyPlan } from "../../utils/types";
+import Header from "../../components/Header/Header";
 
 const daysOfWeek: string[] = [
   "Sunday",
@@ -41,7 +42,8 @@ export default async function EditQuickWeeklyPlan(
 
   const planId = params?.planId as string;
   const id = params?.id as string;
-
+  await Header();
+  mainApp!.innerHTML = Spinner({ type: "large", message: "Loading..." });
   const weeklyPlan = await fetchWeeklyPlan(planId, id);
   const day = dayIndex ? daysOfWeek[Number(dayIndex)] : daysOfWeek[0];
 

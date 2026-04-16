@@ -7,6 +7,7 @@ import Spinner from "../../components/Spinner/Spinner";
 import { type Level, type Exercise } from "../../utils/types";
 import Notification from "../../components/Notification/Notification";
 import { back, navigate } from "../../router";
+import Header from "../../components/Header/Header";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -16,7 +17,7 @@ const token = localStorage.getItem("Authorization") || "";
 export default async function UpdateExercise(params?: Record<string, string>) {
   const mainApp = document.getElementById("main-app");
   const id = params ? params.id : "";
-
+  await Header();
   mainApp!.innerHTML = Spinner({
     type: "large",
     message: "Loading...",

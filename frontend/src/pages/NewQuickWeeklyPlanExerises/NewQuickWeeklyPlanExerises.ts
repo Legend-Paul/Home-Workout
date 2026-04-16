@@ -11,6 +11,7 @@ import Button from "../../components/Button/Button";
 import formStyles from "../../assets/FormStyles.module.css";
 import { back, navigate } from "../../router";
 import ConfirmationDialog from "../../components/ConfirmationDialog/ConfirmationDialog";
+import Header from "../../components/Header/Header";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -48,6 +49,7 @@ export default async function NewQuickWeeklyPlanExercises(
   params?: Record<string, string>,
 ) {
   const mainApp = document.getElementById("main-app")!;
+  await Header();
   mainApp.innerHTML = Spinner({ type: "large", message: "Loading..." });
 
   const planId = params?.planId ?? "";

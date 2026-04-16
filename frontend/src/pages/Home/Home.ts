@@ -2,6 +2,7 @@ import styles from "./Home.module.css";
 import Button from "../../components/Button/Button";
 import Spinner from "../../components/Spinner/Spinner";
 import { type User, type Exercise, type QuickPlan } from "../../utils/types";
+import Header from "../../components/Header/Header";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -10,10 +11,8 @@ const token = localStorage.getItem("Authorization") || "";
 
 export default async function AdminHome() {
   const mainApp = document.getElementById("main-app");
-  mainApp!.innerHTML = Spinner({
-    type: "large",
-    message: "Loading...",
-  });
+  await Header();
+  mainApp!.innerHTML = Spinner({ type: "large", message: "Loading..." });
 
   const [users, exercises, quickPlans] = await Promise.all([
     fetchUsers(),

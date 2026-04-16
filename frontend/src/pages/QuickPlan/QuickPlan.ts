@@ -5,6 +5,7 @@ import Spinner from "../../components/Spinner/Spinner";
 import type { QuickPlan, Plan } from "../../utils/types";
 import { navigate } from "../../router";
 import ConfirmationDialog from "../../components/ConfirmationDialog/ConfirmationDialog";
+import Header from "../../components/Header/Header";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -20,6 +21,9 @@ function authHeaders() {
 
 export default async function QuickPlan() {
   const mainApp = document.getElementById("main-app");
+  await Header();
+  mainApp!.innerHTML = Spinner({ type: "large", message: "Loading..." });
+  mainApp!.innerHTML = Spinner({});
   const plans = await fetchAllPlans();
 
   mainApp!.innerHTML = `

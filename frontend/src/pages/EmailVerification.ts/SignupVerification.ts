@@ -3,6 +3,7 @@ import Button from "../../components/Button/Button";
 import { navigate } from "../../router";
 import Notification from "../../components/Notification/Notification";
 import Spinner from "../../components/Spinner/Spinner";
+import Header from "../../components/Header/Header";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -13,6 +14,7 @@ export default async function VerifyEmail() {
   const url = `${backendUrl}${currentPath}${token}`;
 
   const mainApp = document.getElementById("main-app");
+  await Header();
   try {
     const response = await fetch(url, {
       method: "POST",

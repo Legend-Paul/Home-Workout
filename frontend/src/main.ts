@@ -23,7 +23,7 @@ import NewQuickWeeklyPlanExerises from "./pages/NewQuickWeeklyPlanExerises/NewQu
 import WeeklyPlan from "./pages/WeeklyPlan/WeeklyPlan";
 
 initTheme();
-await Header();
+// await Header();
 register("/", Home);
 register("/dashboard", Home);
 

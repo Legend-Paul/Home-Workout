@@ -1,5 +1,6 @@
 import Button from "../../components/Button/Button";
 import ConfirmationDialog from "../../components/ConfirmationDialog/ConfirmationDialog";
+import Header from "../../components/Header/Header";
 import Notification from "../../components/Notification/Notification";
 import Spinner from "../../components/Spinner/Spinner";
 import { navigate } from "../../router";
@@ -38,12 +39,11 @@ export default async function WeeklyPlan(params?: Record<string, string>) {
   const mainApp = document.getElementById("main-app")!;
 
   const planId = params?.planId ?? "";
-
+  await Header();
+  mainApp!.innerHTML = Spinner({ type: "large", message: "Loading..." });
   // const plan = await fetchWeeklyPlanById(planId, id);
   const weeklyPlans = await fetchAllWeeklyPlans(planId);
-  console.log(weeklyPlans);
   const id = params?.id ?? (weeklyPlans ? weeklyPlans[0]?.id : "");
-  console.log(id);
   const weeklyPlan: WeeklyPlan | null =
     weeklyPlans?.find((plan) => plan.id === id) || null;
 

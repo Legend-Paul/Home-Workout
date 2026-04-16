@@ -5,6 +5,7 @@ import { type Exercise } from "../../utils/types";
 import Spinner from "../../components/Spinner/Spinner";
 import Notification from "../../components/Notification/Notification";
 import { navigate } from "../../router";
+import Header from "../../components/Header/Header";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -13,6 +14,7 @@ const token = localStorage.getItem("Authorization") || "";
 export default async function Exercises() {
   const mainApp = document.getElementById("main-app");
 
+  await Header();
   mainApp!.innerHTML = Spinner({
     type: "large",
     message: "Loading...",

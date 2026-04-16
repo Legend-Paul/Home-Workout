@@ -4,6 +4,7 @@ import Button from "../../components/Button/Button";
 import isAuthenticated from "../../utils/auth";
 import Spinner from "../../components/Spinner/Spinner";
 import { navigate } from "../../router";
+import Header from "../../components/Header/Header";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -20,7 +21,7 @@ export default async function Signin() {
     navigate("/dashboard?alreadySignedIn=true");
     return;
   }
-
+  await Header();
   mainApp!.innerHTML = `
     <div class="${styles["auth-container"]} ${styles["signin-container"]}">
       <div class="${styles["auth-form-container"]}">

@@ -4,6 +4,7 @@ import Button from "../../components/Button/Button";
 import { navigate } from "../../router";
 import styles from "./Exercise.module.css";
 import { back } from "../../router";
+import Header from "../../components/Header/Header";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -15,13 +16,13 @@ export default async function Exercise(params?: Record<string, string>) {
 
   const id = params ? params.id : "";
 
+  await Header();
   mainApp!.innerHTML = Spinner({
     type: "large",
     message: "Loading...",
   });
 
   const exercise = await fetchExercise(id);
-
   mainApp!.innerHTML = `
     <div class="${styles["exercise"]}">
       <div class="${styles["exercise-item"]} ${exercise.isActive ? styles["active-exercise"] : styles["inactive-exercise"]}">

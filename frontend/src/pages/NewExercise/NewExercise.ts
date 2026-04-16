@@ -7,15 +7,16 @@ import Spinner from "../../components/Spinner/Spinner";
 import { type Level } from "../../utils/types";
 import Notification from "../../components/Notification/Notification";
 import { back, navigate } from "../../router";
+import Header from "../../components/Header/Header";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
 
 const token = localStorage.getItem("Authorization") || "";
 
-export default function NewExercise() {
+export default async function NewExercise() {
   const mainApp = document.getElementById("main-app");
-
+  await Header();
   mainApp!.innerHTML = `
     <div class="${styles["new-exercise-container"]}">
       <div class="${formStyles["auth-form-container"]}">

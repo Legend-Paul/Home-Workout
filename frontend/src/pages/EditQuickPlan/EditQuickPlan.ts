@@ -6,6 +6,7 @@ import Spinner from "../../components/Spinner/Spinner";
 import { type Goal, type Level } from "../../utils/types";
 import Notification from "../../components/Notification/Notification";
 import { back } from "../../router";
+import Header from "../../components/Header/Header";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -22,10 +23,10 @@ function authHeaders() {
 export default async function EditQuickPlan(params?: Record<string, string>) {
   const mainApp = document.getElementById("main-app");
 
+  await Header();
+  mainApp!.innerHTML = Spinner({ type: "large", message: "Loading..." });
   const id = params?.id ?? "";
-  console.log(id);
   const plan = await getQuickPlanById(id);
-  console.log(plan);
 
   mainApp!.innerHTML = `
     <div class="${styles["new-quick-plan-container"]}">
