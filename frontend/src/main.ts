@@ -1,7 +1,7 @@
 import { register, startRouter, notFound } from "./router";
 import "./style.css";
 import ErrorRoute from "./errorRoute/errorRoute";
-import Header, { initTheme } from "./components/Header/Header";
+import { initTheme } from "./components/Header/Header";
 import Home from "./pages/Home/Home";
 import Signin from "./pages/Signin/Signin";
 import Signout from "./pages/Signout/Signout";
@@ -23,7 +23,6 @@ import NewQuickWeeklyPlanExerises from "./pages/NewQuickWeeklyPlanExerises/NewQu
 import WeeklyPlan from "./pages/WeeklyPlan/WeeklyPlan";
 
 initTheme();
-// await Header();
 register("/", Home);
 register("/dashboard", Home);
 
