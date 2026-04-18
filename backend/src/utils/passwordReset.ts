@@ -11,7 +11,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendPasswordResetEmail = async (userId: string, email: string) => {
+export const sendPasswordResetEmail = async (
+  userId: string,
+  email: string,
+  role: "USER" | "ADMIN" | "MASTER",
+) => {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET!, {
     expiresIn: "1h",
   });
@@ -26,7 +30,9 @@ export const sendPasswordResetEmail = async (userId: string, email: string) => {
     },
   });
 
-  const resetLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/auth/forgot-password/reset?token=${token}`;
+  const resetLink = `${
+    role === "USER" ? process.env.FRONTEND_URL : process.env.ADMIN_FRONTEND_URL
+  }/auth/forgot-password/reset?token=${token}`;
 
   await transporter.sendMail({
     from: `FitTrack <${process.env.EMAIL_USER}>`,

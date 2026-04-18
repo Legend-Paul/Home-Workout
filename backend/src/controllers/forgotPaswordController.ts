@@ -41,7 +41,7 @@ const sendEmailConfirmationHandler = async (
     }
 
     try {
-      await sendPasswordResetEmail(user.id, user.email);
+      await sendPasswordResetEmail(user.id, user.email, user.role);
       res.json({ message: "Password reset email sent successfully" });
     } catch (error) {
       console.error("Error sending password reset email:", error);
@@ -85,6 +85,7 @@ export const resendEmailConfirmation = async (
       await sendPasswordResetEmail(
         verificationToken.userId,
         verificationToken.user.email,
+        verificationToken.user.role,
       );
       res.json({ message: "Password reset email sent successfully" });
     } catch (error) {

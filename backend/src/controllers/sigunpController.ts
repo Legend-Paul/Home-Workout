@@ -79,7 +79,7 @@ const createUserHandler = async (
         email: newUser.email,
         heading: "Verify Your Email",
         action: "verify your email",
-        role: newUser.role,
+        role,
       });
       res.status(201).json({
         message:

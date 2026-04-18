@@ -71,6 +71,7 @@ export async function resendVerificationEmail(
           email: verificationToken.user.email,
           heading: "Verify Your Email",
           action: "verify your email",
+          role: verificationToken.user.role,
         }),
       ]);
       res.status(201).json({
