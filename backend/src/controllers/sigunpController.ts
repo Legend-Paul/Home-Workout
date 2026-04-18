@@ -18,6 +18,9 @@ const validate = [
     .trim()
     .custom((value, { req }) => value === req.body.password)
     .withMessage("Passwords do not match"),
+  body("role")
+    .isIn(["USER", "ADMIN", "MASTER"])
+    .withMessage("Role must be either USER or ADMIN"),
 ];
 
 // Create User Controller
@@ -26,6 +29,7 @@ interface UserRequest extends Request {
     email: string;
     username: string;
     password: string;
+    role: "USER" | "ADMIN" | "MASTER";
   };
 }
 
@@ -39,7 +43,7 @@ const createUserHandler = async (
     return;
   }
 
-  const { email, username, password } = req.body;
+  const { email, username, password, role } = req.body;
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -66,6 +70,7 @@ const createUserHandler = async (
         email,
         username,
         password: hashedPassword,
+        role,
       },
     });
     try {
@@ -74,6 +79,7 @@ const createUserHandler = async (
         email: newUser.email,
         heading: "Verify Your Email",
         action: "verify your email",
+        role: newUser.role,
       });
       res.status(201).json({
         message:

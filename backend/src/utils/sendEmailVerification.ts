@@ -15,11 +15,13 @@ export const sendVerificationEmail = async ({
   email,
   heading,
   action,
+  role,
 }: {
   userId: string;
   email: string;
   heading: string;
   action: string;
+  role: "USER" | "ADMIN" | "MASTER";
 }) => {
   await prisma.verificationToken.deleteMany({
     where: { userId },
@@ -38,7 +40,8 @@ export const sendVerificationEmail = async ({
     },
   });
 
-  const verificationLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/auth/signup/verify-email?token=${token}`;
+  const verificationLink = `
+  ${role === "USER" ? process.env.FRONTEND_URL : process.env.ADMIN_FRONTEND_URL}/auth/signup/verify-email?token=${token}`;
 
   await trasporter.sendMail({
     from: `FitTrack <${process.env.EMAIL_USER}>`,

@@ -193,7 +193,13 @@ async function signupUser(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, username, password, confirmPassword }),
+      body: JSON.stringify({
+        email,
+        username,
+        password,
+        confirmPassword,
+        role: "ADMIN",
+      }),
     });
 
     if (response.ok) {
