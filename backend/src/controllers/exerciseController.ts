@@ -2,6 +2,8 @@ import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
 import type { Prisma } from "@prisma/client";
+import fs from "fs";
+import path from "path";
 
 const validate = [
   body("name")
@@ -293,6 +295,21 @@ const updateExerciseHandler = async (
 
     const { name, description, level, muscleGroup, equipment, status } =
       req.body;
+
+    // In updateExerciseHandler, before the prisma.exercise.update call:
+    if (imageFile && exercise.imageUrl) {
+      const oldPath = path.join(__dirname, "../", exercise.imageUrl); // e.g. /uploads/old.jpg
+      fs.unlink(oldPath, (err) => {
+        if (err) console.error("Failed to delete old image:", err);
+      });
+    }
+
+    if (videoFile && exercise.videoUrl) {
+      const oldPath = path.join(__dirname, "../", exercise.videoUrl);
+      fs.unlink(oldPath, (err) => {
+        if (err) console.error("Failed to delete old video:", err);
+      });
+    }
 
     const updatedExercise = await prisma.exercise.update({
       where: { id },
