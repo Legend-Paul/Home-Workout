@@ -306,7 +306,6 @@ async function createWeeklyPlan(
     muscleGroup: string[];
   },
 ) {
-  console.log(data);
   const nexDay = data.dayOfWeek + 1;
 
   const response = await fetch(
@@ -329,7 +328,7 @@ async function createWeeklyPlan(
       duration: 5000,
     });
     navigate(
-      `/api/quick-plans/${planId}/weekly-plans/${weeklyPlanId}/exercises/new?day=${nexDay}`,
+      `/quick-plans/${planId}/weekly-plans/${weeklyPlanId}/exercises/new?day=${nexDay}`,
     );
   } else {
     const data = await response.json();
@@ -369,7 +368,7 @@ async function createWeeklyPlanRestDay(
       type: "success",
       duration: 5000,
     });
-    navigate(`/api/quick-plans/${planId}/weekly-plans/new?day=${nexDay}`);
+    navigate(`/quick-plans/${planId}/weekly-plans/new?day=${nexDay}`);
   } else {
     const data = await response.json();
     Notification({

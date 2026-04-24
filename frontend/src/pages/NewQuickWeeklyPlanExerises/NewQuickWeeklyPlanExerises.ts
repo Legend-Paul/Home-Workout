@@ -419,7 +419,7 @@ function attachNextDayhandler(container: HTMLDivElement, state: PageState) {
     button.addEventListener("click", () => {
       const day = button.dataset.day;
       const planId = state.planId;
-      navigate(`/api/quick-plans/${planId}/weekly-plans/new?day=${day}`);
+      navigate(`/quick-plans/${planId}/weekly-plans/new?day=${day}`);
     });
   });
 }
@@ -431,7 +431,7 @@ function attachFinishWeeklyPlanHandler(container: HTMLDivElement) {
   );
   nextDayButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      navigate(`/api/quick-plans`);
+      navigate(`/quick-plans`);
     });
   });
 }
@@ -442,7 +442,7 @@ function attachViewHandlers(container: HTMLDivElement) {
     .querySelectorAll<HTMLButtonElement>(`.${styles["view-exercise-btn"]}`)
     .forEach((btn) => {
       btn.addEventListener("click", () => {
-        navigate(`/api/exercises/${btn.dataset.exerciseId}`);
+        navigate(`/exercises/${btn.dataset.exerciseId}`);
       });
     });
 }

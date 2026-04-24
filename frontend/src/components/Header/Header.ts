@@ -108,8 +108,8 @@ export default async function Header() {
         <nav class="${styles["nav"]}">
             <ul>
                 <li class="${styles["nav-link"]} ${styles["active-nav-link"]}"><a href="/dashboard">Dashboard</a></li>
-                <li class="${styles["nav-link"]}"><a href="/api/exercises">Exercises</a></li>
-                <li class="${styles["nav-link"]}"><a href="/api/quick-plans">Qick Plans</a></li>
+                <li class="${styles["nav-link"]}"><a href="/exercises">Exercises</a></li>
+                <li class="${styles["nav-link"]}"><a href="/quick-plans">Qick Plans</a></li>
             </ul>
         </nav>
       </div>`
@@ -153,14 +153,14 @@ function changeActiveLink(currentPath: string) {
     newActiveLink.parentElement?.classList.add(styles["active-nav-link"]);
   }
 
-  if (currentPath.includes("/api/exercises")) {
-    const exercisesLink = headerApp!.querySelector(`a[href="/api/exercises"]`);
+  if (currentPath.includes("/exercises")) {
+    const exercisesLink = headerApp!.querySelector(`a[href="/exercises"]`);
     exercisesLink?.parentElement?.classList.add(styles["active-nav-link"]);
     return;
   }
 
-  if (currentPath.includes("/api/quick-plans")) {
-    const plansLink = headerApp!.querySelector(`a[href="/api/quick-plans"]`);
+  if (currentPath.includes("/quick-plans")) {
+    const plansLink = headerApp!.querySelector(`a[href="/quick-plans"]`);
     plansLink?.parentElement?.classList.add(styles["active-nav-link"]);
     return;
   }

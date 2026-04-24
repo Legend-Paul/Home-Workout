@@ -105,7 +105,7 @@ export default async function AdminHome() {
   ) as HTMLButtonElement;
 
   addExerciseBtn.addEventListener("click", () => {
-    window.location.href = "/api/exercises/new";
+    window.location.href = "/exercises/new";
   });
 }
 

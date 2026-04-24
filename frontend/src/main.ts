@@ -37,23 +37,23 @@ register("/auth/forgot-password/reset", ResetPassword);
 register("/auth/email/confirmation", EmailConfirmation);
 
 // api links
-register("/api/exercises", Exercises);
-register("/api/exercises/new", NewExercise);
-register("/api/exercises/:id", Exercise);
-register("/api/exercises/:id/update", UpdateExercise);
+register("/exercises", Exercises);
+register("/exercises/new", NewExercise);
+register("/exercises/:id", Exercise);
+register("/exercises/:id/update", UpdateExercise);
 
-register("/api/quick-plans", QuickPlan);
-register("/api/quick-plans/new", NewQuickPlan);
-register("/api/quick-plans/:id/edit", EditQuickPlan);
-register("/api/quick-plans/:PlanId", QuickPlan);
+register("/quick-plans", QuickPlan);
+register("/quick-plans/new", NewQuickPlan);
+register("/quick-plans/:id/edit", EditQuickPlan);
+register("/quick-plans/:PlanId", QuickPlan);
 
-register("/api/quick-plans/:planId/weekly-plans", WeeklyPlan);
-register("/api/quick-plans/:planId/weekly-plans/new", NewQuickWeeklyPlan);
-register("/api/quick-plans/:planId/weekly-plans/:id", WeeklyPlan);
-register("/api/quick-plans/:planId/weekly-plans/:id/edit", EditQuickWeeklyPlan);
+register("/quick-plans/:planId/weekly-plans", WeeklyPlan);
+register("/quick-plans/:planId/weekly-plans/new", NewQuickWeeklyPlan);
+register("/quick-plans/:planId/weekly-plans/:id", WeeklyPlan);
+register("/quick-plans/:planId/weekly-plans/:id/edit", EditQuickWeeklyPlan);
 
 register(
-  "/api/quick-plans/:planId/weekly-plans/:id/exercises/new",
+  "/quick-plans/:planId/weekly-plans/:id/exercises/new",
   NewQuickWeeklyPlanExerises,
 );
 

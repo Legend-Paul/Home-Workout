@@ -55,7 +55,7 @@ export default async function Exercises() {
 
   // Navigate to new exercise page
   addExerciseBtn.addEventListener("click", () => {
-    window.location.href = "/api/exercises/new";
+    window.location.href = "/exercises/new";
   });
 }
 
@@ -139,7 +139,7 @@ function openExercisePage() {
   images.forEach(async (image) => {
     const exerciseId = image.dataset.exerciseId as string;
     image.addEventListener("click", () => {
-      navigate(`/api/exercises/${exerciseId}`);
+      navigate(`/exercises/${exerciseId}`);
     });
   });
 }
@@ -203,7 +203,7 @@ function updateExerciseHandler() {
   updateExerciseBtns.forEach((updateBtn: HTMLButtonElement) => {
     updateBtn.addEventListener("click", async () => {
       const id = updateBtn.dataset.exerciseId;
-      navigate(`/api/exercises/${id}/update`);
+      navigate(`/exercises/${id}/update`);
     });
   });
 }

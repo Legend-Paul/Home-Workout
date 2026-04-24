@@ -330,7 +330,7 @@ async function createNewExercise(formdata: FormData) {
         type: "success",
         duration: 5000,
       });
-      navigate("/api/exercises");
+      navigate("/exercises");
     } else {
       const data = await response.json();
       Notification({

@@ -282,7 +282,7 @@ function changeWeeklyPlan(container: HTMLDivElement, state: PageState) {
     const day = target.getAttribute("data-day");
     const id = target.getAttribute("data-id");
     if (!day || !id) return;
-    navigate(`/api/quick-plans/${state.planId}/weekly-plans/${id}`);
+    navigate(`/quick-plans/${state.planId}/weekly-plans/${id}`);
   };
 
   allDayTabs.forEach((tab) => {
@@ -297,7 +297,7 @@ function editWeeklyPlan(container: HTMLDivElement, state: PageState) {
   ) as HTMLButtonElement;
   editBtn.addEventListener("click", () => {
     navigate(
-      `/api/quick-plans/${state.planId}/weekly-plans/${state.id}/edit?day=${state.weeklyPlan?.dayOfWeek}`,
+      `/quick-plans/${state.planId}/weekly-plans/${state.id}/edit?day=${state.weeklyPlan?.dayOfWeek}`,
     );
   });
 }
@@ -309,7 +309,7 @@ function addExerciseHandler(container: HTMLDivElement, state: PageState) {
   ) as HTMLButtonElement;
   addExerciseBtn.addEventListener("click", () => {
     navigate(
-      `/api/quick-plans/${state.planId}/weekly-plans/${state.id}/exercises/new?day=${state.weeklyPlan?.dayOfWeek}&name=${state.weeklyPlan?.name}`,
+      `/quick-plans/${state.planId}/weekly-plans/${state.id}/exercises/new?day=${state.weeklyPlan?.dayOfWeek}&name=${state.weeklyPlan?.name}`,
     );
   });
 }
@@ -324,7 +324,7 @@ function editQuickStartExercise(container: HTMLDivElement, state: PageState) {
     const exerciseId = target.getAttribute("data-exercise-id");
     if (!exerciseId) return;
     navigate(
-      `/api/quick-plans/${state.planId}/weekly-plans/${state.id}/exercises/new?day=${state.weeklyPlan?.dayOfWeek}&exerciseId=${exerciseId}`,
+      `/quick-plans/${state.planId}/weekly-plans/${state.id}/exercises/new?day=${state.weeklyPlan?.dayOfWeek}&exerciseId=${exerciseId}`,
     );
   };
   editExerciseBtns.forEach((btn) => {

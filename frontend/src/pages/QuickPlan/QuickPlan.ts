@@ -120,7 +120,7 @@ function editQuickPlansHandler() {
 
   const editPlansHandler = (btn: HTMLButtonElement) => {
     const planId = btn.dataset.planId;
-    navigate(`/api/quick-plans/${planId}/edit`);
+    navigate(`/quick-plans/${planId}/edit`);
   };
 
   editButtons.forEach((btn) =>
@@ -256,7 +256,7 @@ function viewWeeklyPlan() {
   planNames.forEach((name) => {
     name.addEventListener("click", () => {
       const planId = name.dataset.planId;
-      navigate(`/api/quick-plans/${planId}/weekly-plans`);
+      navigate(`/quick-plans/${planId}/weekly-plans`);
     });
   });
 }
