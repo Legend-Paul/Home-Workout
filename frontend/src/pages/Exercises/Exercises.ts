@@ -6,7 +6,6 @@ import Spinner from "../../components/Spinner/Spinner";
 import Notification from "../../components/Notification/Notification";
 import { navigate } from "../../router";
 import Header from "../../components/Header/Header";
-import Exercise from "../Exercise/Exercise";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
