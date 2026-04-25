@@ -290,8 +290,12 @@ export default async function NewExercise() {
     formdata.append("name", name);
     formdata.append("image", image!);
     if (video) formdata.append("video", video);
-    muscleGroup.forEach((m) => formdata.append("muscleGroup", m.toLowerCase()));
-    equipment.forEach((eq) => formdata.append("equipment", eq.toLowerCase()));
+    muscleGroup.forEach((m) =>
+      formdata.append("muscleGroup", m.toLowerCase().trim()),
+    );
+    equipment.forEach((eq) =>
+      formdata.append("equipment", eq.toLowerCase().trim()),
+    );
     formdata.append("description", description);
     formdata.append("level", level);
     formdata.append("status", String(status));
