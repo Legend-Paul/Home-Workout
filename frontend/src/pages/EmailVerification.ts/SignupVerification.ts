@@ -21,7 +21,7 @@ export default async function VerifyEmail() {
     });
 
     if (response.ok) {
-      navigate("/auth/signin");
+      navigate("/auth/signin", { replace: true });
     } else {
       const data = await response.json();
       mainApp!.innerHTML = `
