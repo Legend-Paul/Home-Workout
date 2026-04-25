@@ -2,8 +2,7 @@ import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { body, validationResult } from "express-validator";
 import type { Prisma } from "@prisma/client";
-import fs from "fs";
-import path from "path";
+import cloudinary from "../lib/cloudinary.js";
 
 const validate = [
   body("name")
@@ -55,16 +54,15 @@ const createExerciseHandler = async (
     return;
   }
 
-  // Get uploaded files
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
   const imageFile = files?.image?.[0];
   const videoFile = files?.video?.[0];
 
-  // Validate that image is uploaded (required)
   if (!imageFile) {
     res.status(400).json({ error: "Image is required" });
     return;
   }
+
   const { name, description, level, muscleGroup, equipment, status } = req.body;
 
   try {
@@ -78,13 +76,18 @@ const createExerciseHandler = async (
     });
 
     if (exerciseExists) {
+      await cloudinary.uploader.destroy(imageFile.filename);
+      if (videoFile) {
+        await cloudinary.uploader.destroy(videoFile.filename, {
+          resource_type: "video",
+        });
+      }
       res.status(400).json({ error: "Exercise with this name already exists" });
       return;
     }
 
-    // Build file URLs (adjust path based on your server setup)
-    const imageUrl = `/uploads/${imageFile.filename}`;
-    const videoUrl = videoFile ? `/uploads/${videoFile.filename}` : null;
+    const imageUrl = imageFile.path;
+    const videoUrl = videoFile ? videoFile.path : null;
 
     const exercise = await prisma.exercise.create({
       data: {
@@ -104,8 +107,8 @@ const createExerciseHandler = async (
       message: "Exercise created successfully",
       exercise: {
         ...exercise,
-        imageUrl: imageUrl,
-        videoUrl: videoUrl,
+        imageUrl,
+        videoUrl,
       },
     });
   } catch (error) {
@@ -258,6 +261,19 @@ interface UpdateExerciseRequest extends ExerciseRequest {
   };
 }
 
+const getPublicId = (url: string): string => {
+  // Extract "fittrack/images/filename" from the full Cloudinary URL
+  const parts = url.split("/");
+  const uploadIndex = parts.indexOf("upload");
+  // Join everything after "upload/v{version}/"
+  return (
+    parts
+      .slice(uploadIndex + 2)
+      .join("/")
+      .split(".")[0] ?? ""
+  );
+};
+
 const updateExerciseHandler = async (
   req: UpdateExerciseRequest,
   res: Response,
@@ -270,54 +286,47 @@ const updateExerciseHandler = async (
     return;
   }
 
-  // Get uploaded files
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
   const imageFile = files?.image?.[0];
   const videoFile = files?.video?.[0];
 
   try {
-    const exercise = await prisma.exercise.findUnique({
-      where: { id },
-    });
+    const exercise = await prisma.exercise.findUnique({ where: { id } });
 
     if (!exercise) {
+      // Clean up any uploaded files since we're rejecting
+      if (imageFile) await cloudinary.uploader.destroy(imageFile.filename);
+      if (videoFile)
+        await cloudinary.uploader.destroy(videoFile.filename, {
+          resource_type: "video",
+        });
       res.status(404).json({ error: "Exercise not found" });
       return;
     }
 
-    // Build file URLs (adjust path based on your server setup)
-    const imageUrl = imageFile
-      ? `/uploads/${imageFile.filename}`
-      : exercise.imageUrl;
-    const videoUrl = videoFile
-      ? `/uploads/${videoFile.filename}`
-      : exercise.videoUrl;
+    // Delete old Cloudinary files if new ones are being uploaded
+    if (imageFile && exercise.imageUrl) {
+      await cloudinary.uploader.destroy(getPublicId(exercise.imageUrl));
+    }
+    if (videoFile && exercise.videoUrl) {
+      await cloudinary.uploader.destroy(getPublicId(exercise.videoUrl), {
+        resource_type: "video",
+      });
+    }
+
+    const imageUrl = imageFile ? imageFile.path : exercise.imageUrl;
+    const videoUrl = videoFile ? videoFile.path : exercise.videoUrl;
 
     const { name, description, level, muscleGroup, equipment, status } =
       req.body;
-
-    // In updateExerciseHandler, before the prisma.exercise.update call:
-    if (imageFile && exercise.imageUrl) {
-      const oldPath = path.join(__dirname, "../", exercise.imageUrl); // e.g. /uploads/old.jpg
-      fs.unlink(oldPath, (err) => {
-        if (err) console.error("Failed to delete old image:", err);
-      });
-    }
-
-    if (videoFile && exercise.videoUrl) {
-      const oldPath = path.join(__dirname, "../", exercise.videoUrl);
-      fs.unlink(oldPath, (err) => {
-        if (err) console.error("Failed to delete old video:", err);
-      });
-    }
 
     const updatedExercise = await prisma.exercise.update({
       where: { id },
       data: {
         name,
         description,
-        imageUrl: imageUrl ? imageUrl : exercise.imageUrl,
-        videoUrl: videoUrl ? videoUrl : exercise.videoUrl,
+        imageUrl,
+        videoUrl,
         level,
         muscleGroup: Array.isArray(muscleGroup) ? muscleGroup : [muscleGroup],
         equipment: equipment || [],
