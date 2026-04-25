@@ -1,30 +1,8 @@
 // multer.ts
-import multer, { type StorageEngine, type FileFilterCallback } from "multer";
-import path from "path";
+import multer, { type FileFilterCallback } from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 import type { Request } from "express";
-import { fileURLToPath } from "url";
-import fs from "fs";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const uploadDir = path.join(__dirname, "../uploads");
-
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage: StorageEngine = multer.diskStorage({
-  destination: (req: Request, file: Express.Multer.File, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req: Request, file: Express.Multer.File, cb) => {
-    const ext = path.extname(file.originalname);
-    const basename = path.basename(file.originalname, ext);
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, basename + "-" + uniqueSuffix + ext);
-  },
-});
+import cloudinary from "../lib/cloudinary.js";
 
 // Image file filter
 const imageFileFilter = (
@@ -81,13 +59,11 @@ const mediaFileFilter = (
   cb: FileFilterCallback,
 ) => {
   const allowedMimes: string[] = [
-    // Images
     "image/jpeg",
     "image/jpg",
     "image/png",
     "image/gif",
     "image/webp",
-    // Videos
     "video/mp4",
     "video/mpeg",
     "video/quicktime",
@@ -105,59 +81,76 @@ const mediaFileFilter = (
   }
 };
 
+// Cloudinary storage for images
+const imageStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "fittrack/images",
+    allowed_formats: ["jpg", "jpeg", "png", "gif", "webp"],
+    resource_type: "image",
+  } as any,
+});
+
+// Cloudinary storage for videos
+const videoStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "fittrack/videos",
+    allowed_formats: ["mp4", "mpeg", "mov", "avi", "webm"],
+    resource_type: "video",
+  } as any,
+});
+
+// Cloudinary storage for mixed media (detects type from mimetype)
+const mediaStorage = new CloudinaryStorage({
+  cloudinary,
+  params: (req: Request, file: Express.Multer.File) => {
+    const isVideo = file.mimetype.startsWith("video/");
+    return {
+      folder: isVideo ? "fittrack/videos" : "fittrack/images",
+      resource_type: isVideo ? "video" : "image",
+    };
+  },
+});
+
 // Single image upload
 export const uploadImage = multer({
-  storage: storage,
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB
-  },
+  storage: imageStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: imageFileFilter,
 });
 
 // Multiple images upload
 export const uploadImages = multer({
-  storage: storage,
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB per file
-    files: 5,
-  },
+  storage: imageStorage,
+  limits: { fileSize: 5 * 1024 * 1024, files: 5 },
   fileFilter: imageFileFilter,
 });
 
 // Single video upload
 export const uploadVideo = multer({
-  storage: storage,
-  limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB for videos
-  },
+  storage: videoStorage,
+  limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: videoFileFilter,
 });
 
 // Multiple videos upload
 export const uploadVideos = multer({
-  storage: storage,
-  limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB per file
-    files: 3,
-  },
+  storage: videoStorage,
+  limits: { fileSize: 50 * 1024 * 1024, files: 3 },
   fileFilter: videoFileFilter,
 });
 
 // Combined media upload (images and/or videos)
 export const uploadMedia = multer({
-  storage: storage,
-  limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB to accommodate videos
-    files: 5,
-  },
+  storage: mediaStorage,
+  limits: { fileSize: 50 * 1024 * 1024, files: 5 },
   fileFilter: mediaFileFilter,
 });
 
-// Multiple fields (e.g., separate image and video fields)
+// Multiple fields (separate image and video fields)
 export const uploadImageAndVideo = multer({
-  storage: storage,
-  limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB
-  },
+  storage: mediaStorage,
+  limits: { fileSize: 50 * 1024 * 1024 },
   fileFilter: mediaFileFilter,
 });
