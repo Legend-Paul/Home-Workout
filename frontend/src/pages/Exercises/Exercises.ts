@@ -72,8 +72,8 @@ function renderExerciseList(exercises: Exercise[]) {
             (exercise: Exercise) => `
     <div class="${styles["exercise-item"]} ${exercise.isActive ? styles["active-exercise"] : styles["inactive-exercise"]}">
       <h3 class="${styles["exercise-title"]}">${exercise.name}</h3>
-      <div data-exercise-id="${JSON.stringify(exercise)}" class="${styles["exercise-image"]}">
-        <img  data-exercise-id="${exercise.id}" src="${exercise.imageUrl}" alt="${exercise.name}">
+      <div data-exercise='${JSON.stringify(exercise)}' class="${styles["exercise-image"]}">
+        <img data-exercise-id="${exercise.id}" src="${exercise.imageUrl}" alt="${exercise.name}">
       </div>
       <div class="${styles["exercise-description"]}">
         <div class="${styles["exercise-preview-type"]}">
@@ -123,8 +123,8 @@ function renderExerciseList(exercises: Exercise[]) {
       : `<div class="${styles["no-exercise-container"]}">
           <p>😭 Oops! No exercises found.</p>
         </div>`;
-  openExercisePage();
   changeExercisePreview();
+  openExercisePage();
   updateExerciseHandler();
   deleteFunctionHandler();
 }
@@ -165,13 +165,14 @@ function changeExercisePreview() {
         previewContainer.dataset.exercise as string,
       ) as Exercise;
 
-      previewContainer.innerHTML = `<img data-exercise-id="${exercise.id}" src="${imageUrl}" alt="exercise">`;
+      previewContainer.innerHTML = `<img data-exercise-id="${exercise.id}" src="${imageUrl}" alt="${exercise.name}">`;
 
       // scope active state to this card only
       card
         ?.querySelector(`.${styles["video-preview"]}`)
         ?.classList.remove(styles["active-preview-type"]);
       imageBtn.classList.add(styles["active-preview-type"]);
+      openExercisePage();
     });
   });
 
@@ -183,13 +184,10 @@ function changeExercisePreview() {
       const previewContainer = card?.querySelector(
         `.${styles["exercise-image"]}`,
       ) as HTMLDivElement;
-
+      console.log(videoUrl);
       previewContainer.innerHTML = videoUrl
-        ? `<video src="${videoUrl}" controls autoplay muted>
-           <source src="${videoUrl}" type="video/mp4" />
-        </video>`
+        ? `<video controls autoplay muted src="${videoUrl}"></video>`
         : `<p>Video not available</p>`;
-
       card
         ?.querySelector(`.${styles["image-preview"]}`)
         ?.classList.remove(styles["active-preview-type"]);

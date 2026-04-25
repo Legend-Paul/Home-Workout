@@ -25,7 +25,8 @@ export default async function Exercise(params?: Record<string, string>) {
   const exercise = await fetchExercise(id);
   mainApp!.innerHTML = `
     <div class="${styles["exercise"]}">
-      <div class="${styles["exercise-item"]} ${exercise.isActive ? styles["active-exercise"] : styles["inactive-exercise"]}">
+      <div class="${styles["exercise-item"]} 
+      ${exercise?.isActive ? styles["active-exercise"] : styles["inactive-exercise"]}">
         <h3 class="${styles["exercise-title"]}">${exercise.name}</h3>
         <div class="${styles["exercise-image"]}">
           <img src="${exercise.imageUrl}" alt="${exercise.name}">
@@ -142,7 +143,7 @@ async function fetchExercise(id: string) {
 
 // change preview
 function changeExercisePreview() {
-  const exercise = document.querySelector(`..${styles["exercise"]}`);
+  const exercise = document.querySelector(`.${styles["exercise"]}`);
   const imagePreviewBtn = exercise!.querySelector(
     `.${styles["image-preview"]}`,
   ) as HTMLSpanElement;
@@ -177,7 +178,7 @@ function changeExercisePreview() {
     ) as HTMLDivElement;
 
     previewContainer.innerHTML = videoUrl
-      ? `<video src="${videoUrl}" controls autoplay muted></video>`
+      ? `<video controls autoplay muted src="${videoUrl}"></video>`
       : `<p>Video not available</p>`;
 
     card
