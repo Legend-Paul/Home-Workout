@@ -6,6 +6,7 @@ import Spinner from "../../components/Spinner/Spinner";
 import Notification from "../../components/Notification/Notification";
 import { navigate } from "../../router";
 import Header from "../../components/Header/Header";
+import Exercise from "../Exercise/Exercise";
 
 const backendUrl =
   import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_BACKEND_DEV_URL;
@@ -72,7 +73,7 @@ function renderExerciseList(exercises: Exercise[]) {
             (exercise: Exercise) => `
     <div class="${styles["exercise-item"]} ${exercise.isActive ? styles["active-exercise"] : styles["inactive-exercise"]}">
       <h3 class="${styles["exercise-title"]}">${exercise.name}</h3>
-      <div class="${styles["exercise-image"]}">
+      <div data-exercise-id="${JSON.stringify(exercise)}" class="${styles["exercise-image"]}">
         <img  data-exercise-id="${exercise.id}" src="${exercise.imageUrl}" alt="${exercise.name}">
       </div>
       <div class="${styles["exercise-description"]}">
@@ -161,8 +162,11 @@ function changeExercisePreview() {
       const previewContainer = card?.querySelector(
         `.${styles["exercise-image"]}`,
       ) as HTMLDivElement;
+      const exercise = JSON.parse(
+        previewContainer.dataset.exercise as string,
+      ) as Exercise;
 
-      previewContainer.innerHTML = `<img src="${imageUrl}" alt="exercise">`;
+      previewContainer.innerHTML = `<img data-exercise-id="${exercise.id}" src="${imageUrl}" alt="exercise">`;
 
       // scope active state to this card only
       card
@@ -182,7 +186,9 @@ function changeExercisePreview() {
       ) as HTMLDivElement;
 
       previewContainer.innerHTML = videoUrl
-        ? `<video src="${videoUrl}" controls autoplay muted></video>`
+        ? `<video src="${videoUrl}" controls autoplay muted>
+           <source src="${videoUrl}" type="video/mp4" />
+        </video>`
         : `<p>Video not available</p>`;
 
       card
