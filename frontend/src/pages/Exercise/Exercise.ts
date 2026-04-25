@@ -209,7 +209,7 @@ function updateExerciseHandler() {
 
   updateExerciseBtn.addEventListener("click", () => {
     const id = updateExerciseBtn.dataset.exerciseId;
-    navigate(`/api/exercises/${id}/update`);
+    navigate(`/exercises/${id}/update`);
   });
 }
 
@@ -245,7 +245,7 @@ async function deleteExercise(id: string) {
         type: "success",
         duration: 5000,
       });
-      navigate("/api/exercises");
+      navigate("/exercises");
     } else {
       const data = await response.json();
       Notification({
