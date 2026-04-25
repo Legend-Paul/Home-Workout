@@ -18,10 +18,10 @@ const svgs = {
 
 export default async function Header() {
   const currentPath = window.location.pathname;
+  console.log(window.history);
   const headerApp = document.getElementById("header-app");
   const currentTheme = (localStorage.getItem(THEME_KEY) as Theme) || "auto";
   const isAuth = await isAuthenticated();
-  console.log(headerApp);
 
   headerApp!.innerHTML = `
   <div class="${styles["header-container"]}">

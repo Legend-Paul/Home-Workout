@@ -140,7 +140,7 @@ async function signinUser(
     if (response.ok) {
       const data = await response.json();
       localStorage.setItem("Authorization", data.token);
-      window.history.length < 1 ? navigate("/dashboard") : back();
+      window.history.length <= 1 ? navigate("/dashboard") : back();
     } else {
       const errorData = await response.json();
       errorMessage.innerHTML = `${errorSvg} <span>${errorData.message || "An error occurred. Please try again"}</span>`;
