@@ -30,7 +30,7 @@ export const sendPasswordResetEmail = async (
     },
   });
 
-  const resetLink = `${role === "USER" ? process.env.FRONTEND_URL : process.env.ADMIN_FRONTEND_URL}auth/forgot-password/reset?token=${token}`;
+  const resetLink = `${role === "USER" ? process.env.FRONTEND_URL : process.env.ADMIN_FRONTEND_URL}/auth/forgot-password/reset?token=${token}`;
 
   await transporter.sendMail({
     from: `FitTrack <${process.env.EMAIL_USER}>`,

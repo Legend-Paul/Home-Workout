@@ -73,7 +73,7 @@ function renderExerciseList(exercises: Exercise[]) {
     <div class="${styles["exercise-item"]} ${exercise.isActive ? styles["active-exercise"] : styles["inactive-exercise"]}">
       <h3 class="${styles["exercise-title"]}">${exercise.name}</h3>
       <div class="${styles["exercise-image"]}">
-        <img  data-exercise-id="${exercise.id}" src="${backendUrl}${exercise.imageUrl}" alt="${exercise.name}">
+        <img  data-exercise-id="${exercise.id}" src="${exercise.imageUrl}" alt="${exercise.name}">
       </div>
       <div class="${styles["exercise-description"]}">
         <div class="${styles["exercise-preview-type"]}">
@@ -162,7 +162,7 @@ function changeExercisePreview() {
         `.${styles["exercise-image"]}`,
       ) as HTMLDivElement;
 
-      previewContainer.innerHTML = `<img src="${backendUrl}${imageUrl}" alt="exercise">`;
+      previewContainer.innerHTML = `<img src="${imageUrl}" alt="exercise">`;
 
       // scope active state to this card only
       card
@@ -182,7 +182,7 @@ function changeExercisePreview() {
       ) as HTMLDivElement;
 
       previewContainer.innerHTML = videoUrl
-        ? `<video src="${backendUrl}${videoUrl}" controls autoplay muted></video>`
+        ? `<video src="${videoUrl}" controls autoplay muted></video>`
         : `<p>Video not available</p>`;
 
       card
